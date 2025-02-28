@@ -1,0 +1,71 @@
+/* MAIN */
+/* =============================================== */
+.radio-input-wrapper{
+  display: flex;
+  justify-content: center;
+}
+.checkboxlabel{
+    display: flex;
+    align-items: center;
+    border-radius: 100px;
+    padding: 10px 10px;
+    margin: 5px 0px 5px 5px;
+    cursor: pointer;
+    transition: .3s;
+  }
+  
+  .checkboxlabel:hover,
+  .checkboxlabel:focus-within,
+  .checkboxlabel:active {
+    background: hsla(0, 0%, 59%, 0.14);
+  }
+  
+  .radio-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    z-index: -1;
+  }
+  
+  .radio-design {
+    width: 18px;
+    height: 18px;
+    border-radius: 100px;
+    background: linear-gradient(to right bottom, hsl(154, 97%, 62%), hsl(225, 97%, 62%));
+    position: relative;
+  }
+  
+  .radio-design::before {
+    content: '';
+    display: inline-block;
+    width: inherit;
+    height: inherit;
+    border-radius: inherit;
+    background: hsl(0, 0%, 90%);
+    transform: scale(1.1);
+    transition: .3s;
+  }
+  
+  .radio-input:checked+.radio-design::before {
+    transform: scale(0);
+  }
+  
+  .label-text {
+    color: hsl(0, 0%, 60%);
+    margin-left: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 900;
+    transition: .3s;
+  }
+  
+  .radio-input:checked~.label-text {
+    color: hsl(0, 0%, 40%);
+  }
+  .radio-input-wrapper{
+    display: flex;
+  }

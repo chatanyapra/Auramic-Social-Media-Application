@@ -1,0 +1,170 @@
+
+.small-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .small-scroll::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgb(218, 218, 218); 
+    border-radius: 10px;
+  }
+  .small-scroll::-webkit-scrollbar-thumb {
+    background: rgb(233, 233, 233); 
+    border-radius: 10px;
+  }
+
+  .custum-file-upload {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    gap: 20px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border: 4px dashed #000000;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 10px;
+  }
+  
+  .custum-file-upload .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .custum-file-upload .icon svg {
+    height: 80px;
+    fill: #000000;
+  }
+  
+  .custum-file-upload .text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .custum-file-upload .text span {
+    font-weight: 400;
+    color: #000000;
+  }
+  
+  .custum-file-upload input {
+    display: none;
+  }
+
+  /* toggle buttons- */
+  .toggle-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  .toggle-slot {
+    font-size: 10px;
+    position: relative;
+    height: 3.5em;
+    width: 7em;
+    border: 0px solid transparent;
+    border-radius: 10em;
+    background-color: white;
+    transition: background-color 250ms;
+  }
+  
+  .toggle-checkbox:checked ~ .toggle-slot {
+    background-color: #374151;
+    border: 2px solid rgb(255, 255, 255);
+  }
+  
+  .toggle-button {
+    transform: translate(0.3em, 0.25em);
+    position: absolute;
+    height: 3em;
+    width: 3em;
+    border-radius: 50%;
+    background-color: #ffeccf;
+    box-shadow: inset 0px 0px 0px 0.75em #ff5255;
+    transition: background-color 250ms, border-color 250ms, transform 500ms cubic-bezier(.26,2,.46,.71);
+  }
+  
+  .toggle-checkbox:checked ~ .toggle-slot .toggle-button {
+    background-color: #485367;
+    box-shadow: inset 0px 0px 0px 0.75em rgb(102, 255, 88);
+    transform: translate(3.65em, 0.25em);
+  }
+  
+  .sun-icon {
+    position: absolute;
+    height: 6em;
+    width: 6em;
+    color: #ffbb52;
+  }
+  
+  .sun-icon-wrapper {
+    position: absolute;
+    height: 6em;
+    width: 6em;
+    opacity: 1;
+    transform: translate(2em, 2em) rotate(15deg);
+    transform-origin: 50% 50%;
+    transition: opacity 150ms, transform 500ms cubic-bezier(.26,2,.46,.71);
+  }
+  
+  .toggle-checkbox:checked ~ .toggle-slot .sun-icon-wrapper {
+    opacity: 0;
+    transform: translate(3em, 2em) rotate(0deg);
+  }
+  
+  .moon-icon {
+    position: absolute;
+    height: 6em;
+    width: 6em;
+    color: white;
+  }
+  
+  .moon-icon-wrapper {
+    position: absolute;
+    height: 6em;
+    width: 6em;
+    opacity: 0;
+    transform: translate(11em, 2em) rotate(0deg);
+    transform-origin: 50% 50%;
+    transition: opacity 150ms, transform 500ms cubic-bezier(.26,2.5,.46,.71);
+  }
+  
+  .toggle-checkbox:checked ~ .toggle-slot .moon-icon-wrapper {
+    opacity: 1;
+    transform: translate(2em, 2em) rotate(-15deg);
+  }
+  .watermark {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 80px;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+    color: transparent;
+    -webkit-text-stroke: 1px black;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    opacity: 0.2;
+    animation: shine 2s ease-in-out infinite;
+  }
+
+  @keyframes shine {
+    0%   {-webkit-text-stroke: 1px black;}
+    25%  {-webkit-text-stroke: 1.3px black;}
+    50%  {-webkit-text-stroke: 1.5px black;}
+    75%  {-webkit-text-stroke: 1.3px black;}
+    100% {-webkit-text-stroke: 1px black;}
+  }
+  @media only screen and (max-width: 600px) {
+    .watermark {
+      right: 0px;
+      top: -10px;
+      font-size: 40px;
+    }
+  }

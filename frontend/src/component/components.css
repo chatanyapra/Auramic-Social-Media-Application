@@ -1,0 +1,308 @@
+@import "componentcopy.css";
+
+:root{
+  --heart-color:  rgb(255, 91, 137);
+}
+.heart-container {
+  position: relative;
+  width: 27px;
+  height: 27px;
+  transition: .3s;
+}
+
+.heart-container .checkbox {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 20;
+  cursor: pointer;
+}
+
+.heart-container .svg-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heart-container .svg-outline, .heart-container .svg-filled {
+  fill: var(--heart-color);
+  position: absolute;
+}
+
+.heart-container .svg-filled {
+  animation: keyframes-svg-filled 1s;
+  display: none;
+}
+
+.heart-container .svg-celebrate {
+  position: absolute;
+  animation: keyframes-svg-celebrate .5s;
+  animation-fill-mode: forwards;
+  display: none;
+  stroke: var(--heart-color);
+  fill: var(--heart-color);
+  stroke-width: 1.5px;
+}
+
+.heart-container .checkbox:checked~.svg-container .svg-filled {
+  display: block
+}
+
+.heart-container .checkbox:checked~.svg-container .svg-celebrate {
+  display: block
+}
+
+@keyframes keyframes-svg-filled {
+  0% {
+    transform: scale(0);
+  }
+
+  25% {
+    transform: scale(1.2);
+  }
+
+  50% {
+    transform: scale(1);
+    filter: brightness(1.5);
+  }
+}
+
+@keyframes keyframes-svg-celebrate {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.5);
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+    display: none;
+  }
+}
+
+.small-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  scroll-behavior: smooth;
+}
+.small-scroll::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px rgb(218, 218, 218); 
+  border-radius: 10px;
+}
+.small-scroll::-webkit-scrollbar-thumb {
+  background: rgb(233, 233, 233); 
+  border-radius: 10px;
+}
+.scroll-none::-webkit-scrollbar {
+  display: none;
+}
+
+  /* -----chatting css -profile */
+  .collapsibleDiv {
+    height: 250px;
+    overflow: hidden;
+  }
+  
+  @keyframes collapse {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  .collapsibleDiv.collapsedDiv {
+    animation: collapse 2s ease-in-out forwards;
+    animation-delay: 3s;
+  }
+  /* search buttons------------ */
+  .searchcontainer {
+    position: relative;
+    box-sizing: border-box;
+    width: fit-content;
+  }
+  
+  .searchmainbox {
+    box-sizing: border-box;
+    position: relative;
+    width: 210px;
+    margin-left: 10px;
+    height: 37px;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    border-radius: 160px;
+    background-color: rgb(255, 255, 255);
+    border: 1.5px solid rgb(154, 138, 138);
+    transition: all 0.3s ease;
+  }
+  
+  .checkboxsearch:focus {
+    border: none;
+    outline: none;
+  }
+  
+  .checkboxsearch:checked {
+    right: 10px;
+  }
+  
+  .checkboxsearch:checked ~ .searchmainbox {
+    width: 37px;
+  }
+  
+  .checkboxsearch:checked ~ .searchmainbox .search_input {
+    width: 0;
+    height: 0px;
+  }
+  
+  .checkboxsearch:checked ~ .searchmainbox .iconContainer {
+    padding-right: 8px;
+  }
+  
+  .checkboxsearch{
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    right: 17px;
+    top: 10px;
+    z-index: 9;
+    cursor: pointer;
+    appearance: none;
+  }
+  
+  .search_input {
+    box-sizing: border-box;
+    height: 100%;
+    width: 170px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    font-size: 1em;
+    color: rgb(152, 124, 124);
+    transition: all 0.3s ease;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .search_input::placeholder {
+    color: rgba(168, 146, 146, 0.776);
+  }
+  
+  .iconContainer {
+    box-sizing: border-box;
+    padding-top: 5px;
+    width: fit-content;
+    transition: all 0.3s ease;
+  }
+  
+  .search_icon {
+    box-sizing: border-box;
+    fill: rgb(0, 0, 0);
+    font-size: 1.3em;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    10%, 90% { transform: translateX(-3.5px); }
+    20%, 80% { transform: translateX(3.5px); }
+    30%, 50%, 70% { transform: translateX(-3.5px); }
+    40%, 60% { transform: translateX(3.5px); }
+  }
+  
+  /* Apply the shake animation to the div */
+  .shake {
+    display: inline-block;
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  /* wave effect in message--------- */
+  @keyframes wave {
+    0% {
+        border-width: 1px;
+        width: 0px;
+        height: 0px;
+        opacity: 1;
+    }
+    100% {
+        border-width: 13px;
+        width: 10px; /* 12/4 rem */
+        height: 10px; /* 12/4 rem */
+        opacity: 0;
+    }
+}
+
+.wave-effect {
+    animation: wave 1.5s infinite;
+}
+
+.triangle-right-message {
+	width: 0;
+	height: 0;
+	border-top: 0px solid transparent;
+	border-left: 20px solid rgb(165 243 252);
+	border-bottom: 15px solid transparent;
+  position: absolute;
+  top: 0;
+  right: -15px;
+}
+.triangle-left-message {
+	width: 0;
+	height: 0;
+	border-top: 0px solid transparent;
+	border-right: 25px solid rgb(226 232 240);
+	border-bottom: 15px solid transparent;
+  position: absolute;
+  top: 0;
+  left: -15px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 75%;
+  background: #000;
+}
+.video-container .videoMainPlayer {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.user-video {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 150px;
+  height: 150px;
+  background: #000;
+  border: 2px solid #fff;
+}
+.user-video .videoplayer {
+  width: 100%;
+  height: 100%;
+}
+
+.react-emoji-picker--wrapper {
+  position: absolute !important;
+  bottom: 0 !important;
+  right: -25px !important;
+  overflow: visible !important;
+  height: 435px !important;
+  width: 296px !important;
+  z-index: 10 !important;
+}
+@media only screen and (max-width: 600px) {
+  .react-emoji-picker--wrapper {
+    width: 100% !important;
+    right: 0 !important;
+  }
+}

@@ -1,0 +1,23 @@
+body{
+    background-color: white;
+}
+.home-container{
+    width: 300px;
+    margin: auto;
+    background-color: aliceblue;
+}
+.form-container{
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    justify-content: space-between;
+    height: 140px;
+}
+.form-container button {
+    padding: 8px;
+    font-size: 18px;
+}
+.form-container input {
+    padding: 8px;
+    font-size: 18px;
+}
