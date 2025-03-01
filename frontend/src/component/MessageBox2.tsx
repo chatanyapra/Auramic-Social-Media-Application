@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useContext } from 'react';
 import InputEmoji from 'react-input-emoji';
 import { LuSendHorizonal, LuLink2, LuX } from "react-icons/lu";
 import useSendMessage from '../hooks/useSendMessage';
@@ -10,6 +10,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import peerService from "../peerService/peer";
 import AiLoader from './AiLoader';
+import { ThemeContext } from '../context/theme';
 
 const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: MyComponentProps) => {
   const [newMessage, setNewMessage] = useState<string>('');
@@ -87,11 +88,18 @@ const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: M
     }, 100);
   }, [messages]);
 
+      const themeContext = useContext(ThemeContext);
+  
+    if (!themeContext) {
+      throw new Error('ThemeToggle must be used within a ThemeProvider');
+    }
+    const { darkMode } = themeContext;
+
   let textColor = '';
   return (
-    <div className={`w-full max-w-screen-xl shadow-md overflow-hidden bg-white relative mt-0 max-md:${visibility ? 'visible' : 'hidden'} max-sm:rounded-lg rounded-r-lg`}>
+    <div className={`w-full max-w-screen-xl shadow-md overflow-hidden relative max-md:${visibility ? 'visible' : 'hidden'} bg-white dark:bg-black dark:border-l-4 border-gray-700  max-sm:rounded-lg rounded-r-lg`}>
       {/* <!-- chat heading --> */}
-      <div className="flex items-center justify-between gap-2 px-6 z-10 border-b dark:border-slate-700 uk-animation-slide-top-medium">
+      <div className="flex items-center justify-between gap-2 px-6 z-10 border-b dark:border-slate-200 uk-animation-slide-top-medium">
         <div className="flex items-center sm:gap-4 gap-2 md:py-4 py-2">
           <div className="relative cursor-pointer">
             <img src={conversation.profilePic} alt="" className="w-11 h-11 rounded-full shadow" />
@@ -120,11 +128,11 @@ const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: M
       </div>
 
       {/* <!-- chats bubble --> */}
-      <div className="small-scroll w-full p-3 py-10 overflow-y-auto md:h-[calc(100vh-260px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
+      <div className="small-scroll w-full p-3 py-10 overflow-y-auto md:h-[calc(100vh-230px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
         <div className="py-5 text-center text-sm lg:pt-8 h-auto overflow-hidden">
           <img src={conversation.profilePic} className="w-24 h-24 rounded-full mx-auto mb-3" alt="" />
           <div className="mt-8">
-            <div className="md:text-xl text-base font-medium text-black "> {conversation.fullname} </div>
+            <div className="md:text-xl text-base font-medium dark:text-white "> {conversation.fullname} </div>
             <div className="text-gray-500 text-sm"> {conversation.username} </div>
           </div>
         </div>
@@ -134,9 +142,9 @@ const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: M
       </div>
 
       {/* <!-- sending message area --> */}
-      <form onSubmit={handleSubmit} encType="multipart/form-data" className="flex items-center justify-center pb-1 pt-2 absolute bottom-0 left-0 w-full">
-        <div className="w-full flex justify-between items-center z-10 rounded-full">
-          <div className='w-10/12 min-md:w-11/12 max-w-screen-xl'>
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="flex items-center justify-center pb-1 pt-0 absolute bottom-0 left-0 w-full bg-white dark:bg-black z-10">
+        <div className="w-full flex justify-between items-center z-10 rounded-full ">
+          <div className='w-10/12 min-md:w-11/12 max-w-screen-xl mt-2'>
             <InputEmoji
               value={newMessage}
               onChange={handleChangeInput}
@@ -146,6 +154,8 @@ const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: M
               borderRadius={40}
               inputClass='scroll-none h-10'
               shouldReturn={true}
+              background={'none'}
+              color={darkMode? "white" : "black"}
               borderColor={"rgb(71 85 105)"}
               shouldConvertEmojiToImage={false}
             />

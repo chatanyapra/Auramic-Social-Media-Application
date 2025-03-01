@@ -10,8 +10,8 @@ export default function Stories() {
     }
     const { textColor } = themeContext;
     return (
-        <div className="flex-col px-14 mt-24 lg:ml-64 max-md:px-4 mt-20  max-md:w-full">
-            <div className="w-full md:py-3 md:px-4 text-left bg-white shadow-md rounded-xl dark:bg-black dark:text-white">
+        <div className="flex-col px-14 lg:ml-64 max-md:px-4 mt-20 max-md:w-full h-full min-h-screen py-4">
+            <div className="w-full md:py-3 md:px-4 text-left bg-white shadow-md rounded-xl dark:bg-black dark:text-white ">
                 <h1 className={`md:text-2xl text-2xl max-md:p-3 my-2 font-bold ${textColor}`}>Story</h1>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 mt-4 md:grid-cols-5 gap-4 max-md:gap-5 m-auto mb-5">

@@ -1,10 +1,15 @@
-import mongoose  from "mongoose";
+import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     fullname: {
         type: String,
         required: true
     },
     username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    email: {
         type: String,
         required: true,
         unique: true
@@ -22,8 +27,18 @@ const userSchema = new mongoose.Schema({
     profilePic: {
         type: String,
         default: ""
-    }
-},{
+    },
+    bio: {
+        type: String
+    },
+    followers: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+    ],
+    following: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+    ],
+    followRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+}, {
     timestamps: true
 }
 )

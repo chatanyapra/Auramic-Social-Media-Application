@@ -76,7 +76,7 @@ const Create: React.FC = () => {
     };
     const textsplitColor = splitAndCheckString(textColor);
     return (
-        <div className=" px-14 mt-24 lg:ml-64 max-md:px-0 max-md:mt-20  max-md:w-full">
+        <div className=" px-14 lg:ml-64 max-md:px-0 mt-20  max-md:w-full h-full min-h-screen py-4">
             <div className="bg-white mb-4 border-b border-gray-200 dark:border-gray-700">
                 <ul className="shadow-md flex flex-wrap -mb-px text-sm font-medium text-center dark:bg-black" role="tablist">
                     <li className="mr-2" role="presentation">

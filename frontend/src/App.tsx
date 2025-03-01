@@ -1,6 +1,6 @@
 import './App.css'
 import Navbar from './DashboardComponents/Navbar'
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Profile from './pages/Profile';
 // import Message from './pages/Message';
@@ -15,6 +15,7 @@ import { useAuthContext } from './context/AuthContext';
 import MessageChat from './pages/MessageChat';
 import MessageBox2 from './component/MessageBox2';
 import useConversation from './zustandStore/useConversation';
+import CallingRoom from './callingcomponents/CallingRoom';
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -42,7 +43,6 @@ function App() {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
-
   return (
     <ThemeProvider value={{ darkMode, toggleDarkMode, textColor, setTextColor }}>
       <Router>
@@ -52,27 +52,43 @@ function App() {
   );
 }
 
-// Separate component for the main content
-function AppContent() {
+function MainLayout() {
   const { authUser } = useAuthContext();
-  const { selectedConversation } = useConversation()
+  const { selectedConversation } = useConversation();
 
   return (
     <>
-      {authUser && (<Navbar />)}
+      {authUser && <Navbar />}
       <Routes>
         <Route path="/" element={authUser ? <Home /> : <Login />} />
-        <Route path="/login" element={authUser ? <Navigate to={"/"} /> : <Login />} />
-        <Route path="/signup" element={authUser ? <Navigate to={"/"} /> : <Signup />} />
-        {/* <Route path="/" element={ <Home /> } /> */}
-        <Route path="/create" element={<Create />} />
-        <Route path="/stories" element={<Stories />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/message" element={<MessageChat />} />
-        <Route path="/messageBox" element={selectedConversation != null &&<MessageBox2 conversation={selectedConversation} visibility={false} />} />
+        <Route path="/login" element={authUser ? <Navigate to="/" /> : <Login />} />
+        <Route path="/signup" element={authUser ? <Navigate to="/" /> : <Signup />} />
+        {authUser ? (
+          <>
+            <Route path="/create" element={<Create />} />
+            <Route path="/stories" element={<Stories />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/message" element={<MessageChat />} />
+            <Route path="/messageBox" element={selectedConversation ? <MessageBox2 conversation={selectedConversation} visibility={false} /> : null} />
+          </>
+        ) :
+          <Route path="*" element={<Navigate to="/login" />} />
+        }
       </Routes>
     </>
   );
 }
 
+function AppContent() {
+  const location = useLocation();
+  const isCallingRoom = location.pathname.startsWith("/room/");
+
+  return isCallingRoom ? (
+    <Routes>
+      <Route path="/room/:roomId" element={<CallingRoom />} />
+    </Routes>
+  ) : (
+    <MainLayout />
+  );
+}
 export default App;

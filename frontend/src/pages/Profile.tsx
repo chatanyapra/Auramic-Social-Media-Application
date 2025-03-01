@@ -8,7 +8,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState<string>('posts');
 
   return (
-    <div className="flex px-14 lg:ml-64 max-md:px-4 mt-28  max-md:w-full pb-10">
+    <div className="flex px-14 lg:ml-64 max-md:px-4 mt-20  max-md:w-full pb-10 h-full min-h-screen py-4">
       <main id="site__main" className="w-full">
 
         <div className="max-w-[1065px] mx-auto max-lg:-m-2.5 rounded-xl overflow-hidden">

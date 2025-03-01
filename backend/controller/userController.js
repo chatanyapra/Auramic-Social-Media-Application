@@ -25,16 +25,50 @@ const __dirname = dirname(__filename);
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
+Conversation.collection.createIndex({ "participants.0": 1 });
 export const getUserForSidebar = asyncHandler(async (req, res) => {
     try {
         const loggedInUserId = req.user._id;
-        const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+
+        // Fetch unique participant[1] IDs directly from conversations
+        const participantIds = await Conversation.distinct("participants.1", { "participants.0": loggedInUserId });
+
+        // Fetch user details for participant[1] (excluding the logged-in user and password)
+        const filteredUsers = await User.find({ _id: { $in: participantIds, $ne: loggedInUserId } }).select("-password");
+
         res.status(200).json({ filteredUsers, hasSpecificId: "66c048e50d7696b4b17b5d53" });
     } catch (error) {
-        console.error("Error in UserController", error.message);
+        console.error("Error in getUserForSidebar:", error.message);
         res.status(500).json({ error: "Internal Server Error!" });
     }
 });
+
+// export const getUserForSidebar = asyncHandler(async (req, res) => {
+//     try {
+//         const loggedInUserId = req.user._id;
+
+//         // Fetch logged-in user's followers and following lists
+//         const loggedInUser = await User.findById(loggedInUserId).select("followers following").lean();
+        
+//         if (!loggedInUser) {
+//             return res.status(404).json({ error: "User not found" });
+//         }
+
+//         // Combine followers and following lists and remove duplicates
+//         const userIds = [...new Set([...loggedInUser.followers, ...loggedInUser.following])];
+
+//         // Fetch user details (excluding password)
+//         const filteredUsers = await User.find({ _id: { $in: userIds } }).select("-password");
+
+//         res.status(200).json({ filteredUsers, hasSpecificId: "66c048e50d7696b4b17b5d53" });
+//     } catch (error) {
+//         console.error("Error in getUserForSidebar:", error.message);
+//         res.status(500).json({ error: "Internal Server Error!" });
+//     }
+// });
+
+
+
 export const auramicaiTextExtract = asyncHandler(async (req, res) => {
     try {
         let { message: question, previousMessage } = req.body;

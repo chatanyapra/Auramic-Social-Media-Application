@@ -6,7 +6,7 @@ import AiLoader from "./AiLoader";
 const ChattingStart = () => {
   const { authUser } = useAuthContext();
   return (
-    <div className={`w-full shadow-md bg-white overflow-hidden max-md:mt-20 max-md:hidden`}>
+    <div className={`w-full shadow-md bg-white dark:bg-black dark:border-l-4 border-gray-700 overflow-hidden max-md:mt-20 max-md:hidden`}>
       <div className="w-full flex justify-between align-middle p-2">
         <div className="flex">
           <img src={authUser.profilePic} className="w-14 h-14 rounded-full" alt="" />

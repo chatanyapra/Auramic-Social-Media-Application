@@ -135,9 +135,9 @@ const AuramicAi: React.FC<MyComponentProps> = ({ conversation, visibility }: MyC
         setSelectedText(true);
     };
     return (
-        <div className={`w-full max-w-screen-xl shadow-md overflow-hidden bg-white relative mt-0 max-md:${visibility ? 'visible' : 'hidden'} border-solid border-2 border-gray-400 max-sm:rounded-lg rounded-r-lg`}>
+        <div className={`w-full max-w-screen-xl shadow-md overflow-hidden bg-white dark:bg-black relative mt-0 max-md:${visibility ? 'visible' : 'hidden'} border-solid dark:border-l-4 border-gray-700 max-sm:rounded-lg rounded-r-lg`}>
             {/* <!-- chat heading --> */}
-            <div className="flex items-center justify-between gap-2 px-6 z-10 border-b dark:border-slate-700 uk-animation-slide-top-medium">
+            <div className="flex items-center justify-between gap-2 px-6 z-10 border-b dark:border-slate-200 uk-animation-slide-top-medium">
                 <div className="flex items-center sm:gap-4 gap-2 md:py-4 py-2">
                     <div className="relative cursor-pointer">
                         <div>
@@ -154,7 +154,7 @@ const AuramicAi: React.FC<MyComponentProps> = ({ conversation, visibility }: MyC
             </div>
 
             {/* <!-- chats bubble --> */}
-            <div className="small-scroll relative w-full p-3 py-10 overflow-y-auto md:h-[calc(100vh-260px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
+            <div className="small-scroll relative w-full p-3 py-10 overflow-y-auto md:h-[calc(100vh-230px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
                 <div className="text-sm font-medium space-y-6" onDoubleClick={handleToggleVisibility}>
                     <MessageText />
                 </div>
@@ -170,9 +170,9 @@ const AuramicAi: React.FC<MyComponentProps> = ({ conversation, visibility }: MyC
             </div>
 
             {/* <!-- sending message area --> */}
-            <form onSubmit={handleSubmit} encType="multipart/form-data" className="flex items-center justify-center pb-1 pt-2 absolute bottom-0 left-0 w-full bg-white z-10">
+            <form onSubmit={handleSubmit} encType="multipart/form-data" className="flex items-center justify-center pb-1 pt-2 absolute bottom-0 left-0 w-full bg-white dark:bg-black z-10">
                 <div className="w-full flex justify-between items-center z-10 rounded-full">
-                    <input type="text" className='w-full py-2 px-3 ml-3 mr-2 rounded-full border border-gray-500' value={newMessageText} placeholder='Write the message...' onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeInput(e.target.value)} />
+                    <input type="text" className='w-full py-2 px-3 ml-3 mr-2 rounded-full border border-gray-500 bg-white dark:bg-black' value={newMessageText} placeholder='Write the message...' onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeInput(e.target.value)} />
                     {!selectedText && (
                         <div title='Attach' className='mb-3'>
                             <label htmlFor="file">

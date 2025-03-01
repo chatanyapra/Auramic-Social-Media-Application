@@ -1,4 +1,5 @@
-import { useEffect, useState, ChangeEvent, useRef } from 'react';
+import { useEffect, useState, ChangeEvent, useRef, useContext } from 'react';
+import { FaMagnifyingGlass } from "react-icons/fa6";
 // import MessageBox from '../component/MessageBox2';
 import '../component/components.css';
 // import useLogout from '../hooks/useLogout';
@@ -11,6 +12,7 @@ import { Conversation } from '../types/types';
 import useCallingHook from '../hooks/useCallingHook';
 import AuramicAi from '../component/AuramicAi';
 import MessageBox2 from '../component/MessageBox2';
+import { ThemeContext } from '../context/theme';
 
 export default function MessageChat() {
 
@@ -19,8 +21,12 @@ export default function MessageChat() {
     const [changeStyle, setChangeStyle] = useState<boolean>(true);
     const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
     const checkboxRef = useRef<HTMLInputElement>(null);
-    let textColor = 'black';
-    let darkMode = false;
+    const themeContext = useContext(ThemeContext);
+  
+    if (!themeContext) {
+      throw new Error('ThemeToggle must be used within a ThemeProvider');
+    }
+    const { darkMode, textColor } = themeContext;
 
     // const { logout } = useLogout();
     useCallingHook();
@@ -97,19 +103,19 @@ export default function MessageChat() {
         }
     }, [sendMessageList, newSendMessage]);
     return (
-        <div className="flex mt-5 md:h-[calc(100vh-20px)] bg-white lg:ml-64 max-md:px-0">
+        <div className="flex mt-5 md:h-[calc(100vh-20px)] dark:bg-gray-700 lg:ml-64 max-md:px-0">
             <div className="w-full h-full max-md:w-full relative mx-1">
                 {/* <div className='absolute right-5 top-5 text-white border border-blue-600 rounded-md px-2 py-1 bg-blue-500 cursor-pointer'
                     onClick={logout}>
                     Logout
                 </div> */}
-                <div className="flex mt-16 max-md:px-0 max-md:w-full md:h-[calc(100vh-90px)] h-[calc(100vh-0px)] m-auto">
+                <div className="flex mt-16 max-md:px-0 max-md:w-full md:h-[calc(100vh-90px)] h-[calc(100vh-0px)] max-md:h-[calc(100vh-90px)] m-auto bg-white dark:bg-black">
                     <div className={`max-md:w-full relative ${visibilityChat ? "hidden" : ""}`}>
 
-                        <div id="side-chat" className="shadow-md max-md:w-full w-80 bg-white z-50 max-md:shadow">
+                        <div id="side-chat" className="shadow-md max-md:w-full w-80 dark:bg-black z-50 max-md:shadow">
 
                             {/* <!-- heading title --> */}
-                            <div className="p-4 border-b  ">
+                            <div className="p-4 border-b dark:border-slate-200">
 
                                 <div className="flex mt-2 items-center justify-between">
 
@@ -117,16 +123,9 @@ export default function MessageChat() {
                                     {/* --------handle the search input -------------------- */}
                                     <div className="searchcontainer">
                                         <input checked={isChecked} ref={checkboxRef} className="checkboxsearch" type="checkbox" onChange={handleCheckboxChange} />
-                                        <div className="searchmainbox">
-                                            <div className="iconContainer">
-                                                <svg
-                                                    viewBox="0 0 512 512"
-                                                    height="1em"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="search_icon"
-                                                >
-                                                    <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path>
-                                                </svg>
+                                        <div className="searchmainbox dark:bg-black">
+                                            <div className="iconContainer text-black dark:text-white mb-1">
+                                                <FaMagnifyingGlass/>
                                             </div>
                                             <input className="search_input" value={search} ref={checkboxRef} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} placeholder="Search" type="text" />
                                         </div>

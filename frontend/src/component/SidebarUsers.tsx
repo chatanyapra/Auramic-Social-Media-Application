@@ -16,7 +16,7 @@ function SidebarUsers({ conversation, auramicAiCall }: { conversation: Conversat
     const messageNotification = conversation._id == newSendMessage ? true : false;
 
     return (
-        <div className={`w-full relative flex items-center gap-4 p-2 ${ isSelected ? 'bg-gray-100' : "" } duration-200 rounded-xl hover:bg-secondery cursor-pointer relative`}
+        <div className={`w-full relative flex items-center gap-4 p-2 ${ isSelected ? 'bg-gray-100 dark:bg-gray-900' : "" } border-b dark:border-gray-500 duration-200 hover:bg-secondery cursor-pointer relative`}
          onClick={()=> setSelectedConversation(conversation)}
         >
             <div className="relative w-14 h-14 shrink-0">
@@ -33,10 +33,10 @@ function SidebarUsers({ conversation, auramicAiCall }: { conversation: Conversat
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1.5">
-                    <div className="mr-auto text-sm text-black font-bold">{conversation.fullname}</div>
-                    <div className="text-xs font-light text-gray-500">09:40AM</div>
+                    <div className="mr-auto text-sm dark:text-white font-bold">{conversation.fullname}</div>
+                    <div className="text-xs font-light text-gray-400">09:40AM</div>
                 </div>
-                <div className="font-medium overflow-hidden text-gray-600 text-ellipsis text-sm whitespace-nowrap">Send the messages...💬</div>
+                <div className="font-medium overflow-hidden text-gray-500 text-ellipsis text-sm whitespace-nowrap">Send the messages...💬</div>
             </div>
             {messageNotification && (
                 <div className='absolute top-2 right-2'>

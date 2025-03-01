@@ -66,7 +66,7 @@ const MessageTextSmall: React.FC<MessageTextSmallProps> = ({ message }: MessageT
       {message.fileUrl == null ? (
         <div className={`flex ${chatClassName}`}>
           <div className="max-w-[calc(650px)] max-sm:max-w-screen-md min-w-20 mx-1">
-            <div className={`flex ${bgColor} text-gray-800 rounded-lg rounded-br-none shadow-md relative pb-1`}>
+            <div className={`flex ${bgColor} text-gray-800 rounded-lg shadow-md relative pb-1`}>
               <div className={`${arrowClass}`}></div>
               <div
                 className="block px-3 py-2 break-words"
@@ -80,7 +80,7 @@ const MessageTextSmall: React.FC<MessageTextSmallProps> = ({ message }: MessageT
       ) : (
         <div className={`flex ${chatClassName}`}>
           <div className="max-w-[calc(650px)] max-sm:max-w-screen-md min-w-20 mx-1">
-            <div className={`flex ${bgColor} text-gray-800 rounded-lg rounded-br-none shadow-md relative pb-1`}>
+            <div className={`flex ${bgColor} text-gray-800 rounded-lg shadow-md relative pb-1`}>
               <div className={`${arrowClass}`}></div>
               <div className="flex flex-col p-3 rounded-lg">
                 {isImageUpload && (
