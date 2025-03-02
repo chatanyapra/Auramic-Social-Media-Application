@@ -1,9 +1,31 @@
-import Post from "../models/Post.js";
+import Post from "../models/postModel.js";
+import cloudinary from "cloudinary";
+import fs from "fs";
 
 // Create a post
 export const createPost = async (req, res) => {
   try {
-    const newPost = new Post(req.body);
+    const { caption, checked } = req.body;
+    const userId = req.user._id;
+    console.log("media, userId ----, caption", userId, caption);
+    let imageUploads = [];
+    if (req.files && req.files.length > 0) {
+      imageUploads = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await cloudinary.uploader.upload(file.path, {
+            folder: "chatstrum",
+            resource_type: "auto",
+          });
+          console.log("Cloudinary Upload Result:", result);
+          fs.unlinkSync(file.path); // Delete local file after uploading
+          return { url: result.secure_url, alt: file.originalname };
+        })
+      );
+    } else {
+      return res.status(400).json({ message: "Please upload a file" });
+    }
+
+    const newPost = new Post({ userId, caption, file: imageUploads,commentAllowed: checked });
     await newPost.save();
     res.status(201).json(newPost);
   } catch (error) {

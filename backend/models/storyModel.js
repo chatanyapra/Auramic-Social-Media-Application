@@ -16,6 +16,7 @@ const storySchema = new mongoose.Schema({
     },
   ],
   commentAllowed: { type: Boolean, default: true },
+  expiresAt: { type: Date, default: () => Date.now() + 24 * 60 * 60 * 1000 },
 });
 
 export default mongoose.model("Story", storySchema);

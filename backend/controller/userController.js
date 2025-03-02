@@ -17,11 +17,6 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
-// const client = new vision.ImageAnnotatorClient({
-//     keyFilename: path.resolve(__dirname, '../config/api-learn-432706-d6966a1d489e.json')
-// });
-
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
@@ -49,7 +44,7 @@ export const getUserForSidebar = asyncHandler(async (req, res) => {
 
 //         // Fetch logged-in user's followers and following lists
 //         const loggedInUser = await User.findById(loggedInUserId).select("followers following").lean();
-        
+
 //         if (!loggedInUser) {
 //             return res.status(404).json({ error: "User not found" });
 //         }
@@ -85,22 +80,22 @@ export const auramicaiTextExtract = asyncHandler(async (req, res) => {
             If an image is provided, analyze the image and incorporate relevant details into your response. 
             Use this to assist the user effectively.`;
         }
-        
+
         if (previousMessage !== "") {
             question += ` Here is the context from a previous response or selected text: "${previousMessage}". 
             Please consider this while formulating your answer.`;
         }
-        
+
         if (image) {
             question += ` An image has been provided. Analyze the image and use the information to enhance your answer to the user's query.`;
         }
-        
+
         question += ` Provide a clear and helpful answer to the user's query based on the text, image, or previous context.`;
-        
+
         if (question.length > 3000) {
             return res.status(400).json({ error: 'String length exceeds 3000 characters' });
         }
-        
+
 
         console.log("question:------", question);
         let extractedText = "";
@@ -118,26 +113,26 @@ export const auramicaiTextExtract = asyncHandler(async (req, res) => {
         }
         const prompt = question + extractedText;
         let imagePart;
-        if(image){
+        if (image) {
             imagePart = fileToGenerativePart(
                 `${image.path}`,
                 "image/jpeg",
             );
         }
         let result;
-        if(imagePart){
+        if (imagePart) {
             result = await model.generateContent([prompt, imagePart]);
-        }else{
+        } else {
             result = await model.generateContent([prompt]);
         }
         const responseText = result.response.text();
-        console.log("result.response.text()---- ",responseText)
+        console.log("result.response.text()---- ", responseText)
         if (responseText) {
             let newMessage;
             const sendMessageResponse = await sendAuramicDb(responseText, receiverId, image);
-            if(sendMessageResponse){
+            if (sendMessageResponse) {
                 newMessage = sendMessageResponse.newMessage;
-            }else{
+            } else {
                 newMessage = responseText;
             }
             res.json({ response: newMessage });
@@ -146,7 +141,7 @@ export const auramicaiTextExtract = asyncHandler(async (req, res) => {
                 io.to(receiverSocketId).emit("newMessage", newMessage);
             }
         }
-        if(imagePart){
+        if (imagePart) {
             fs.unlink(image.path, (err) => {
                 if (err) {
                     console.error('Error deleting the file from the server:', err);
@@ -171,7 +166,7 @@ const sendAuramicDb = async (message, receiverId, image) => {
                 participants: [senderId, receiverId]
             });
         }
-        if(image){
+        if (image) {
             fs.unlink(image.path, (err) => {
                 if (err) {
                     console.error('Error deleting the file from the server:', err);
@@ -199,3 +194,86 @@ const sendAuramicDb = async (message, receiverId, image) => {
     }
 };
 
+export const uploadProfileImage = async (req, res) => {
+    try {
+        const userId = req.user._id; // Get the user ID from the request
+        const file = req.file; // Get the uploaded file
+
+        if (!file) {
+            return res.status(400).json({ message: 'Please upload a file' });
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (user.profilePic) {
+            const publicId = user.profilePic.split('/').pop().split('.')[0]; // Extract public ID from URL
+            await cloudinary.uploader.destroy(`chatstrum/profile/${publicId}`);
+        }
+        const result = await cloudinary.uploader.upload(file.path, {
+            folder: 'chatstrum/profile', // Save in a specific folder
+            resource_type: 'auto', // Automatically detect file type
+        });
+        fs.unlinkSync(file.path);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: result.secure_url }, // Save the Cloudinary URL
+            { new: true } // Return the updated user
+        );
+        res.status(201).json(updatedUser.profilePic);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const uploadCoverImage = async (req, res) => {
+    try {
+        const userId = req.user._id; // Get the user ID from the request
+        const file = req.file; // Get the uploaded file
+
+        if (!file) {
+            return res.status(400).json({ message: 'Please upload a file' });
+        }
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (user.coverImage) {
+            const publicId = user.coverImage.split('/').pop().split('.')[0]; // Extract public ID from URL
+            await cloudinary.uploader.destroy(`chatstrum/cover/${publicId}`);
+        }
+        const result = await cloudinary.uploader.upload(file.path, {
+            folder: 'chatstrum/cover', // Save in a specific folder
+            resource_type: 'auto', // Automatically detect file type
+        });
+        fs.unlinkSync(file.path);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { coverImage: result.secure_url }, // Save the Cloudinary URL
+            { new: true } // Return the updated user
+        );
+        res.status(201).json(updatedUser.coverImage);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const updateUserBio = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { bio } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { bio }, // Update the bio field
+            { new: true } // Return the updated user
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(updatedUser.bio);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

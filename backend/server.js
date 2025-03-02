@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes.js";
 import { app, server } from "./socket/socket.js";
 import bodyParser from 'body-parser';
 import storyRoutes from "./routes/storyRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
 import cors from 'cors';
 
 const port = 5001;
@@ -26,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/users/", userRoutes);
 app.use("/api/stories", storyRoutes);
+app.use("/api/posts", postRoutes);
 
 app.use(express.static(path.join(__dirname,"/frontend/dist")));
 

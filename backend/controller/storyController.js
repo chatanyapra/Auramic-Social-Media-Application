@@ -14,8 +14,9 @@ export const createStory = async (req, res) => {
         req.files.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "chatstrum",
+            resource_type: "auto",
           });
-          fs.unlinkSync(file.path); // Delete local file after uploading
+          fs.unlinkSync(file.path); 
           return { url: result.secure_url, alt: file.originalname };
         })
       );
