@@ -1,10 +1,29 @@
-import Story from "../models/Story.js";
+import Story from "../models/storyModel.js";
+import cloudinary from "cloudinary";
+import fs from "fs";
 
 // Create a story
 export const createStory = async (req, res) => {
   try {
-    const { userId, media } = req.body;
-    const newStory = new Story({ userId, media });
+    const { caption, checked } = req.body;
+    const userId = req.user._id;
+    console.log("media, userId ----, caption", userId, caption);
+    let imageUploads = [];
+    if (req.files && req.files.length > 0) {
+      imageUploads = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await cloudinary.uploader.upload(file.path, {
+            folder: "chatstrum",
+          });
+          fs.unlinkSync(file.path); // Delete local file after uploading
+          return { url: result.secure_url, alt: file.originalname };
+        })
+      );
+    } else {
+      return res.status(400).json({ message: "Please upload a file" });
+    }
+
+    const newStory = new Story({ userId, caption, file: imageUploads,commentAllowed: checked });
     await newStory.save();
     res.status(201).json(newStory);
   } catch (error) {

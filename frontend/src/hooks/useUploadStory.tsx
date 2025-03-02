@@ -4,18 +4,20 @@ import toast from 'react-hot-toast';
 const useUploadStory = () => {
     const [loading, setLoading] = useState<boolean>(false);
 
-    const uploadStory = async (storyCaption : string,file?: File) => {
+    const uploadStory = async (storyCaption : string,file: File[], isChecked: boolean) => {
         setLoading(true);
         try {
             const formData = new FormData();
-            formData.append('storyCaption', storyCaption);
-            if (file) {
-                formData.append('file', file);
+            formData.append('caption', storyCaption);
+            formData.append('checked', isChecked.toString());
+            if (file.length > 0) {
+                file.forEach((file)=>{
+                    formData.append('files', file);
+                })
             }
             console.log("formData- ", file);
             
-
-            const res = await fetch(`/api/users/uploadStory`, {
+            const res = await fetch(`/api/stories`, {
                 method: "POST",
                 body: formData,
             });
