@@ -9,18 +9,37 @@ interface User {
     profilePic?: string;
     coverImage?: string;
     bio?: string;
-    followers: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
-    following: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
-    followRequests: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
+    followers: UserKnowns[];
+    following: UserKnowns[];
+    followRequests: UserKnowns[];
 }
-
+interface Story {
+    _id: string;
+    userId: {
+      _id: string;
+      username: string;
+      profilePic: string;
+    };
+    caption?: string;
+    file: { url: string; alt: string }[];
+    commentAllowed: boolean;
+    expiresAt: string;
+  }
+interface UserKnowns{
+    _id: string;
+    fullname: string;
+    username: string;
+    profilePic: string;
+    auramicAiCall?: string;
+}
 interface UserContextValue {
     user: User | null;
-    stories: any[];
+    stories: Story[];
     loading: boolean;
     refresh: boolean;
     error: string | null;
-    confirmedFriends: Array<{ _id: string; username: string; profilePic: string }>;
+    auramicAiId: string | null;
+    confirmedFriends: UserKnowns[];
     fetchUserData: () => void;
     setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -38,13 +57,16 @@ export const useUserContext = () => {
     }
     return context;
 };
+
 export const UserContextProvider = ({ children }: UserContextProviderProps) => {
     const [user, setUser] = useState<User | null>(null);
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [confirmedFriends, setConfirmedFriends] = useState<Array<{ _id: string; fullname: string; username: string; profilePic: string }>>([]); // New state
+    const [auramicAiId, setAuramicAiId] = useState<string | null>(null);
+    const [auramicAi, setAuramicAi] = useState<{ _id: string; fullname: string; username: string; profilePic: string; auramicAiCall?: string; } | null>(null);
+    const [confirmedFriends, setConfirmedFriends] = useState<Array<{ _id: string; fullname: string; username: string; profilePic: string; auramicAiCall?: string; }>>([]);
     const { authUser } = useAuthContext();
 
     const fetchUserData = async () => {
@@ -55,12 +77,14 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
                     "Content-Type": "application/json"
                 }
             });
-    
+
             if (!response.ok) throw new Error("Failed to fetch user data");
-    
+
             const data = await response.json();
             setUser(data.user);
             setStories(data.stories);
+            setAuramicAi(data.specificAiUser); // This is a single object, not an array
+            setAuramicAiId(data.specificUserId);
         } catch (err) {
             setError("Failed to fetch user data");
         } finally {
@@ -76,9 +100,17 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
                     followingUser?._id === follower?._id
                 )
             );
-            setConfirmedFriends(mutualFollowers);
+
+            // Include auramicAi in confirmedFriends if it exists
+            const confirmedFriendsList = [...mutualFollowers];
+            if (auramicAi) {
+                confirmedFriendsList.push(auramicAi);
+            }
+
+            setConfirmedFriends(confirmedFriendsList);
+            
         }
-    }, [user]);
+    }, [user, auramicAi]);
 
     useEffect(() => {
         fetchUserData();
@@ -92,6 +124,7 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
             error, 
             refresh,
             setRefresh,
+            auramicAiId,
             confirmedFriends,
             fetchUserData 
         }}>

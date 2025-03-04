@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import {useAuthContext} from "../context/AuthContext";
 
 const useCallingHook = () => {
-  const { socket, onlineUsers } = useSocketContext();
-  console.log("Online user- ", onlineUsers);
+  const { socket } = useSocketContext();
+  // console.log("Online user- ", onlineUsers);
   const navigate = useNavigate();
   const {setCallingUserName} =  useAuthContext();
 

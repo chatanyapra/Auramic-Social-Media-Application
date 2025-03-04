@@ -1,24 +1,17 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {UseGetConversation, Conversation } from "../types/types"
+import { useUserContext } from "../context/UserContext";
 
 const useGetConversation = (): UseGetConversation => {
     const [loading, setLoading] = useState<boolean>(false);
     const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [auramicAi, setAuramicAi] = useState<string>("");
+    const { confirmedFriends } = useUserContext();
     useEffect(() => {
         const getConversations = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`/api/users`);
-                const data = await res.json();
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                // console.log(data);
-                setAuramicAi(data.hasSpecificId);
-                setConversations(data.filteredUsers as Conversation[]); // Ensure data is cast to Conversation[]
+                setConversations(confirmedFriends as Conversation[]);
 
             } catch (error: any) {
                 toast.error(error.message);
@@ -28,9 +21,9 @@ const useGetConversation = (): UseGetConversation => {
         };
 
         getConversations();
-    }, []);
+    }, [confirmedFriends]);
 
-    return { loading, conversations, auramicAi };
+    return { loading, conversations };
 };
 
 export default useGetConversation;

@@ -282,31 +282,54 @@ export const updateUserBio = async (req, res) => {
 export const getUserProfileData = async (req, res) => {
     try {
         const userId = req.user._id;
+        const specificUserId = "66c048e50d7696b4b17b5d53";
+
+        // Fetch the logged-in user
         const user = await User.findById(userId)
-            .select("-password")  // Exclude password
-            .populate("followers", "username profilePic")
+            .select("-password") // Exclude password
+            .populate("followers", "fullname username profilePic")
             .populate("followRequests", "fullname username profilePic")
-            .populate("following", "username profilePic");
+            .populate("following", "fullname username profilePic");
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
-        const followingIds = user.following.map(user => user._id);
+
+        // Fetch the specific user (this will be included with every user response)
+        const specificUser = await User.findById(specificUserId).select(
+            "fullname username profilePic"
+        );
+
+        if (!specificUser) {
+            return res.status(404).json({ error: "Specific user not found" });
+        }
+
+        const followingIds = user.following.map((user) => user._id);
+
+        // Fetch non-expired stories for the logged-in user
         const loggedInUserStories = await Story.find({
             userId,
-            expiresAt: { $gt: new Date() }, // Only fetch non-expired stories
+            expiresAt: { $gt: new Date() },
         }).select("-__v");
 
-        // Fetch non-expired stories of followed users
+        // Fetch non-expired stories of followed users and populate the userId field with profilePic
         const followingUserStories = await Story.find({
             userId: { $in: followingIds },
             expiresAt: { $gt: new Date() },
-        }).select("-__v");
+        })
+            .select("-__v")
+            .populate("userId", "username profilePic"); // Populate the userId field with profilePic
 
         // Merge stories, placing logged-in user's stories first
         const allStories = [...loggedInUserStories, ...followingUserStories];
 
-        res.status(200).json({ user, stories: allStories });
+        // Include specific user with every user response
+        res.status(200).json({
+            user,
+            stories: allStories,
+            specificAiUser: specificUser,
+            specificUserId,
+        });
     } catch (error) {
         console.error("Error fetching user profile and stories:", error);
         res.status(500).json({ error: "Internal Server Error" });

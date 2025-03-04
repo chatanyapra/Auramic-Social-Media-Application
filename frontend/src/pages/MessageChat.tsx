@@ -13,6 +13,7 @@ import useCallingHook from '../hooks/useCallingHook';
 import AuramicAi from '../component/AuramicAi';
 import MessageBox2 from '../component/MessageBox2';
 import { ThemeContext } from '../context/theme';
+import { useUserContext } from '../context/UserContext';
 
 export default function MessageChat() {
 
@@ -22,6 +23,7 @@ export default function MessageChat() {
     const [filteredConversations, setFilteredConversations] = useState<Conversation[]>([]);
     const checkboxRef = useRef<HTMLInputElement>(null);
     const themeContext = useContext(ThemeContext);
+    const { auramicAiId } = useUserContext();
   
     if (!themeContext) {
       throw new Error('ThemeToggle must be used within a ThemeProvider');
@@ -30,7 +32,7 @@ export default function MessageChat() {
 
     // const { logout } = useLogout();
     useCallingHook();
-    const { auramicAi, conversations } = useGetConversation();
+    const { conversations } = useGetConversation();
     const { selectedConversation, setSelectedConversation } = useConversation()
     const [visibilityChat, setVisibilityChat] = useState(false)
 
@@ -140,14 +142,14 @@ export default function MessageChat() {
                                     conversations && conversations.map((conversation: Conversation) => (
                                         <SidebarUsers
                                             key={conversation._id}
-                                            auramicAiCall={conversation._id === auramicAi ? true : false}
+                                            auramicAiCall={conversation._id === auramicAiId ? true : false}
                                             conversation={conversation as Conversation}
                                         />
                                     )) :
                                     filteredConversations.length > 0 ? filteredConversations.map((conversation: Conversation) => (
                                         <SidebarUsers
                                             key={conversation._id}
-                                            auramicAiCall={conversation._id === auramicAi ? true : false}
+                                            auramicAiCall={conversation._id === auramicAiId ? true : false}
                                             conversation={conversation as Conversation}
                                         />
                                     )) : <div className='flex justify-center items-center h-full text-gray-400'>No result found</div>
@@ -155,7 +157,7 @@ export default function MessageChat() {
                             </div>
                         </div>
                     </div>
-                    {selectedConversation === null ? <ChattingStart /> : (selectedConversation._id == auramicAi ?
+                    {selectedConversation === null ? <ChattingStart /> : (selectedConversation._id == auramicAiId ?
                         <AuramicAi visibility={visibilityChat} conversation={selectedConversation} />
                         : <MessageBox2 conversation={selectedConversation} visibility={visibilityChat} />)
                     }
