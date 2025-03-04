@@ -14,8 +14,9 @@ export const createStory = async (req, res) => {
         req.files.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "chatstrum",
-            resource_type: "auto",
-          });
+            resource_type: "video",
+          });         
+          console.log("Upload Result:", result); 
           fs.unlinkSync(file.path); 
           return { url: result.secure_url, alt: file.originalname };
         })

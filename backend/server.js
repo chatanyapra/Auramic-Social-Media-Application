@@ -10,6 +10,7 @@ import { app, server } from "./socket/socket.js";
 import bodyParser from 'body-parser';
 import storyRoutes from "./routes/storyRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
+import followRoutes from "./routes/followRoutes.js";
 import cors from 'cors';
 
 const port = 5001;
@@ -28,6 +29,7 @@ app.use("/api/message", messageRoutes);
 app.use("/api/users/", userRoutes);
 app.use("/api/stories", storyRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/follow", followRoutes);
 
 app.use(express.static(path.join(__dirname,"/frontend/dist")));
 

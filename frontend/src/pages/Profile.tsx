@@ -1,19 +1,31 @@
 import "../Extra.css";
 import "./pages.css";
-import userImage from '../assets/image/users/profile-pic.png';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { LuCamera, LuGrid, LuLayoutGrid, LuBookmark } from "react-icons/lu";
 import Swal from 'sweetalert2'; // Import SweetAlert
 import axios from 'axios';
-import { useUploadImage } from "../hooks/useProfileHook";
+import { useProfileData, useUploadImage } from "../hooks/useProfileHook";
+import { useParams } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
+import { useUserContext } from "../context/UserContext";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<string>('posts');
-  const [profileImage, setProfileImage] = useState(userImage); // State for profile image
+  const [profileImage, setProfileImage] = useState('https://avatar.iran.liara.run/public/boy');
   const [coverImage, setCoverImage] = useState("https://picsum.photos/200/300?random=74"); // State for cover image
   const profileFileInputRef = useRef<HTMLInputElement>(null); // Ref for profile image file input
   const coverFileInputRef = useRef<HTMLInputElement>(null); // Ref for cover image file input
   const { uploadImage } = useUploadImage();
+  const { userById, getProfileById } = useProfileData();
+  const { userId } = useParams<{ userId: string }>();
+  const { authUser } = useAuthContext();
+  const { user, refresh, setRefresh } = useUserContext(); // Moved outside of if condition
+
+  useEffect(() => {
+    if (!userId) return;
+    if (userById?._id === userId || authUser?._id === userId) return;
+    getProfileById(userId);
+  }, [userId]);
 
   // Handle file input change for profile image
   const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +43,7 @@ export default function Profile() {
           const imageUrl = await uploadImage(file, 'upload-profile-image');
           if (imageUrl) {
             setProfileImage(imageUrl); // Update the profile image state
+            setRefresh(!refresh); 
             Swal.fire('Uploaded!', 'Your profile image has been updated.', 'success');
           }
         } else {
@@ -56,6 +69,7 @@ export default function Profile() {
           const imageUrl = await uploadImage(file, 'upload-cover-image');
           if (imageUrl) {
             setCoverImage(imageUrl); // Update the cover image state
+            setRefresh(!refresh); 
             Swal.fire('Uploaded!', 'Your cover image has been updated.', 'success');
           }
         } else {
@@ -92,7 +106,7 @@ export default function Profile() {
 
     if (newBio) {
       try {
-        const response = await axios.put(`/api/users/update-bio`,{ bio: newBio });
+        const response = await axios.put(`/api/users/update-bio`, { bio: newBio });
         const userBio = response.data;
         console.log(userBio);
         setBio(newBio);
@@ -111,17 +125,19 @@ export default function Profile() {
           <div className="bg-white md:shadow-md lg:rounded-b-2xl lg:-mt-10 dark:bg-dark2">
             {/* Cover Image */}
             <div className="relative overflow-hidden w-full lg:h-72 h-48">
-              <img src={coverImage} alt="Cover" className="h-auto w-full object-cover inset-0" />
+              <img src={userId ? userById?.coverImage || coverImage : user?.coverImage || coverImage} alt="Cover" className="h-auto w-full object-cover inset-0" />
               {/* Overlay */}
               <div className="w-full bottom-0 absolute left-0 bg-gradient-to-t from-black/60 pt-20 z-10"></div>
               {/* Camera Icon for Cover Image */}
-              <div className="absolute bottom-0 right-0 m-4 z-20">
-                <div className="flex items-center gap-3">
-                  <button className="button text-white flex items-center gap-2" onClick={handleCoverCameraClick}>
-                    <LuCamera className="text-2xl text-blue-400" />
-                  </button>
+              {!userId && authUser && (
+                <div className="absolute bottom-0 right-0 m-4 z-20">
+                  <div className="flex items-center gap-3">
+                    <button className="button text-white flex items-center gap-2" onClick={handleCoverCameraClick}>
+                      <LuCamera className="text-2xl text-blue-400" />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* User Info Section */}
@@ -130,37 +146,48 @@ export default function Profile() {
                 {/* Profile Image */}
                 <div className="relative lg:h-48 lg:w-48 w-28 h-28 mb-4 z-10">
                   <div className="relative lg:h-48 lg:w-48 w-28 h-28 overflow-hidden rounded-full md:border-[6px] border-gray-100 shrink-0 dark:border-slate-900 shadow">
-                    <img src={profileImage} alt="Profile" className="object-cover inset-0 w-full h-full" />
+                    <img src={userId ? userById?.profilePic || profileImage : user?.profilePic || profileImage} alt="Profile" className="object-cover inset-0 w-full h-full" />
                   </div>
                   {/* Camera Icon for Profile Image */}
-                  <button
-                    type="button"
-                    className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white shadow p-1.5 rounded-full sm:flex dark:bg-gray-700"
-                    onClick={handleProfileCameraClick}
-                  >
-                    <LuCamera className="md:text-2xl text-xl text-blue-400" />
-                  </button>
+                  {!userId && authUser && (
+                    <button
+                      type="button"
+                      className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white shadow p-1.5 rounded-full sm:flex dark:bg-gray-700"
+                      onClick={handleProfileCameraClick}
+                    >
+                      <LuCamera className="md:text-2xl text-xl text-blue-400" />
+                    </button>
+                  )}
                 </div>
 
                 {/* User Details */}
-                <h3 className="md:text-3xl text-base font-bold text-black dark:text-white">Monroe Parker</h3>
+                <h3 className="md:text-3xl text-base font-bold text-black dark:text-white capitalize">{userId ? userById?.fullname : user?.fullname}</h3>
                 <p className="mt-2 text-gray-500 dark:text-white/80 text-sm">
                   {bio}
-                  <a
-                    href="#"
-                    className="text-blue-500 ml-4 inline-block"
-                    onClick={(e) => {
-                      e.preventDefault(); 
-                      handleEditBio(); 
-                    }}
-                  >
-                    Edit
-                  </a>
+                  {userId ? userById?.bio : user?.bio}
+                  {!userId && authUser && (
+                    <a
+                      href="#"
+                      className="text-blue-500 ml-4 inline-block"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleEditBio();
+                      }}
+                    >
+                      Edit
+                    </a>
+                  )}
                 </p>
                 <div className="mt-2 md:flex">
                   <div className="pr-4 font-medium text-gray-600"><span className="font-bold text-black dark:text-white">10</span> Posts</div>
-                  <div className="pr-4 font-medium text-gray-600"><span className="font-bold text-black dark:text-white">250049</span> followers</div>
-                  <div className="pr-4 font-medium text-gray-600"><span className="font-bold text-black dark:text-white">8795404</span> following</div>
+                  <div className="pr-4 font-medium text-gray-600">
+                    <span className="font-bold text-black dark:text-white">{userId ? userById?.followers.length : user?.followers.length}</span>
+                    followers
+                  </div>
+                  <div className="pr-4 font-medium text-gray-600">
+                    <span className="font-bold text-black dark:text-white">{userId ? userById?.following.length : user?.following.length }</span>
+                    following
+                  </div>
                 </div>
               </div>
             </div>

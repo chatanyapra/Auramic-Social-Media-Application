@@ -1,11 +1,11 @@
 import { useState, useContext } from "react";
 import { ThemeContext } from '../context/theme';
 import logoImage from "../assets/image/auramicimage.png";
-import userImage from "../assets/image/users/profile-pic.png";
 import "./Navbar.css";
 import { LuMessageSquare, LuBell, LuHome, LuMessageCircle, LuFileVideo, LuPlusSquare, LuSettings, LuSettings2, LuCheck } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
+import { useUserContext } from "../context/UserContext";
 
 
 export default function Navbar() {
@@ -14,7 +14,9 @@ export default function Navbar() {
   const [isSwitchAppearance, setIsSwitchAppearance] = useState<boolean>(false);
   const [clickedLinkId, setClickedLinkId] = useState<string | null>('');
   const themeContext = useContext(ThemeContext);
+  const userImage = "https://avatar.iran.liara.run/public/boy";
   const { logout } = useLogout();
+  const { user } = useUserContext();
 
   if (!themeContext) {
     throw new Error('ThemeToggle must be used within a ThemeProvider');
@@ -30,7 +32,7 @@ export default function Navbar() {
   const handleSwitchAppearToggle = () => {
     setIsSwitchAppearance(!isSwitchAppearance);
   };
-  const handleSideMenuClick= (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleSideMenuClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     handleSidebarToggle();
     const id = event.currentTarget.id;
     if (id !== clickedLinkId) {
@@ -69,7 +71,7 @@ export default function Navbar() {
                   <LuMessageSquare className={`max-md:mr-4 my-2 ml-4 mr-8 text-2xl ${textColor}`} />
                   <button onClick={handleUserMenuToggle} type="button" className="flex w-8 h-8 mt-1 mr-3 text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false">
                     <span className="sr-only">Open user menu</span>
-                    <img className="w-8 h-8 rounded-full" src={userImage} alt="user photo" />
+                    <img className="w-8 h-8 rounded-full" src={user?.profilePic || userImage}  alt="user photo" />
                   </button>
                   <button onClick={handleSidebarToggle} aria-controls="logo-sidebar" type="button" className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span className="sr-only">Open sidebar</span>
@@ -86,10 +88,10 @@ export default function Navbar() {
                 <div className={`story-shadow-all-high z-50 ${isUserMenuOpen ? "visible" : "hidden"} cursor-pointer absolute top-14 right-2 my-8 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`} id="dropdown-user">
                   <div className="px-4 py-3" role="none">
                     <p className="text-sm text-gray-900 dark:text-white" role="none">
-                      Chatanya Pratap
+                      {user?.fullname}
                     </p>
                     <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                      chatanyapratap@gmail.com
+                      @{user?.username}
                     </p>
                   </div>
                   <ul className="py-1" role="none">
@@ -143,7 +145,7 @@ export default function Navbar() {
               <li>
                 <Link to="/profile" onClick={handleSideMenuClick} id="profile" className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${clickedLinkId === "profile" ? (darkMode ? 'bg-gray-700' : 'bg-gray-100') : ''}`}>
                   <div className="w-8 h-8 bg-red-100 rounded-full overflow-hidden">
-                    <img src={userImage} className="w-full h-full" alt="" />
+                    <img src={user?.profilePic || userImage}  className="w-full h-full" alt="" />
                   </div>
                   <span className="ms-3">Profile</span>
                 </Link>

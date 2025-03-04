@@ -1,8 +1,9 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
-import vision from '@google-cloud/vision';
+import Story from "../models/storyModel.js";
+// import vision from '@google-cloud/vision';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import path from 'path';
+// import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Conversation from "../models/conversationModel.js";
@@ -277,3 +278,59 @@ export const updateUserBio = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getUserProfileData = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId)
+            .select("-password")  // Exclude password
+            .populate("followers", "username profilePic")
+            .populate("followRequests", "fullname username profilePic")
+            .populate("following", "username profilePic");
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        const followingIds = user.following.map(user => user._id);
+        const loggedInUserStories = await Story.find({
+            userId,
+            expiresAt: { $gt: new Date() }, // Only fetch non-expired stories
+        }).select("-__v");
+
+        // Fetch non-expired stories of followed users
+        const followingUserStories = await Story.find({
+            userId: { $in: followingIds },
+            expiresAt: { $gt: new Date() },
+        }).select("-__v");
+
+        // Merge stories, placing logged-in user's stories first
+        const allStories = [...loggedInUserStories, ...followingUserStories];
+
+        res.status(200).json({ user, stories: allStories });
+    } catch (error) {
+        console.error("Error fetching user profile and stories:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const getUserProfileDataById = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId)
+            .select("-password")  // Exclude password
+            .populate("followers", "username profilePic")
+            .populate("followRequests", "fullname username profilePic")
+            .populate("following", "username profilePic");
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error("Error fetching user profile and stories:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+

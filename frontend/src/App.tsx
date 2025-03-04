@@ -16,6 +16,7 @@ import MessageChat from './pages/MessageChat';
 import MessageBox2 from './component/MessageBox2';
 import useConversation from './zustandStore/useConversation';
 import CallingRoom from './callingcomponents/CallingRoom';
+import { UserContextProvider } from './context/UserContext';
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -45,9 +46,11 @@ function App() {
   };
   return (
     <ThemeProvider value={{ darkMode, toggleDarkMode, textColor, setTextColor }}>
-      <Router>
-        <AppContent />
-      </Router>
+      <UserContextProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </UserContextProvider>
     </ThemeProvider>
   );
 }
@@ -68,6 +71,7 @@ function MainLayout() {
             <Route path="/create" element={<Create />} />
             <Route path="/stories" element={<Stories />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/message" element={<MessageChat />} />
             <Route path="/messageBox" element={selectedConversation ? <MessageBox2 conversation={selectedConversation} visibility={false} /> : null} />
           </>
