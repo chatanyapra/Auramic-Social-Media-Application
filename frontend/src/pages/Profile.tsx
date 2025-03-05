@@ -8,18 +8,20 @@ import { useProfileData, useUploadImage } from "../hooks/useProfileHook";
 import { useParams } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { useUserContext } from "../context/UserContext";
+import FriendsList from "../component/FriendsList";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<string>('posts');
   const [profileImage, setProfileImage] = useState('https://avatar.iran.liara.run/public/boy');
-  const [coverImage, setCoverImage] = useState("https://picsum.photos/200/300?random=74"); // State for cover image
-  const profileFileInputRef = useRef<HTMLInputElement>(null); // Ref for profile image file input
-  const coverFileInputRef = useRef<HTMLInputElement>(null); // Ref for cover image file input
+  const [coverImage, setCoverImage] = useState("https://picsum.photos/200/300?random=74");
+  const profileFileInputRef = useRef<HTMLInputElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
   const { uploadImage } = useUploadImage();
   const { userById, getProfileById } = useProfileData();
   const { userId } = useParams<{ userId: string }>();
   const { authUser } = useAuthContext();
-  const { user, refresh, setRefresh } = useUserContext(); // Moved outside of if condition
+  const { user, refresh, setRefresh } = useUserContext();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -43,7 +45,7 @@ export default function Profile() {
           const imageUrl = await uploadImage(file, 'upload-profile-image');
           if (imageUrl) {
             setProfileImage(imageUrl); // Update the profile image state
-            setRefresh(!refresh); 
+            setRefresh(!refresh);
             Swal.fire('Uploaded!', 'Your profile image has been updated.', 'success');
           }
         } else {
@@ -69,7 +71,7 @@ export default function Profile() {
           const imageUrl = await uploadImage(file, 'upload-cover-image');
           if (imageUrl) {
             setCoverImage(imageUrl); // Update the cover image state
-            setRefresh(!refresh); 
+            setRefresh(!refresh);
             Swal.fire('Uploaded!', 'Your cover image has been updated.', 'success');
           }
         } else {
@@ -127,10 +129,10 @@ export default function Profile() {
             <div className="relative overflow-hidden w-full lg:h-72 h-48">
               <img src={userId ? userById?.coverImage || coverImage : user?.coverImage || coverImage} alt="Cover" className="h-auto w-full object-cover inset-0" />
               {/* Overlay */}
-              <div className="w-full bottom-0 absolute left-0 bg-gradient-to-t from-black/60 pt-20 z-10"></div>
+              <div className="w-full bottom-0 absolute left-0 bg-gradient-to-t from-black/60 pt-20"></div>
               {/* Camera Icon for Cover Image */}
               {!userId && authUser && (
-                <div className="absolute bottom-0 right-0 m-4 z-20">
+                <div className="absolute bottom-0 right-0 m-4">
                   <div className="flex items-center gap-3">
                     <button className="button text-white flex items-center gap-2" onClick={handleCoverCameraClick}>
                       <LuCamera className="text-2xl text-blue-400" />
@@ -144,7 +146,7 @@ export default function Profile() {
             <div className="p-3 dark:bg-black dark:text-white">
               <div className="flex flex-col justify-center md:items-center lg:-mt-48 -mt-28">
                 {/* Profile Image */}
-                <div className="relative lg:h-48 lg:w-48 w-28 h-28 mb-4 z-10">
+                <div className="relative lg:h-48 lg:w-48 w-28 h-28 mb-4">
                   <div className="relative lg:h-48 lg:w-48 w-28 h-28 overflow-hidden rounded-full md:border-[6px] border-gray-100 shrink-0 dark:border-slate-900 shadow">
                     <img src={userId ? userById?.profilePic || profileImage : user?.profilePic || profileImage} alt="Profile" className="object-cover inset-0 w-full h-full" />
                   </div>
@@ -180,18 +182,18 @@ export default function Profile() {
                 </p>
                 <div className="mt-2 md:flex">
                   <div className="pr-4 font-medium text-gray-600"><span className="font-bold text-black dark:text-white">10</span> Posts</div>
-                  <div className="pr-4 font-medium text-gray-600">
+                  <div className="pr-4 font-medium text-gray-600 cursor-pointer" onClick={() => setIsModalOpen(true)}>
                     <span className="font-bold text-black dark:text-white">{userId ? userById?.followers.length : user?.followers.length}</span>
                     followers
                   </div>
-                  <div className="pr-4 font-medium text-gray-600">
-                    <span className="font-bold text-black dark:text-white">{userId ? userById?.following.length : user?.following.length }</span>
+                  <div className="pr-4 font-medium text-gray-600 cursor-pointer" onClick={() => setIsModalOpen(true)}>
+                    <span className="font-bold text-black dark:text-white">{userId ? userById?.following.length : user?.following.length}</span>
                     following
                   </div>
                 </div>
               </div>
             </div>
-
+            <FriendsList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
             {/* Tab Section */}
             <div className="dark:bg-black dark:text-white">
               <div className="mb-4 border-b border-gray-200 dark:border-gray-700">

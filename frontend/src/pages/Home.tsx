@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { ThemeContext } from '../context/theme'
-import { LuChevronsRight, LuFlipVertical, LuFlipVertical2, LuPlus } from "react-icons/lu";
+import { LuChevronsRight, LuFlipVertical, LuFlipVertical2 } from "react-icons/lu";
 import RequestCard from "../component/RequestCard";
 import ConfirmCard from "../component/ConfirmCard";
 import FeedPostCard from "../component/FeedPostCard";
@@ -91,6 +91,7 @@ export default function Home() {
           </div>
         </div>
         {/* Other content */}
+        {/* <MediaGallery/> */}
       </div>
     </div>
   )

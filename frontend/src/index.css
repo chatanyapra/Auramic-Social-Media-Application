@@ -427,3 +427,13 @@ body {
     box-shadow: 0 0 0 0 rgba(178, 212, 252, 0.7);
   }
 }
+/* Custom CSS for horizontal scroll and media styling */
+.media-container {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.media-item {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
