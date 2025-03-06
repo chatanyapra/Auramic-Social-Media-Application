@@ -120,9 +120,9 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex px-14 lg:ml-64 max-md:px-4 mt-20  max-md:w-full pb-10 h-full min-h-screen py-4">
+    <div className="flex px-1 lg:ml-64 max-md:px-4 mt-[68px]  max-md:w-full pb-10 h-full min-h-screen py-4 overflow-hidden">
       <main id="site__main" className="w-full">
-        <div className="max-w-[1065px] mx-auto max-lg:-m-2.5 rounded-xl overflow-hidden">
+        <div className="max-w-[1065px] h-full mx-auto max-lg:-m-2.5 overflow-hidden">
           {/* Cover Section */}
           <div className="bg-white md:shadow-md lg:rounded-b-2xl lg:-mt-10 dark:bg-dark2">
             {/* Cover Image */}

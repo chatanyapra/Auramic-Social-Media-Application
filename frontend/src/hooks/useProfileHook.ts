@@ -69,6 +69,8 @@ export const useProfileData = () => {
         throw new Error(data.error);
       }
       setUser(data.user);
+      console.log("userprofile", user);
+      
     } catch (error: any) {
       setError(error.message);
       toast.error(error.message);

@@ -3,6 +3,7 @@ import { useUserContext } from "../context/UserContext";
 import AddStoryCard from "./AddStoryCard";
 import { LuPlus } from "react-icons/lu";
 import { ThemeContext } from "../context/theme";
+import { Link } from "react-router-dom";
 
 interface Story {
     _id: string;
@@ -47,9 +48,19 @@ const StoryGallery: React.FC = () => {
             {stories[0]?.userId?.profilePic && (
                 <div className="story-shadow-all flex items-end px-0 justify-center mx-2 rounded-lg bg-white dark:bg-black dark:text-white" style={{ width: "135px", height: "100%" }}>
                     <div className="text-center mb-4 flex-col justify-center">
-                        <div className="story-shadow-all mb-1 mx-auto w-14 bg-white h-14 rounded-full flex justify-center items-center text-center">
+                        <Link to={'create'} className="story-shadow-all mb-1 mx-auto w-14 bg-white h-14 rounded-full flex justify-center items-center text-center">
                             <LuPlus className={`text-2xl ${textColor !== '' ? textColor : ' text-blue-500'}`} />
-                        </div>
+                        </Link>
+                        <b style={{ fontSize: '12px' }}>Add Story</b>
+                    </div>
+                </div>
+            )}
+            {stories.length < 1 && !stories[0]?.userId?.profilePic && (
+                <div className="story-shadow-all flex items-end px-0 justify-center mx-2 rounded-lg bg-white dark:bg-black dark:text-white" style={{ width: "135px", height: "100%" }}>
+                    <div className="text-center mb-4 flex-col justify-center">
+                        <Link to={'create'} className="story-shadow-all mb-1 mx-auto w-14 bg-white h-14 rounded-full flex justify-center items-center text-center">
+                            <LuPlus className={`text-2xl ${textColor !== '' ? textColor : ' text-blue-500'}`} />
+                        </Link>
                         <b style={{ fontSize: '12px' }}>Add Story</b>
                     </div>
                 </div>

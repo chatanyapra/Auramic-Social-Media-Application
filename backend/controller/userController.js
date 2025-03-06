@@ -1,4 +1,5 @@
 import asyncHandler from "express-async-handler";
+import mongoose from "mongoose"; // Import mongoose
 import User from "../models/userModel.js";
 import Story from "../models/storyModel.js";
 // import vision from '@google-cloud/vision';
@@ -284,14 +285,91 @@ export const getUserProfileData = async (req, res) => {
         const userId = req.user._id;
         const specificUserId = "66c048e50d7696b4b17b5d53";
 
-        // Fetch the logged-in user
-        const user = await User.findById(userId)
-            .select("-password") // Exclude password
-            .populate("followers", "fullname username profilePic")
-            .populate("followRequests", "fullname username profilePic")
-            .populate("following", "fullname username profilePic");
+        // Fetch the logged-in user using aggregation
+        const user = await User.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(userId) } }, // Match the logged-in user
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "followers",
+                    foreignField: "_id",
+                    as: "followers",
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "following",
+                    foreignField: "_id",
+                    as: "following",
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "followRequests",
+                    foreignField: "_id",
+                    as: "followRequests",
+                },
+            },
+            {
+                $project: {
+                    fullname: 1,
+                    username: 1,
+                    profilePic: 1,
+                    followers: {
+                        $map: {
+                            input: "$followers",
+                            as: "follower",
+                            in: {
+                                _id: "$$follower._id",
+                                fullname: "$$follower.fullname",
+                                username: "$$follower.username",
+                                profilePic: "$$follower.profilePic",
+                                mutualFriends: {
+                                    $filter: {
+                                        input: "$following",
+                                        as: "followingUser",
+                                        cond: {
+                                            $in: ["$$followingUser._id", "$$follower.followers"],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    following: {
+                        $map: {
+                            input: "$following",
+                            as: "followingUser",
+                            in: {
+                                _id: "$$followingUser._id",
+                                fullname: "$$followingUser.fullname",
+                                username: "$$followingUser.username",
+                                profilePic: "$$followingUser.profilePic",
+                                mutualFriends: {
+                                    $filter: {
+                                        input: "$followers",
+                                        as: "follower",
+                                        cond: {
+                                            $in: ["$$follower._id", "$$followingUser.following"],
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    followRequests: {
+                        _id: 1,
+                        fullname: 1,
+                        username: 1,
+                        profilePic: 1,
+                    },
+                },
+            },
+        ]);
 
-        if (!user) {
+        if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
@@ -304,7 +382,7 @@ export const getUserProfileData = async (req, res) => {
             return res.status(404).json({ error: "Specific user not found" });
         }
 
-        const followingIds = user.following.map((user) => user._id);
+        const followingIds = user[0].following.map((user) => user._id);
 
         // Fetch non-expired stories for the logged-in user
         const loggedInUserStories = await Story.find({
@@ -325,7 +403,7 @@ export const getUserProfileData = async (req, res) => {
 
         // Include specific user with every user response
         res.status(200).json({
-            user,
+            user: user[0],
             stories: allStories,
             specificAiUser: specificUser,
             specificUserId,
@@ -339,21 +417,54 @@ export const getUserProfileData = async (req, res) => {
 export const getUserProfileDataById = async (req, res) => {
     try {
         const userId = req.params.userId;
-        const user = await User.findById(userId)
-            .select("-password")  // Exclude password
-            .populate("followers", "username profilePic")
-            .populate("followRequests", "fullname username profilePic")
-            .populate("following", "username profilePic");
 
-        if (!user) {
+        // Fetch the user and calculate mutual friends using aggregation
+        const user = await User.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(userId) } }, // Match the user
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "followers",
+                    foreignField: "_id",
+                    as: "followers",
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "following",
+                    foreignField: "_id",
+                    as: "following",
+                },
+            },
+            {
+                $project: {
+                    fullname: 1,
+                    username: 1,
+                    profilePic: 1,
+                    followers: {
+                        _id: 1,
+                        fullname: 1,
+                        username: 1,
+                        profilePic: 1,
+                    },
+                    following: {
+                        _id: 1,
+                        fullname: 1,
+                        username: 1,
+                        profilePic: 1,
+                    },
+                },
+            },
+        ]);
+
+        if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        res.status(200).json({ user });
+        res.status(200).json({ user: user[0] });
     } catch (error) {
-        console.error("Error fetching user profile and stories:", error);
+        console.error("Error fetching user profile:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-

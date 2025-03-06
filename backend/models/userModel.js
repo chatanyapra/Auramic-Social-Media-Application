@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     bio: {
         type: String
     },
+    private: { type: Boolean, default: false },
     followers: [
         { type: mongoose.Schema.Types.ObjectId, ref: "User" }
     ],
