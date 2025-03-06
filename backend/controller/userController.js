@@ -468,3 +468,55 @@ export const getUserProfileDataById = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const getSearchUser = async (req, res) => {
+    const query = req.query.q;
+    const userId = req.user._id; // Logged-in user ID
+    const specificUserId = "66c048e50d7696b4b17b5d53"; // Specific user ID to exclude
+
+    if (!query) {
+        return res.status(400).json({ error: "Query parameter 'q' is required" });
+    }
+
+    try {
+        const results = await User.find(
+            {
+                $and: [
+                    {
+                        $or: [
+                            { fullname: { $regex: query, $options: "i" } },
+                            { username: { $regex: query, $options: "i" } },
+                        ],
+                    },
+                    { _id: { $nin: [userId, specificUserId] } }, // Exclude logged-in user and specific user
+                ],
+            },
+            { username: 1, fullname: 1, profilePic: 1, _id: 1 } // Include only these fields
+        ).limit(10);
+
+        console.log("results: ", results);
+        res.json(results);
+    } catch (error) {
+        console.error("Error searching users:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+export const getSpecificUser = async (req, res) => {
+    const loggedInUserId = req.user._id;
+    const specificUserId = "66c048e50d7696b4b17b5d53";
+
+    try {
+        const suggestedFriends = await User.find({
+            _id: { $nin: [loggedInUserId, specificUserId] },
+            followers: { $nin: [loggedInUserId] }, // Exclude users already followed
+        })
+            .select("fullname username profilePic") // Include only these fields
+            .limit(10);
+
+        res.json(suggestedFriends);
+    } catch (error) {
+        console.error("Error fetching suggested friends:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}

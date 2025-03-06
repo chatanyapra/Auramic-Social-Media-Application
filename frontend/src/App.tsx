@@ -6,7 +6,7 @@ import Profile from './pages/Profile';
 // import Message from './pages/Message';
 // import MessageBox from './component/MessageBox';
 import Create from './pages/Create';
-import Stories from './pages/Stories';
+// import Stories from './pages/Stories';
 import { ThemeProvider } from './context/theme';
 import { useState, useEffect } from 'react';
 import Login from './pages/Login';
@@ -17,6 +17,7 @@ import MessageBox2 from './component/MessageBox2';
 import useConversation from './zustandStore/useConversation';
 import CallingRoom from './callingcomponents/CallingRoom';
 import { UserContextProvider } from './context/UserContext';
+import SearchBar from './component/SearchUser';
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -68,8 +69,9 @@ function MainLayout() {
         <Route path="/signup" element={authUser ? <Navigate to="/" /> : <Signup />} />
         {authUser ? (
           <>
+            {/* <Route path="/searchuser" element={<SearchBar />} /> */}
             <Route path="/create" element={<Create />} />
-            <Route path="/stories" element={<Stories />} />
+            <Route path="/stories" element={<SearchBar />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/message" element={<MessageChat />} />

@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 export default function Home() {
   const [collapseStyle2, setCollapseStyle2] = useState(0);
   const { user, confirmedFriends, auramicAiId } = useUserContext();
-  
+
   console.log("user", user);
 
   const handleCollapseBox = (value: number) => {
@@ -66,7 +66,7 @@ export default function Home() {
                   {user && user?.followRequests?.map((request, index) => (
                     <RequestCard
                       key={index}
-                      userId={request._id }
+                      userId={request._id}
                       userImage={request.profilePic || "https://randomuser.me/api/portraits/men/12.jpg"}
                       userName={request.username || ""}
                       fullName={request.fullname || "Chatstrum User"}
@@ -86,6 +86,9 @@ export default function Home() {
                 {confirmedFriends && confirmedFriends?.filter((friend) => friend._id !== auramicAiId).map((request, index) => (
                   <ConfirmCard key={index} userById={request._id} userImage={request.profilePic || "https://randomuser.me/api/portraits/men/12.jpg"} userName={request.username || "Chatstrum User"} fullName={request.username || "Chatstrum User"} />
                 ))}
+                {confirmedFriends.length === 1 && (
+                  <div className="text-center text-gray-500">No friend request</div>
+                )}
               </div>
             </div>
           </div>

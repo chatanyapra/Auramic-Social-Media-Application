@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { ThemeContext } from '../context/theme';
 import logoImage from "../assets/image/auramicimage.png";
 import "./Navbar.css";
-import { LuMessageSquare, LuBell, LuHome, LuMessageCircle, LuFileVideo, LuPlusSquare, LuSettings, LuSettings2, LuCheck } from "react-icons/lu";
+import { LuMessageSquare, LuBell, LuHome, LuMessageCircle, LuSearch, LuPlusSquare, LuSettings, LuSettings2, LuCheck } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
 import { useUserContext } from "../context/UserContext";
@@ -132,8 +132,8 @@ export default function Navbar() {
               </li>
               <li>
                 <Link to="/stories" onClick={handleSideMenuClick} id="story" className={`flex items-center px-2 py-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${clickedLinkId === "story" ? (darkMode ? 'bg-gray-700' : 'bg-gray-100') : ''}`}>
-                  <LuFileVideo className={`text-2xl ${textColor}`} />
-                  <span className="ms-3">Stories</span>
+                  <LuSearch className={`text-2xl ${textColor}`} />
+                  <span className="ms-3">Search</span>
                 </Link>
               </li>
               <li>

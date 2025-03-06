@@ -1,64 +1,96 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useRef, useEffect } from "react";
+import { useFollowUser, useSearchUsers, useSuggestedFriends } from "../hooks/useSearchHook";
+import { LuSearch} from "react-icons/lu";
 
-interface User {
-  _id: string;
-  fullname: string;
-  username: string;
-  profilePic: string;
-}
+import { Link } from "react-router-dom";
 
 const SearchBar: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<User[]>([]);
 
-  // Debounce function to limit API calls
-  const debounce = (func: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
-  };
+  // Custom hooks
+  const { suggestedFriends, loading: suggestedLoading, error: suggestedError } = useSuggestedFriends();
+  const { searchResults, loading: searchLoading, error: searchError } =
+    useSearchUsers(searchQuery);
+  const { followUser } = useFollowUser();
 
-  // Fetch search results from the backend
-  const fetchSearchResults = async (query: string) => {
-    if (!query) {
-      setSearchResults([]);
-      return;
-    }
+  // Ref for the search bar
+  const searchBarRef = useRef<HTMLDivElement>(null);
 
-    try {
-      const response = await axios.get(`http://localhost:5000/api/search?q=${query}`);
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
+  // Handle follow action
+  const handleFollow = async (userId: string) => {
+    const success = await followUser(userId);
+    if (success) {
+      // Update the UI to reflect the follow status
+      console.log(`Followed user with ID: ${userId}`);
     }
   };
 
-  // Debounced search function
-  const debouncedSearch = debounce(fetchSearchResults, 300);
+  // Auto-close sidebar when clicking outside
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      searchBarRef.current &&
+      !searchBarRef.current.contains(event.target as Node)
+    ) {
+      setIsVisible(false);
+    }
+  };
 
   useEffect(() => {
-    debouncedSearch(searchQuery);
-  }, [searchQuery]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      {/* Suggested Friends Section */}
+      <div className="fixed top-[80px] lg:left-64 right-0 w-full lg:w-[83.2%] h-full">
+        <h2 className="text-lg font-semibold p-4">Suggested Friends</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto max-h-[80vh] p-2">
+          {suggestedFriends.map((user) => (
+            <div
+              key={user._id}
+              className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-black rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* User Image */}
+              <img
+                src={user.profilePic}
+                alt={user.fullname}
+                className="w-20 h-20 rounded-full mb-4"
+              />
+              {/* User Name */}
+              <p className="font-semibold text-center ">{user.fullname}</p>
+              {/* Username */}
+              <p className="text-sm text-gray-500 text-center">@{user.username}</p>
+              {/* Follow Button */}
+              <button
+                onClick={() => handleFollow(user._id)}
+                className={`mt-3 px-4 py-2 text-sm rounded-lg transition-all ${user.isFollowing
+                    ? "bg-gray-200 text-gray-700 cursor-not-allowed"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                  }`}
+                disabled={user.isFollowing}
+              >
+                {user.isFollowing ? "Following" : "Follow"}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Toggle Button */}
       <button
         onClick={() => setIsVisible(!isVisible)}
-        className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-all transform hover:scale-105"
+        className="fixed top-[94px] right-4 bg-blue-500 flex text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-all transform hover:scale-105"
       >
-        Search
+        <LuSearch className="mt-1 text-xl font-bold mr-1"/> Search
       </button>
 
       {/* Search Bar */}
       <div
-        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl p-6 transition-all duration-500 ease-in-out transform ${
-          isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-        }`}
+        ref={searchBarRef}
+        className={`fixed top-20 right-0 h-full w-96 bg-white text-black shadow-2xl p-6 transition-all duration-500 ease-in-out transform ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
       >
         {/* Close Button */}
         <button
@@ -87,29 +119,35 @@ const SearchBar: React.FC = () => {
           placeholder="Search users..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full mt-6 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
         />
 
         {/* Search Results */}
-        <div className="mt-4 space-y-2">
-          {searchResults.map((user) => (
-            <div
-              key={user._id}
-              className="p-2 hover:bg-gray-100 cursor-pointer transition-all transform hover:translate-x-2"
-            >
-              <div className="flex items-center">
-                <img
-                  src={user.profilePic}
-                  alt={user.fullname}
-                  className="w-8 h-8 rounded-full mr-2"
-                />
-                <div>
-                  <p className="font-semibold">{user.fullname}</p>
-                  <p className="text-sm text-gray-500">@{user.username}</p>
+        <div className="mt-4 space-y-2 text-black">
+          {searchLoading ? (
+            <p>Loading...</p>
+          ) : searchError ? (
+            <p className="text-red-500">{searchError}</p>
+          ) : (
+            searchResults.map((user) => (
+              <Link to={`/profile/${user._id}`} 
+                key={user._id}
+                className="p-2 hover:bg-gray-100 cursor-pointer transition-all transform hover:translate-x-2"
+              >
+                <div className="flex items-center">
+                  <img
+                    src={user.profilePic}
+                    alt={user.fullname}
+                    className="w-8 h-8 rounded-full mr-2"
+                  />
+                  <div>
+                    <p className="font-semibold">{user.fullname}</p>
+                    <p className="text-sm text-gray-500">@{user.username}</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>
