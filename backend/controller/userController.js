@@ -317,6 +317,7 @@ export const getUserProfileData = async (req, res) => {
                     fullname: 1,
                     username: 1,
                     profilePic: 1,
+                    private: 1,
                     followers: {
                         $map: {
                             input: "$followers",
@@ -326,6 +327,7 @@ export const getUserProfileData = async (req, res) => {
                                 fullname: "$$follower.fullname",
                                 username: "$$follower.username",
                                 profilePic: "$$follower.profilePic",
+                                private: "$$follower.private",
                             },
                         },
                     },
@@ -338,19 +340,26 @@ export const getUserProfileData = async (req, res) => {
                                 fullname: "$$followingUser.fullname",
                                 username: "$$followingUser.username",
                                 profilePic: "$$followingUser.profilePic",
+                                private: "$$followingUser.private", // Include privacy status
                             },
                         },
                     },
                     followRequests: {
-                        _id: 1,
-                        fullname: 1,
-                        username: 1,
-                        profilePic: 1,
+                        $map: {
+                            input: "$followRequests",
+                            as: "requestUser",
+                            in: {
+                                _id: "$$requestUser._id",
+                                fullname: "$$requestUser.fullname",
+                                username: "$$requestUser.username",
+                                profilePic: "$$requestUser.profilePic",
+                                private: "$$requestUser.private", // Include privacy status
+                            },
+                        },
                     },
                 },
             },
         ]);
-
         if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -500,8 +509,8 @@ export const getSpecificUser = async (req, res) => {
 
         // Send the response
         res.json(suggestedFriends);
-        console.log( "suggestedFriends: ", suggestedFriends);
-        
+        console.log("suggestedFriends: ", suggestedFriends);
+
     } catch (error) {
         console.error("Error fetching suggested friends:", error);
         res.status(500).json({ error: "Internal Server Error" });

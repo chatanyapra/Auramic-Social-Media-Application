@@ -8,6 +8,7 @@ interface User {
     email: string;
     profilePic?: string;
     coverImage?: string;
+    private: boolean | false;
     bio?: string;
     followers: UserKnowns[];
     following: UserKnowns[];
@@ -113,7 +114,9 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
     }, [user, auramicAi]);
 
     useEffect(() => {
-        fetchUserData();
+        if(authUser){
+            fetchUserData();
+        }
     }, [authUser, refresh]);
 
     return (

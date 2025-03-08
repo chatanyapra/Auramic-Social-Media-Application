@@ -6,8 +6,8 @@ import generateTokenAndSetCookie from "../securityToken/generateToken.js";
 // signup public
 export const createUser = asyncHandler(async (req, res) => {
     try {
-        const {username, fullname, password, confirmPassword, gender} = req.body;
-        if(!username || !fullname || !password || !confirmPassword || !gender){
+        const {username, fullname, password, confirmPassword} = req.body;
+        if(!username || !fullname || !password || !confirmPassword){
             return res.status(400).json({error: "All fields are mandatory!"});
         }
         if(confirmPassword !== password){
@@ -20,7 +20,6 @@ export const createUser = asyncHandler(async (req, res) => {
         
         // profile pics
         const boyProfilePic = `https://avatar.iran.liara.run/public/boy/?username=${username}`;
-        const girlProfilePic = `https://avatar.iran.liara.run/public/girl/?username=${username}`;
         // password hashing
         const hashedPassword= await bcrypt.hash(password, 10);
         console.log(hashedPassword);
@@ -28,8 +27,7 @@ export const createUser = asyncHandler(async (req, res) => {
             fullname,
             username, 
             password: hashedPassword,
-            gender,
-            profilePic: gender === "male" ? boyProfilePic : girlProfilePic
+            profilePic: boyProfilePic
         })
         if(newUser){
             // generate JWT token-----
@@ -47,7 +45,7 @@ export const createUser = asyncHandler(async (req, res) => {
         
         res.status(200).json({message: "User Created"});
     } catch (error) { 
-        console.log("Error in Signup COntroller", error.message);
+        console.log("Error in Signup Controller", error.message);
         res.status(500).json({message: "Internal Server Error!"});
     }
 })

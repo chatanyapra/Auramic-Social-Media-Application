@@ -24,14 +24,15 @@ const useLogout = (): UseLogout => {
             }
             localStorage.removeItem("auramic-socialmedia-logged-user");
             setAuthUser(null);
+            toast.success("Logged out successfully!"); // Success message
         } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error.message); // Error message
         } finally {
             setLoading(false);
         }
     };
 
     return { loading, logout };
-}
+};
 
 export default useLogout;

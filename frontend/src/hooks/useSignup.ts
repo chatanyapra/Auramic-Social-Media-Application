@@ -27,7 +27,7 @@ function handleInputError({ fullname, username, password, confirmPassword }: Sig
 
 const useSignup = () => {
     const [loading, setLoading] = useState<boolean>(false);
-    const {setAuthUser} = useAuthContext();
+    const { setAuthUser } = useAuthContext();
 
     const signup = async ({ fullname, username, password, confirmPassword }: SignupData) => {
         const success = handleInputError({ fullname, username, password, confirmPassword });
@@ -42,22 +42,21 @@ const useSignup = () => {
             });
 
             const data = await res.json();
-            if(data.error){
+            if (data.error) {
                 throw new Error(data.error);
+            } else {
+                localStorage.setItem("auramic-socialmedia-logged-user", JSON.stringify(data));
+                setAuthUser(data);
+                toast.success("Signup successful! Welcome!"); // Success message
             }
-            console.log(data);
-            
-            localStorage.setItem("auramic-socialmedia-logged-user", JSON.stringify(data));
-            setAuthUser(data);
-
         } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error.message); // Error message
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return { loading, signup };
-}
+};
 
 export default useSignup;

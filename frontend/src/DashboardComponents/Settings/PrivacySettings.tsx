@@ -1,34 +1,27 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useUserContext } from "../../context/UserContext";
 
 const PrivacySettings: React.FC = () => {
-  const [isPrivate, setIsPrivate] = useState(false); // Initial state from user data
+  const { user } = useUserContext();
+  const [isPrivate, setIsPrivate] = useState(user?.private); // Initial state from user data
   const [loading, setLoading] = useState(false);
-
-  // Fetch initial privacy setting from the backend
-  React.useEffect(() => {
-    const fetchPrivacySetting = async () => {
-      try {
-        const response = await axios.get("/api/user/privacy");
-        setIsPrivate(response.data.isPrivate);
-      } catch (error) {
-        console.error("Error fetching privacy setting:", error);
-      }
-    };
-
-    fetchPrivacySetting();
-  }, []);
 
   // Handle toggle privacy setting
   const handleTogglePrivacy = async () => {
     setLoading(true);
     try {
-      const response = await axios.put("/api/user/privacy", {
+      const response = await axios.put("/api/account/privacy", {
         isPrivate: !isPrivate,
       });
       setIsPrivate(response.data.isPrivate);
+      toast.success(
+        `Account is now ${response.data.isPrivate ? "private" : "public"}.`
+      ); // Success message
     } catch (error) {
       console.error("Error updating privacy setting:", error);
+      toast.error("Failed to update privacy setting. Please try again."); // Error message
     } finally {
       setLoading(false);
     }

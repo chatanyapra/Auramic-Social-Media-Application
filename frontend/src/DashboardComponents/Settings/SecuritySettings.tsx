@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const SecuritySettings: React.FC = () => {
   const [oldPassword, setOldPassword] = useState("");
@@ -11,31 +12,16 @@ const SecuritySettings: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put("/api/user/change-password", {
+      await axios.put("/api/account/change-password", {
         oldPassword,
         newPassword,
       });
-      alert("Password changed successfully!");
+      toast.success("Password changed successfully!"); // Success message
     } catch (error) {
       console.error("Error changing password:", error);
+      toast.error("Failed to change password. Please try again."); // Error message
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Handle account deletion
-  const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete your account? This action cannot be undone."
-    );
-    if (confirmDelete) {
-      try {
-        await axios.delete("/api/user/delete-account");
-        alert("Account deleted successfully!");
-        // Redirect to login or home page
-      } catch (error) {
-        console.error("Error deleting account:", error);
-      }
     }
   };
 
@@ -71,14 +57,6 @@ const SecuritySettings: React.FC = () => {
           {loading ? "Updating..." : "Change Password"}
         </button>
       </form>
-      <div>
-        <button
-          onClick={handleDeleteAccount}
-          className="px-4 py-2 bg-red-500 text-white rounded-md"
-        >
-          Delete Account
-        </button>
-      </div>
     </div>
   );
 };

@@ -1,76 +1,106 @@
-import './App.css'
-import Navbar from './DashboardComponents/Navbar'
+import "./App.css";
+import Navbar from "./DashboardComponents/Navbar";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
-import Profile from './pages/Profile';
-// import Message from './pages/Message';
-// import MessageBox from './component/MessageBox';
-import Create from './pages/Create';
-// import Stories from './pages/Stories';
-import { ThemeProvider } from './context/theme';
-import { useState, useEffect } from 'react';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import { useAuthContext } from './context/AuthContext';
-import MessageChat from './pages/MessageChat';
-import MessageBox2 from './component/MessageBox2';
-import useConversation from './zustandStore/useConversation';
-import CallingRoom from './callingcomponents/CallingRoom';
-import { UserContextProvider } from './context/UserContext';
-import SearchBar from './component/SearchUser';
-import SettingsPage from './pages/SettingsPage';
+import Profile from "./pages/Profile";
+import Create from "./pages/Create";
+import { ThemeProvider } from "./context/theme";
+import { useState, useEffect } from "react";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import { useAuthContext } from "./context/AuthContext";
+import MessageChat from "./pages/MessageChat";
+import MessageBox2 from "./component/MessageBox2";
+import useConversation from "./zustandStore/useConversation";
+import CallingRoom from "./callingcomponents/CallingRoom";
+import { UserContextProvider } from "./context/UserContext";
+import SearchBar from "./component/SearchUser";
+import SettingsPage from "./pages/SettingsPage";
+import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    const storedPref = localStorage.getItem('dark-mode');
+    const storedPref = localStorage.getItem("dark-mode");
     return storedPref ? JSON.parse(storedPref) : false;
   });
   const [textColor, setTextColor] = useState<string>(() => {
-    const storedPref = localStorage.getItem('text-mode');
-    return storedPref ? JSON.parse(storedPref) : '';
+    const storedPref = localStorage.getItem("text-mode");
+    return storedPref ? JSON.parse(storedPref) : "";
   });
 
   useEffect(() => {
-    localStorage.setItem('text-mode', JSON.stringify(textColor));
+    localStorage.setItem("text-mode", JSON.stringify(textColor));
   }, [textColor]);
 
   useEffect(() => {
-    localStorage.setItem('dark-mode', JSON.stringify(darkMode));
+    localStorage.setItem("dark-mode", JSON.stringify(darkMode));
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+
   return (
     <ThemeProvider value={{ darkMode, toggleDarkMode, textColor, setTextColor }}>
-      <UserContextProvider>
-        <Router>
+      <Router>
+        <UserContextProvider>
           <AppContent />
-        </Router>
-      </UserContextProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          <Toaster
+            position="top-right" // Position of the toasts
+            reverseOrder={false} // New toasts appear at the bottom
+            toastOptions={{
+              duration: 3000, // Duration of the toast
+              style: {
+                background: "#363636",
+                color: "#fff",
+              },
+            }}
+          />
+        </UserContextProvider>
+      </Router>
     </ThemeProvider>
   );
 }
 
-function MainLayout() {
-  const { authUser } = useAuthContext();
+function AppContent() {
+  const location = useLocation();
   const { selectedConversation } = useConversation();
+  const { authUser } = useAuthContext();
+  const isCallingRoom = location.pathname.startsWith("/room/");
+
+  if (isCallingRoom) {
+    return (
+      <Routes>
+        <Route path="/room/:roomId" element={<CallingRoom />} />
+      </Routes>
+    );
+  }
 
   return (
     <>
-      {authUser && <Navbar />}
-      <Routes>
-        <Route path="/" element={authUser ? <Home /> : <Login />} />
-        <Route path="/login" element={authUser ? <Navigate to="/" /> : <Login />} />
-        <Route path="/signup" element={authUser ? <Navigate to="/" /> : <Signup />} />
-        {authUser ? (
-          <>
-            {/* <Route path="/searchuser" element={<SearchBar />} /> */}
+      {authUser ? (
+        <>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/create" element={<Create />} />
             <Route path="/stories" element={<SearchBar />} />
             <Route path="/profile" element={<Profile />} />
@@ -78,25 +108,18 @@ function MainLayout() {
             <Route path="/message" element={<MessageChat />} />
             <Route path="/setting" element={<SettingsPage />} />
             <Route path="/messageBox" element={selectedConversation ? <MessageBox2 conversation={selectedConversation} visibility={false} /> : null} />
-          </>
-        ) :
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </>
+      ) : (
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" />} />
-        }
-      </Routes>
+        </Routes>
+      )}
     </>
   );
 }
 
-function AppContent() {
-  const location = useLocation();
-  const isCallingRoom = location.pathname.startsWith("/room/");
-
-  return isCallingRoom ? (
-    <Routes>
-      <Route path="/room/:roomId" element={<CallingRoom />} />
-    </Routes>
-  ) : (
-    <MainLayout />
-  );
-}
 export default App;
