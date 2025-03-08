@@ -96,9 +96,9 @@ export default function Navbar() {
                   </div>
                   <ul className="py-1" role="none">
                     <li>
-                      <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem" >
+                      <Link to={"setting"} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem" >
                         Settings
-                      </a>
+                      </Link>
                     </li>
                     <li>
                       <span onClick={logout} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
@@ -152,10 +152,10 @@ export default function Navbar() {
               </li>
             </ul>
           </div>
-          <div className="cursor-pointer absolute bottom-40 flex p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700" style={{ width: '230px' }}>
+          <Link to={"setting"} className="cursor-pointer absolute bottom-40 flex p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700" style={{ width: '230px' }}>
             <LuSettings className={`text-2xl ${textColor}`} />
             <span className="ms-3">Setting</span>
-          </div>
+          </Link>
           {/* Switch Theme container--- */}
           <div className={`${isSwitchAppearance ? "visible" : "hidden"} z-50`}>
             <div className="fixed bottom-20 lg:bottom-40 left-2">

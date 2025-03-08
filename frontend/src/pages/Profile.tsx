@@ -1,6 +1,6 @@
 import "../Extra.css";
 import "./pages.css";
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { LuCamera, LuGrid, LuLayoutGrid, LuBookmark } from "react-icons/lu";
 import Swal from 'sweetalert2'; // Import SweetAlert
 import axios from 'axios';
@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { useUserContext } from "../context/UserContext";
 import FriendsList from "../component/FriendsList";
+import { useFollowUser } from "../hooks/useSearchHook";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<string>('posts');
@@ -22,12 +23,37 @@ export default function Profile() {
   const { authUser } = useAuthContext();
   const { user, refresh, setRefresh } = useUserContext();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
+  const { followUser } = useFollowUser();
+  const [request, setRequest] = useState<boolean>(false);
+  const [following, setFollowing] = useState(userById?.following || []);
+  
+  
   useEffect(() => {
+    setRequest(false);
     if (!userId) return;
     if (userById?._id === userId || authUser?._id === userId) return;
     getProfileById(userId);
   }, [userId]);
+  
+  useEffect(() => {
+    setRequest(false);
+    setFollowing(userById?.following || []);
+    console.log("following userIb", userById);
+  }, [userById]);
+
+  const handleFollow = async (userId: string) => {
+    const success = await followUser(userId);
+    if (success) {
+      // Update the UI to reflect the follow status
+      setRequest(true);
+      handleFollowingList(userId);
+      console.log(`Followed user with ID: ${userId}`);
+    }
+  };
+
+  const handleFollowingList = useCallback((userId: string) => {
+    setFollowing((prev) => prev.filter((request) => request._id !== userId));
+  }, []);
 
   // Handle file input change for profile image
   const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,6 +189,13 @@ export default function Profile() {
                 </div>
 
                 {/* User Details */}
+                <div className="relative right-0 w-full">
+                  {( userId && following && following?.some((following) => following._id === userId) ) && (
+                    <button disabled={request} onClick={() => handleFollow(userId)} className={`absolute right-0 ${request ? "bg-gray-700" : "bg-blue-500 hover:bg-blue-600"}  flex text-white px-4 py-0.5 rounded-lg shadow-lg  transition-all transform hover:scale-105`}>
+                      {request ? "Requested" : "Follow"}
+                    </button>
+                  )}
+                </div>
                 <h3 className="md:text-3xl text-base font-bold text-black dark:text-white capitalize">{userId ? userById?.fullname : user?.fullname}</h3>
                 <p className="mt-2 text-gray-500 dark:text-white/80 text-sm">
                   {bio}
@@ -193,7 +226,7 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-            <FriendsList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
+            <FriendsList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             {/* Tab Section */}
             <div className="dark:bg-black dark:text-white">
               <div className="mb-4 border-b border-gray-200 dark:border-gray-700">

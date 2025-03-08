@@ -326,15 +326,6 @@ export const getUserProfileData = async (req, res) => {
                                 fullname: "$$follower.fullname",
                                 username: "$$follower.username",
                                 profilePic: "$$follower.profilePic",
-                                mutualFriends: {
-                                    $filter: {
-                                        input: "$following",
-                                        as: "followingUser",
-                                        cond: {
-                                            $in: ["$$followingUser._id", "$$follower.followers"],
-                                        },
-                                    },
-                                },
                             },
                         },
                     },
@@ -347,15 +338,6 @@ export const getUserProfileData = async (req, res) => {
                                 fullname: "$$followingUser.fullname",
                                 username: "$$followingUser.username",
                                 profilePic: "$$followingUser.profilePic",
-                                mutualFriends: {
-                                    $filter: {
-                                        input: "$followers",
-                                        as: "follower",
-                                        cond: {
-                                            $in: ["$$follower._id", "$$followingUser.following"],
-                                        },
-                                    },
-                                },
                             },
                         },
                     },
@@ -503,20 +485,25 @@ export const getSearchUser = async (req, res) => {
 };
 
 export const getSpecificUser = async (req, res) => {
-    const loggedInUserId = req.user._id;
-    const specificUserId = "66c048e50d7696b4b17b5d53";
+    const loggedInUserId = req.user._id; // ID of the logged-in user
+    const specificUserId = "66c048e50d7696b4b17b5d53"; // Specific user ID to exclude
 
     try {
+        // Fetch suggested friends
         const suggestedFriends = await User.find({
-            _id: { $nin: [loggedInUserId, specificUserId] },
-            followers: { $nin: [loggedInUserId] }, // Exclude users already followed
+            _id: { $nin: [loggedInUserId, specificUserId] }, // Exclude logged-in user and specific user
+            followers: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
+            following: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
         })
             .select("fullname username profilePic") // Include only these fields
-            .limit(10);
+            .limit(10); // Limit the results to 10 users
 
+        // Send the response
         res.json(suggestedFriends);
+        console.log( "suggestedFriends: ", suggestedFriends);
+        
     } catch (error) {
         console.error("Error fetching suggested friends:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};

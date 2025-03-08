@@ -1,16 +1,34 @@
 import { Link } from "react-router-dom";
+import { useFollowAcceptUser } from "../hooks/useSearchHook";
 
 interface RequestCardProps {
-    userImage : string;
-    userId : string;
-    userName : string;
-    fullName : string;
+    userImage: string;
+    userId: string;
+    userName: string;
+    fullName: string;
+    onConfirm: (userId: string) => void;
 }
 
-const RequestCard: React.FC<RequestCardProps> = ({ userImage, userName, fullName, userId }) => {
+const RequestCard: React.FC<RequestCardProps> = ({ userImage, userName, fullName, userId, onConfirm }) => {
+    const { followAcceptUser } = useFollowAcceptUser();
+
+    const handleConfirm = async () => {
+        const success = await followAcceptUser(userId);
+        if (success) {
+            console.log(`Follow request accepted for user with ID: ${userId}`);
+            onConfirm(userId);
+        }
+    };
+    const handleDelete = async () => {
+        const success = await followAcceptUser(userId);
+        if (success) {
+            console.log(`Follow request deleted for user with ID: ${userId}`);
+            onConfirm(userId);
+        }
+    };
     return (
         <div className="flex-col width90 m-auto pt-2 border-2 border-gray-100 overflow-hidden pb-2 rounded-xl mb-2 dark:bg-gray-700 dark:text-white">
-            <Link to={`profile/${userId}`}  className="width90 m-auto flex items-start">
+            <Link to={`profile/${userId}`} className="width90 m-auto flex items-start">
                 <div className="rounded-full bg-gray-100 overflow-hidden w-14 h-14">
                     <img src={userImage} className='w-full h-full' alt="user" />
                 </div>
@@ -20,8 +38,8 @@ const RequestCard: React.FC<RequestCardProps> = ({ userImage, userName, fullName
                 </span>
             </Link>
             <div className="width90 m-auto mt-3 flex justify-start">
-                <button className="w-24 shadow-button mr-6 bg-blue-500 font-bold text-gray-100">Confirm</button>
-                <button className="w-24 shadow-button bg-gray-200	font-bold text-gray-700">Delete</button>
+                <button className="w-24 shadow-button mr-6 bg-blue-500 font-bold text-gray-100" onClick={handleConfirm}>Confirm</button>
+                <button className="w-24 shadow-button bg-gray-200	font-bold text-gray-700" onClick={handleDelete}>Delete</button>
             </div>
         </div>
     )

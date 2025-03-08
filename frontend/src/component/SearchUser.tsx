@@ -1,20 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useFollowUser, useSearchUsers, useSuggestedFriends } from "../hooks/useSearchHook";
-import { LuSearch} from "react-icons/lu";
-
+import { LuSearch } from "react-icons/lu";
 import { Link } from "react-router-dom";
 
 const SearchBar: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
   // Custom hooks
   const { suggestedFriends, loading: suggestedLoading, error: suggestedError } = useSuggestedFriends();
   const { searchResults, loading: searchLoading, error: searchError } =
     useSearchUsers(searchQuery);
   const { followUser } = useFollowUser();
-
-  // Ref for the search bar
   const searchBarRef = useRef<HTMLDivElement>(null);
 
   // Handle follow action
@@ -66,8 +62,8 @@ const SearchBar: React.FC = () => {
               <button
                 onClick={() => handleFollow(user._id)}
                 className={`mt-3 px-4 py-2 text-sm rounded-lg transition-all ${user.isFollowing
-                    ? "bg-gray-200 text-gray-700 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
+                  ? "bg-gray-200 text-gray-700 cursor-not-allowed"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
                   }`}
                 disabled={user.isFollowing}
               >
@@ -83,7 +79,7 @@ const SearchBar: React.FC = () => {
         onClick={() => setIsVisible(!isVisible)}
         className="fixed top-[94px] right-4 bg-blue-500 flex text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-all transform hover:scale-105"
       >
-        <LuSearch className="mt-1 text-xl font-bold mr-1"/> Search
+        <LuSearch className="mt-1 text-xl font-bold mr-1" /> Search
       </button>
 
       {/* Search Bar */}
@@ -130,7 +126,7 @@ const SearchBar: React.FC = () => {
             <p className="text-red-500">{searchError}</p>
           ) : (
             searchResults.map((user) => (
-              <Link to={`/profile/${user._id}`} 
+              <Link to={`/profile/${user._id}`}
                 key={user._id}
                 className="p-2 hover:bg-gray-100 cursor-pointer transition-all transform hover:translate-x-2"
               >

@@ -81,3 +81,29 @@ export const useFollowUser = () => {
 
     return { followUser };
 };
+export const useFollowAcceptUser = () => {
+    const followAcceptUser = async (userId: string) => {
+        try {
+            await axios.post(`/api/follow/accept/${userId}`);
+            return true;
+        } catch (err) {
+            console.error("Error following user:", err);
+            return false;
+        }
+    };
+
+    return { followAcceptUser };
+};
+export const useFollowRejectUser = () => {
+    const followAcceptUser = async (userId: string) => {
+        try {
+            await axios.delete(`/api/follow/del-request/${userId}`);
+            return true;
+        } catch (err) {
+            console.error("Error following user:", err);
+            return false;
+        }
+    };
+
+    return { followAcceptUser };
+};

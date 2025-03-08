@@ -1,5 +1,5 @@
 import express from "express";
-import { sendFollowRequest, acceptFollowRequest, unfollowUser } from "../controller/followController.js";
+import { sendFollowRequest, acceptFollowRequest, unfollowUser, deleteFollowRequest } from "../controller/followController.js";
 import protectRoute from "../middleware/protectRoute.js";
 
 const router = express.Router();
@@ -12,5 +12,8 @@ router.post("/accept/:requesterId", protectRoute, acceptFollowRequest);
 
 // Unfollow a user
 router.delete("/unfollow/:unfollowUserId", protectRoute, unfollowUser);
+
+// delete request a user
+router.delete("/del-request/:unfollowUserId", protectRoute, deleteFollowRequest);
 
 export default router;

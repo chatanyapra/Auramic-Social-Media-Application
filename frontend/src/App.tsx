@@ -18,6 +18,7 @@ import useConversation from './zustandStore/useConversation';
 import CallingRoom from './callingcomponents/CallingRoom';
 import { UserContextProvider } from './context/UserContext';
 import SearchBar from './component/SearchUser';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -75,6 +76,7 @@ function MainLayout() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/message" element={<MessageChat />} />
+            <Route path="/setting" element={<SettingsPage />} />
             <Route path="/messageBox" element={selectedConversation ? <MessageBox2 conversation={selectedConversation} visibility={false} /> : null} />
           </>
         ) :
