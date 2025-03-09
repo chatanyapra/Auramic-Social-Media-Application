@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { useFollowAcceptUser } from "../hooks/useSearchHook";
-
+import { useFollowAcceptUser, useFollowRejectUser } from "../hooks/useSearchHook";
 interface RequestCardProps {
     userImage: string;
     userId: string;
@@ -11,18 +10,20 @@ interface RequestCardProps {
 
 const RequestCard: React.FC<RequestCardProps> = ({ userImage, userName, fullName, userId, onConfirm }) => {
     const { followAcceptUser } = useFollowAcceptUser();
+    const { followDeleteUser } = useFollowRejectUser();
 
     const handleConfirm = async () => {
         const success = await followAcceptUser(userId);
         if (success) {
-            console.log(`Follow request accepted for user with ID: ${userId}`);
+
+            // console.log(`Follow request accepted for user with ID: ${userId}`);
             onConfirm(userId);
         }
     };
     const handleDelete = async () => {
-        const success = await followAcceptUser(userId);
+        const success = await followDeleteUser(userId);
         if (success) {
-            console.log(`Follow request deleted for user with ID: ${userId}`);
+            // console.log(`Follow request deleted for user with ID: ${userId}`);
             onConfirm(userId);
         }
     };

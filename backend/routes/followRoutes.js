@@ -14,6 +14,6 @@ router.post("/accept/:requesterId", protectRoute, acceptFollowRequest);
 router.delete("/unfollow/:unfollowUserId", protectRoute, unfollowUser);
 
 // delete request a user
-router.delete("/del-request/:unfollowUserId", protectRoute, deleteFollowRequest);
+router.delete("/del-request/:requestUserId", protectRoute, deleteFollowRequest);
 
 export default router;

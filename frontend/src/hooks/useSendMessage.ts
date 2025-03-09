@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from "react-toastify";
 import useConversation from '../zustandStore/useConversation';
 
 const useSendMessage = () => {

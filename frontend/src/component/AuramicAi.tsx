@@ -7,7 +7,7 @@ import { useSocketContext } from '../context/SocketContext';
 import { MyComponentProps } from "../types/types";
 import AiLoader from './AiLoader';
 import { useSelectTextContext } from '../context/SelectedTextContext';
-import toast from 'react-hot-toast';
+import { toast } from "react-toastify";
 
 const AuramicAi: React.FC<MyComponentProps> = ({ conversation, visibility }: MyComponentProps) => {
     const [newMessageText, setNewMessageText] = useState<string>('');

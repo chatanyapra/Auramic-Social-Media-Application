@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from "react-toastify";
 
 const useUploadStory = () => {
     const [loading, setLoading] = useState<boolean>(false);

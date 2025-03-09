@@ -360,6 +360,7 @@ export const getUserProfileData = async (req, res) => {
                 },
             },
         ]);
+        
         if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -433,17 +434,20 @@ export const getUserProfileDataById = async (req, res) => {
                     fullname: 1,
                     username: 1,
                     profilePic: 1,
+                    private: 1,
                     followers: {
                         _id: 1,
                         fullname: 1,
                         username: 1,
                         profilePic: 1,
+                        private: 1,
                     },
                     following: {
                         _id: 1,
                         fullname: 1,
                         username: 1,
                         profilePic: 1,
+                        private: 1,
                     },
                 },
             },

@@ -1,4 +1,7 @@
 import User from "../models/userModel.js";
+import mongoose from 'mongoose';
+const { ObjectId } = mongoose.Types;
+
 export const sendFollowRequest = async (req, res) => {
   try {
     const userId = req.user._id; // Logged-in user's ID
@@ -145,6 +148,10 @@ export const deleteFollowRequest = async (req, res) => {
     const userId = req.user._id; // Logged-in user (the one who received the request)
     const { requestUserId } = req.params; // User who sent the follow request
 
+    // Convert requestUserId to ObjectId
+    const requestUserIdObj = new ObjectId(requestUserId);
+
+    // Find the current user
     const currentUser = await User.findById(userId);
 
     // Check if the current user exists
@@ -152,15 +159,19 @@ export const deleteFollowRequest = async (req, res) => {
       return res.status(404).json({ message: "User not found!" });
     }
 
+    // Debug logs
+    console.log("Current User Follow Requests:", currentUser.followRequests);
+    console.log("Request User ID:", requestUserId);
+
     // Check if the requestUserId exists in the followRequests array
-    if (!currentUser.followRequests.includes(requestUserId)) {
+    if (!currentUser.followRequests.some(id => id.equals(requestUserIdObj))) {
       return res.status(400).json({ message: "Follow request not found!" });
     }
 
     // Remove the requestUserId from the followRequests array
     await User.findByIdAndUpdate(
       userId,
-      { $pull: { followRequests: requestUserId } }, // Remove requestUserId from followRequests
+      { $pull: { followRequests: requestUserIdObj } }, // Remove requestUserId from followRequests
       { new: true } // Return the updated document
     );
 

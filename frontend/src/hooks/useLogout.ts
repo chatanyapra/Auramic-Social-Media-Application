@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthContext } from "../context/AuthContext";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 
 interface UseLogout {
     loading: boolean;

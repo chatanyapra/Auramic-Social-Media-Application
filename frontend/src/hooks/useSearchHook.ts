@@ -95,7 +95,9 @@ export const useFollowAcceptUser = () => {
     return { followAcceptUser };
 };
 export const useFollowRejectUser = () => {
-    const followAcceptUser = async (userId: string) => {
+    const followDeleteUser = async (userId: string) => {
+        console.log("userId", userId);
+        
         try {
             await axios.delete(`/api/follow/del-request/${userId}`);
             return true;
@@ -105,5 +107,5 @@ export const useFollowRejectUser = () => {
         }
     };
 
-    return { followAcceptUser };
+    return { followDeleteUser };
 };

@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../context/UserContext";
 
 const PrivacySettings: React.FC = () => {
   const { user } = useUserContext();
-  const [isPrivate, setIsPrivate] = useState(user?.private); // Initial state from user data
+  const [isPrivate, setIsPrivate] = useState<boolean>(false); // Default to false
   const [loading, setLoading] = useState(false);
+
+  // Update isPrivate state when user data changes
+  useEffect(() => {
+    if (user?.private !== undefined) {
+      setIsPrivate(user.private);
+    }
+  }, [user]);
 
   // Handle toggle privacy setting
   const handleTogglePrivacy = async () => {

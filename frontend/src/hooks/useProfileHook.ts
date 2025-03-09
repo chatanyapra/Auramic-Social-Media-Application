@@ -7,6 +7,7 @@ interface User {
   email: string;
   profilePic?: string;
   coverImage?: string;
+  private: boolean | false;
   bio?: string;
   followers: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
   following: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
