@@ -289,78 +289,80 @@ export const getUserProfileData = async (req, res) => {
         const user = await User.aggregate([
             { $match: { _id: new mongoose.Types.ObjectId(userId) } }, // Match the logged-in user
             {
-                $lookup: {
-                    from: "users",
-                    localField: "followers",
-                    foreignField: "_id",
-                    as: "followers",
-                },
+              $lookup: {
+                from: "users",
+                localField: "followers",
+                foreignField: "_id",
+                as: "followers",
+              },
             },
             {
-                $lookup: {
-                    from: "users",
-                    localField: "following",
-                    foreignField: "_id",
-                    as: "following",
-                },
+              $lookup: {
+                from: "users",
+                localField: "following",
+                foreignField: "_id",
+                as: "following",
+              },
             },
             {
-                $lookup: {
-                    from: "users",
-                    localField: "followRequests",
-                    foreignField: "_id",
-                    as: "followRequests",
-                },
+              $lookup: {
+                from: "users",
+                localField: "followRequests",
+                foreignField: "_id",
+                as: "followRequests",
+              },
             },
             {
-                $project: {
-                    fullname: 1,
-                    username: 1,
-                    profilePic: 1,
-                    private: 1,
-                    followers: {
-                        $map: {
-                            input: "$followers",
-                            as: "follower",
-                            in: {
-                                _id: "$$follower._id",
-                                fullname: "$$follower.fullname",
-                                username: "$$follower.username",
-                                profilePic: "$$follower.profilePic",
-                                private: "$$follower.private",
-                            },
-                        },
+              $project: {
+                fullname: 1,
+                username: 1,
+                profilePic: 1,
+                private: 1,
+                followersCount: { $size: "$followers" }, // Count of followers
+                followingCount: { $size: "$following" }, // Count of following
+                followers: {
+                  $map: {
+                    input: "$followers",
+                    as: "follower",
+                    in: {
+                      _id: "$$follower._id",
+                      fullname: "$$follower.fullname",
+                      username: "$$follower.username",
+                      profilePic: "$$follower.profilePic",
+                      private: "$$follower.private",
                     },
-                    following: {
-                        $map: {
-                            input: "$following",
-                            as: "followingUser",
-                            in: {
-                                _id: "$$followingUser._id",
-                                fullname: "$$followingUser.fullname",
-                                username: "$$followingUser.username",
-                                profilePic: "$$followingUser.profilePic",
-                                private: "$$followingUser.private", // Include privacy status
-                            },
-                        },
-                    },
-                    followRequests: {
-                        $map: {
-                            input: "$followRequests",
-                            as: "requestUser",
-                            in: {
-                                _id: "$$requestUser._id",
-                                fullname: "$$requestUser.fullname",
-                                username: "$$requestUser.username",
-                                profilePic: "$$requestUser.profilePic",
-                                private: "$$requestUser.private", // Include privacy status
-                            },
-                        },
-                    },
+                  },
                 },
+                following: {
+                  $map: {
+                    input: "$following",
+                    as: "followingUser",
+                    in: {
+                      _id: "$$followingUser._id",
+                      fullname: "$$followingUser.fullname",
+                      username: "$$followingUser.username",
+                      profilePic: "$$followingUser.profilePic",
+                      private: "$$followingUser.private", // Include privacy status
+                    },
+                  },
+                },
+                followRequests: {
+                  $map: {
+                    input: "$followRequests",
+                    as: "requestUser",
+                    in: {
+                      _id: "$$requestUser._id",
+                      fullname: "$$requestUser.fullname",
+                      username: "$$requestUser.username",
+                      profilePic: "$$requestUser.profilePic",
+                      private: "$$requestUser.private", // Include privacy status
+                    },
+                  },
+                },
+              },
             },
-        ]);
-        
+          ]);
+
         if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -418,7 +420,7 @@ export const getUserProfileDataById = async (req, res) => {
                     from: "users",
                     localField: "followers",
                     foreignField: "_id",
-                    as: "followers",
+                    as: "followersData", // Temporary field for followers data
                 },
             },
             {
@@ -426,7 +428,7 @@ export const getUserProfileDataById = async (req, res) => {
                     from: "users",
                     localField: "following",
                     foreignField: "_id",
-                    as: "following",
+                    as: "followingData", // Temporary field for following data
                 },
             },
             {
@@ -435,19 +437,49 @@ export const getUserProfileDataById = async (req, res) => {
                     username: 1,
                     profilePic: 1,
                     private: 1,
+                    followersCount: { $size: "$followersData" }, // Always compute the count of followers
+                    followingCount: { $size: "$followingData" }, // Always compute the count of following
                     followers: {
-                        _id: 1,
-                        fullname: 1,
-                        username: 1,
-                        profilePic: 1,
-                        private: 1,
+                        // Conditional logic for followers
+                        $cond: {
+                            if: "$private", // Check if the account is private
+                            then: [], // Return empty array if private
+                            else: {
+                                // Return full details if not private
+                                $map: {
+                                    input: "$followersData",
+                                    as: "follower",
+                                    in: {
+                                        _id: "$$follower._id",
+                                        fullname: "$$follower.fullname",
+                                        username: "$$follower.username",
+                                        profilePic: "$$follower.profilePic",
+                                        private: "$$follower.private",
+                                    },
+                                },
+                            },
+                        },
                     },
                     following: {
-                        _id: 1,
-                        fullname: 1,
-                        username: 1,
-                        profilePic: 1,
-                        private: 1,
+                        // Conditional logic for following
+                        $cond: {
+                            if: "$private", // Check if the account is private
+                            then: [], // Return empty array if private
+                            else: {
+                                // Return full details if not private
+                                $map: {
+                                    input: "$followingData",
+                                    as: "followingUser",
+                                    in: {
+                                        _id: "$$followingUser._id",
+                                        fullname: "$$followingUser.fullname",
+                                        username: "$$followingUser.username",
+                                        profilePic: "$$followingUser.profilePic",
+                                        private: "$$followingUser.private",
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
             },

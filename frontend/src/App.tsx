@@ -17,7 +17,6 @@ import { UserContextProvider } from "./context/UserContext";
 import SearchBar from "./component/SearchUser";
 import SettingsPage from "./pages/SettingsPage";
 import { ToastContainer } from "react-toastify";
-import { Toaster } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -63,17 +62,6 @@ function App() {
             draggable
             pauseOnHover
           />
-          <Toaster
-            position="top-right" // Position of the toasts
-            reverseOrder={false} // New toasts appear at the bottom
-            toastOptions={{
-              duration: 3000, // Duration of the toast
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-            }}
-          />
         </UserContextProvider>
       </Router>
     </ThemeProvider>
@@ -102,7 +90,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/create" element={<Create />} />
-            <Route path="/stories" element={<SearchBar />} />
+            <Route path="/search" element={<SearchBar />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/message" element={<MessageChat />} />

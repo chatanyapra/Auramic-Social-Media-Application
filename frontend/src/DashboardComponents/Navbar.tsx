@@ -131,7 +131,7 @@ export default function Navbar() {
                 </Link>
               </li>
               <li>
-                <Link to="/stories" onClick={handleSideMenuClick} id="story" className={`flex items-center px-2 py-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${clickedLinkId === "story" ? (darkMode ? 'bg-gray-700' : 'bg-gray-100') : ''}`}>
+                <Link to="/search" onClick={handleSideMenuClick} id="story" className={`flex items-center px-2 py-3 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${clickedLinkId === "story" ? (darkMode ? 'bg-gray-700' : 'bg-gray-100') : ''}`}>
                   <LuSearch className={`text-2xl ${textColor}`} />
                   <span className="ms-3">Search</span>
                 </Link>

@@ -9,6 +9,8 @@ interface User {
   coverImage?: string;
   private: boolean | false;
   bio?: string;
+  followersCount: number;
+  followingCount: number;
   followers: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
   following: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
   followRequests: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;

@@ -59,23 +59,24 @@ const SearchBar: React.FC = () => {
                 className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-black rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* User Image */}
-                <img
-                  src={user.profilePic}
-                  alt={user.fullname}
-                  className="w-20 h-20 rounded-full mb-4"
-                />
-                {/* User Name */}
-                <p className="font-semibold text-center ">{user.fullname}</p>
-                {/* Username */}
-                <p className="text-sm text-gray-500 text-center">@{user.username}</p>
-                {/* Follow Button */}
+                <Link to={`/profile/${user._id}`} className="flex flex-col items-center justify-center">
+                  <img
+                    src={user.profilePic}
+                    alt={user.fullname}
+                    className="w-20 h-20 rounded-full mb-4"
+                  />
+                  {/* User Name */}
+                  <p className="font-semibold text-center ">{user.fullname}</p>
+                  {/* Username */}
+                  <p className="text-sm text-gray-500 text-center">@{user.username}</p>
+                  {/* Follow Button */}
+                </Link>
                 <button
                   onClick={() => handleFollow(user._id)}
-                  className={`mt-3 px-4 py-2 text-sm rounded-lg transition-all ${
-                    isFollowing
-                      ? "bg-gray-200 text-gray-700 cursor-not-allowed"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
+                  className={`mt-3 px-4 py-2 text-sm rounded-lg transition-all ${isFollowing
+                    ? "bg-gray-200 text-gray-700 cursor-not-allowed"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                    }`}
                   disabled={isFollowing || isPending}
                 >
                   {isFollowing ? "Following" : isPending ? "Request" : "Follow"}
@@ -97,9 +98,8 @@ const SearchBar: React.FC = () => {
       {/* Search Bar */}
       <div
         ref={searchBarRef}
-        className={`fixed top-20 right-0 h-full w-96 bg-white text-black shadow-2xl p-6 transition-all duration-500 ease-in-out transform ${
-          isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-        }`}
+        className={`fixed top-20 right-0 h-full w-96 bg-white text-black shadow-2xl p-6 transition-all duration-500 ease-in-out transform ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
       >
         {/* Close Button */}
         <button

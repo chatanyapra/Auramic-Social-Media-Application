@@ -26,15 +26,15 @@ export default function Profile() {
   const { followUser } = useFollowUser();
   const [request, setRequest] = useState<boolean>(false);
   const [following, setFollowing] = useState(userById?.following || []);
-  
-  
+
+
   useEffect(() => {
     setRequest(false);
     if (!userId) return;
     if (userById?._id === userId || authUser?._id === userId) return;
     getProfileById(userId);
   }, [userId]);
-  
+
   useEffect(() => {
     setRequest(false);
     setFollowing(userById?.following || []);
@@ -190,7 +190,7 @@ export default function Profile() {
 
                 {/* User Details */}
                 <div className="relative right-0 w-full">
-                  {( userId && following && following?.some((following) => following._id === userId) ) && (
+                  {(userId && !userById?.private && following?.some((following) => following._id === userId)) && (
                     <button disabled={request} onClick={() => handleFollow(userId)} className={`absolute right-0 ${request ? "bg-gray-700" : "bg-blue-500 hover:bg-blue-600"}  flex text-white px-4 py-0.5 rounded-lg shadow-lg  transition-all transform hover:scale-105`}>
                       {request ? "Requested" : "Follow"}
                     </button>
@@ -216,17 +216,21 @@ export default function Profile() {
                 <div className="mt-2 md:flex">
                   <div className="pr-4 font-medium text-gray-600"><span className="font-bold text-black dark:text-white">10</span> Posts</div>
                   <div className="pr-4 font-medium text-gray-600 cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                    <span className="font-bold text-black dark:text-white">{userId ? userById?.followers.length : user?.followers.length}</span>
+                    <span className="font-bold text-black dark:text-white">{userId ? userById?.followersCount : user?.followersCount}</span>
                     followers
                   </div>
                   <div className="pr-4 font-medium text-gray-600 cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                    <span className="font-bold text-black dark:text-white">{userId ? userById?.following.length : user?.following.length}</span>
+                    <span className="font-bold text-black dark:text-white">{userId ? userById?.followingCount : user?.followingCount}</span>
                     following
                   </div>
                 </div>
               </div>
             </div>
-            <FriendsList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+            {userId && userById?.private ? (
+              <div className="text-blue-700 text-sm font-semibold text-center dark:bg-black">This account is private</div>
+            ) : (
+              <FriendsList isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+            )}
             {/* Tab Section */}
             <div className="dark:bg-black dark:text-white">
               <div className="mb-4 border-b border-gray-200 dark:border-gray-700">

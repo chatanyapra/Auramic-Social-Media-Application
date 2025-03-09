@@ -10,6 +10,8 @@ interface User {
     coverImage?: string;
     private: boolean | false;
     bio?: string;
+    followersCount: number;
+    followingCount: number;
     followers: UserKnowns[];
     following: UserKnowns[];
     followRequests: UserKnowns[];
@@ -17,16 +19,16 @@ interface User {
 interface Story {
     _id: string;
     userId: {
-      _id: string;
-      username: string;
-      profilePic: string;
+        _id: string;
+        username: string;
+        profilePic: string;
     };
     caption?: string;
     file: { url: string; alt: string }[];
     commentAllowed: boolean;
     expiresAt: string;
-  }
-interface UserKnowns{
+}
+interface UserKnowns {
     _id: string;
     fullname: string;
     username: string;
@@ -96,8 +98,8 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
     // Calculate confirmed friends when user data changes
     useEffect(() => {
         if (user) {
-            const mutualFollowers = user.followers.filter(follower => 
-                user.following.some(followingUser => 
+            const mutualFollowers = user.followers.filter(follower =>
+                user.following.some(followingUser =>
                     followingUser?._id === follower?._id
                 )
             );
@@ -109,27 +111,27 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
             }
 
             setConfirmedFriends(confirmedFriendsList);
-            
+
         }
     }, [user, auramicAi]);
 
     useEffect(() => {
-        if(authUser){
+        if (authUser) {
             fetchUserData();
         }
     }, [authUser, refresh]);
 
     return (
-        <UserContext.Provider value={{ 
-            user, 
-            stories, 
-            loading, 
-            error, 
+        <UserContext.Provider value={{
+            user,
+            stories,
+            loading,
+            error,
             refresh,
             setRefresh,
             auramicAiId,
             confirmedFriends,
-            fetchUserData 
+            fetchUserData
         }}>
             {children}
         </UserContext.Provider>
