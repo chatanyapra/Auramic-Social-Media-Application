@@ -1,4 +1,4 @@
-import Like from "../models/Like.js";
+import Like from "../models/likeModel.js";
 
 // Like a post
 export const likePost = async (req, res) => {

@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, getFeedPosts, deletePost } from "../controller/postController.js";
+import { createPost, deletePost, getFeedData } from "../controller/postController.js";
 import protectRoute from "../middleware/protectRoute.js";
 import upload from "../middleware/fileUpload.js";
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/", protectRoute, upload.array('files', 3), createPost);
 
 // Get all posts from followed users
-router.get("/feed", protectRoute, getFeedPosts);
+router.get("/feed", protectRoute, getFeedData);
 
 // Delete a post
 router.delete("/:id", protectRoute, deletePost);

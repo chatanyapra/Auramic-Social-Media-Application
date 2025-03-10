@@ -1,6 +1,6 @@
 import express from "express";
-import { addComment, deleteComment } from "../controllers/commentController.js";
-import protectRoute from "../middlewares/protectRoute.js";
+import protectRoute from "../middleware/protectRoute.js";
+import { addComment, deleteComment } from "../controller/commentController.js";
 
 const router = express.Router();
 

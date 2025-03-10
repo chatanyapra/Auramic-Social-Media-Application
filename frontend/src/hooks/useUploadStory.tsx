@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { toast } from "react-toastify";
+import { useUserContext } from '../context/UserContext';
 
 const useUploadStory = () => {
+    const {setRefresh} = useUserContext();
     const [loading, setLoading] = useState<boolean>(false);
 
     const uploadStory = async (storyCaption: string, file: File[], isChecked: boolean) => {
@@ -25,7 +27,9 @@ const useUploadStory = () => {
             if (data.error) {
                 throw new Error(data.error);
             }
+            setRefresh((prev) => !prev);
             toast.success("Story uploaded successfully!"); // Success message
+
         } catch (error: any) {
             toast.error(error.message); // Error message
         } finally {

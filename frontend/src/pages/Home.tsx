@@ -2,16 +2,16 @@ import { useState, useContext, useEffect, useCallback, useMemo } from "react";
 import { ThemeContext } from "../context/theme";
 import RequestCard from "../component/RequestCard";
 import ConfirmCard from "../component/ConfirmCard";
-import FeedPostCard from "../component/FeedPostCard";
+// import FeedPostCard from "../component/FeedPostCard";
 import { useUserContext } from "../context/UserContext";
 import StoryGallery from "../component/StoryGallery";
 import { CollapsibleSection } from "../component/CollapsibleSection";
+import FeedPage from "./FeedPage";
 
 export default function Home() {
   const { user, confirmedFriends, auramicAiId } = useUserContext();
   const [collapseStyle2, setCollapseStyle2] = useState(0);
   const [followRequests, setFollowRequests] = useState(user?.followRequests || []);
-
   const themeContext = useContext(ThemeContext);
 
   if (!themeContext) {
@@ -38,16 +38,21 @@ export default function Home() {
   }, []);
 
   // Memoized list of FeedPostCards to avoid unnecessary re-renders
-  const feedPosts = useMemo(
-    () =>
-      Array.from({ length: 10 }, (_, index) => (
-        <FeedPostCard
-          key={index}
-          postVideo={`https://picsum.photos/200/300?random=${index + 1}`}
-        />
-      )),
-    []
-  );
+  // const postImages = [
+  //   "https://picsum.photos/200/300?random=12",
+  //   "https://picsum.photos/200/300?random=14",
+  //   "https://picsum.photos/200/300?random=16",
+  // ];
+  // const feedPosts = useMemo(
+  //   () =>
+  //     Array.from({ length: 10 }, (_, index) => (
+  //       <FeedPostCard
+  //         key={index}
+  //         postImages={postImages}
+  //       />
+  //     )),
+  //   []
+  // );
 
   // Memoized list of confirmed friends excluding auramicAiId
   const filteredConfirmedFriends = useMemo(
@@ -56,7 +61,7 @@ export default function Home() {
   );
 
   return (
-    <div className="max-xl:px-0 px-14 py-6 lg:ml-64 dark:bg-gray-700 dark:text-white">
+    <div className="max-xl:px-0 px-14 py-6 lg:ml-64 dark:bg-gray-700 dark:text-white min-h-screen">
       <div className="story-scroll-section p-2 md:p-4 dark:border-gray-700 mt-14">
         <div className="grid grid-cols-3 gap-5 mb-4">
           {/* Story and Feed Posts Section */}
@@ -67,7 +72,8 @@ export default function Home() {
               </div>
             </div>
             {/* Feed Posts */}
-            {feedPosts}
+            {/* {feedPosts} */}
+            <FeedPage/>
           </div>
 
           {/* Request and Confirm Friends Section */}

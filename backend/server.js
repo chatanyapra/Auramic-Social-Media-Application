@@ -12,6 +12,8 @@ import bodyParser from 'body-parser';
 import storyRoutes from "./routes/storyRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import followRoutes from "./routes/followRoutes.js";
+import likeRoutes from "./routes/likeRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 import cors from 'cors';
 
 const port = 5001;
@@ -32,6 +34,8 @@ app.use("/api/account/", accountRoutes);
 app.use("/api/stories", storyRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/follow", followRoutes);
+app.use("/api/likes", likeRoutes);
+app.use("/api/comments", commentRoutes);
 
 app.use(express.static(path.join(__dirname,"/frontend/dist")));
 

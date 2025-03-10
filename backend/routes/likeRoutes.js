@@ -1,6 +1,6 @@
 import express from "express";
-import { likePost, unlikePost } from "../controllers/likeController.js";
-import protectRoute from "../middlewares/protectRoute.js";
+import protectRoute from "../middleware/protectRoute.js";
+import { likePost, unlikePost } from "../controller/likeController.js";
 
 const router = express.Router();
 

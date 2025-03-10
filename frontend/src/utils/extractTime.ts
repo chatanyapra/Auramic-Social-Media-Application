@@ -31,7 +31,7 @@ export const formatDate = (timestamp: string): string => {
     const day = padZero(date.getDate());
     const month = getMonthName(date.getMonth());
     const year = date.getFullYear();
-    return `${day} / ${month} / ${year}`;
+    return `${day}/${month}/${year}`;
 };
 
 function getMonthName(monthIndex: number): string {
