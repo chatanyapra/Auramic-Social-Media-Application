@@ -7,46 +7,78 @@ import Story from "../models/postModel.js";
 // @access  Protected
 export const addComment = async (req, res) => {
     try {
-        const { postId, storyId, text } = req.body;
-        const userId = req.user.id; // Extract user from auth middleware
+        const { text } = req.body;
+        const { postId } = req.params;
+        const userId = req.user._id; // Extract user from auth middleware
+        console.log("postId, text, userId", postId, text, userId);
 
+        // Validate input
         if (!text) {
             return res.status(400).json({ message: "Comment text is required" });
         }
 
-        if (!postId && !storyId) {
-            return res.status(400).json({ message: "Post ID or Story ID is required" });
+        if (!postId) {
+            return res.status(400).json({ message: "Post ID is required" });
         }
 
+        // Create a new comment
         const comment = new Comment({
             userId,
             text,
             postId: postId || null,
-            storyId: storyId || null
         });
 
+        // Save the comment to the database
         await comment.save();
 
-        // Push comment reference into respective post or story
+        // Push comment reference into the respective post
         if (postId) {
             await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
-        } else if (storyId) {
-            await Story.findByIdAndUpdate(storyId, { $push: { comments: comment._id } });
         }
 
-        res.status(201).json({ message: "Comment added successfully", comment });
+        // Populate the userId field with user details
+        const populatedComment = await Comment.findById(comment._id).populate(
+            "userId",
+            "username profilePic"
+        );
+
+        console.log("comment", populatedComment);
+
+        // Return the populated comment
+        res.status(201).json({ message: "Comment added successfully", comment: populatedComment });
     } catch (error) {
         res.status(500).json({ message: "Error adding comment", error: error.message });
     }
 };
 
-// @desc    Delete a comment
-// @route   DELETE /api/comments/:id
-// @access  Protected
+export const getCommentsByPostId = async (req, res) => {
+    try {
+        const { postId } = req.params;
+
+        // Validate the postId
+        if (!postId) {
+            return res.status(400).json({ message: "Post ID is required" });
+        }
+
+        // Fetch comments from the database and populate user details
+        const comments = await Comment.find({ postId })
+            .populate("userId", "username profilePic") // Populate user details
+            .sort({ createdAt: -1 })
+            .limit(15);
+        console.log("commentsoooo", comments);
+
+        // Return the comments
+        res.status(200).json({ comments });
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+        res.status(500).json({ message: "Failed to fetch comments" });
+    }
+};
+
 export const deleteComment = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user.id; // Extract user from auth middleware
+        const userId = req.user._id; // Extract user from auth middleware
 
         const comment = await Comment.findById(id);
         if (!comment) {

@@ -56,6 +56,32 @@ interface GroupedMessages {
     messages: MessageType[];
 }
 
+export const getTimeAgo = (dateString: string): string => {
+    const date: Date = new Date(dateString); // Convert the date string to a Date object
+    const now: Date = new Date(); // Get the current date and time
+    const timeDiff: number = now.getTime() - date.getTime(); // Calculate the difference in milliseconds
+
+    // Convert time difference to seconds, minutes, hours, days, and weeks
+    const seconds: number = Math.floor(timeDiff / 1000);
+    const minutes: number = Math.floor(seconds / 60);
+    const hours: number = Math.floor(minutes / 60);
+    const days: number = Math.floor(hours / 24);
+    const weeks: number = Math.floor(days / 7);
+
+    // Determine the appropriate time unit
+    if (weeks > 0) {
+        return `${weeks} w$`;
+    } else if (days > 0) {
+        return `${days} d`;
+    } else if (hours > 0) {
+        return `${hours} h`;
+    } else if (minutes > 0) {
+        return `${minutes} m`;
+    } else {
+        return `${seconds} s`;
+    }
+}
+
 export const groupMessagesByDate = (messages: MessageType[]): GroupedMessages[] => {
     const groupedMessages: { [key: string]: MessageType[] } = {};
 

@@ -4,33 +4,60 @@ import logoImage from "../assets/image/auramicimage.png";
 import './components.css';
 import { LuMoreVertical, LuBookmark, LuEyeOff, LuUserMinus, LuMessageCircle, LuShare2 } from "react-icons/lu";
 import { formatDate, formatTime } from "../utils/extractTime";
+import CommentModal from "./CommentModal"; // Import the CommentModal component
 
 interface FeedPostCardProps {
     postImages: string[]; // Array of image URLs
-    text: string; // Username of the post creator
-    fullname: string; // Username of the post creator
+    text: string; // Post text
+    fullname: string; // Full name of the post creator
     username: string; // Username of the post creator
     profilePic: string; // Profile picture of the post creator
     createdAt: string; // Timestamp of the post
-    comments: any[]; // Array of comments
-    likes: any[]; // Array of likes
+    commentsCount: number; // Number of comments
+    likesCount: number; // Number of likes
+    postId: string; // Unique ID of the post
+}
+interface User {
+    _id: string;
+    username: string;
+    profilePic: string;
 }
 
-const FeedPostCard: React.FC<FeedPostCardProps> = ({postImages, username, fullname, profilePic, text, createdAt, comments, likes, }) => {
+interface Comment {
+    _id: string;
+    text: string;
+    createdAt: string;
+    userId: User;
+    postId: string;
+}
+const FeedPostCard: React.FC<FeedPostCardProps> = ({
+    postImages,
+    text,
+    fullname,
+    username,
+    profilePic,
+    createdAt,
+    commentsCount,
+    likesCount,
+    postId,
+}) => {
+    console.log("postId"+postId);
+    
     const time = formatTime(createdAt);
     const date = formatDate(createdAt);
-    
-    
+
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0); // Track current image index
-    const galleryRef = useRef<HTMLDivElement>(null); // Ref for the gallery container
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+    const [comments, setComments] = useState<Comment[]>([]); // State to store comments
+
+    const galleryRef = useRef<HTMLDivElement>(null);
 
     const handleUserMenuToggle = () => {
         setIsUserMenuOpen(!isUserMenuOpen);
     };
 
     const [isExpanded, setIsExpanded] = useState(false);
-
     const content = text || "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod urna ut nulla elementum, id pretium quam lobortis. Nulla vitae massa nec sem tincidunt semper et id arcu. Nullam hendrerit, eros nec tempus dapibus, massa erat tempus nulla, ut euismod neque ipsum ac mi. Phasellus fringilla lacus a nunc tempor, vel lacinia sem convallis. Nulla auctor risus vel varius vestibulum. Proin vel enim vitae erat vestibulum iaculis a ac libero. In nec tristique dolor, a tempus libero. Sed convallis consequat ligula, at dignissim nunc pellentesque id. Vestibulum facilisis metus eget justo volutpat vestibulum. Nulla ut arcu odio.";
 
     const toggleContent = () => {
@@ -60,9 +87,46 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({postImages, username, fullna
         return () => gallery.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // Fetch comments when the modal is opened
+    const fetchComments = async () => {
+        try {
+            const response = await fetch(`/api/comments/${postId}`);
+            if (!response.ok) throw new Error("Failed to fetch comments");
+            const data = await response.json();
+            console.log("data text", data.text);
+            setComments(data.comments);
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
+    };
+
+    // Handle opening the comment modal
+    const handleOpenCommentModal = async () => {
+        await fetchComments(); // Fetch comments before opening the modal
+        setIsCommentModalOpen(true);
+    };
+
+    // Handle posting a new comment
+    const handleAddComment = async (comment: string) => {
+        try {
+            const response = await fetch(`/api/comments/${postId}/comments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ text: comment }),
+            });
+            if (!response.ok) throw new Error("Failed to post comment");
+            const newComment = await response.json();
+            setComments([newComment.comment, ...comments]); // Add the new comment to the list
+        } catch (error) {
+            console.error("Error posting comment:", error);
+        }
+    };
+
     return (
         <div className="flex-col w-full h-auto bg-white my-3 rounded-xl story-shadow-all dark:bg-black dark:text-white">
-            <div onClick={handleUserMenuToggle} className={`${isUserMenuOpen ? "visible" : "hidden"} fixed top-0 left-0 bottom-0 right-0 w-full h-screen z-40`}></div>
+            <div onClick={handleUserMenuToggle} className={`${isUserMenuOpen ? "visible" : "hidden"} fixed top-0 left-0 bottom-0 right-0 w-full h-screen z-20`}></div>
             <div className="relative">
                 <div className="w-full">
                     <div className="flex w-full m-auto pt-3 mb-2">
@@ -81,7 +145,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({postImages, username, fullna
                     </div>
                     <small className="ml-5 pb-4 text-gray-500 font-serif">{date}&nbsp; {time}</small>
                 </div>
-                <div className={`z-50 ${isUserMenuOpen ? "visible" : "hidden"} flex-col overflow-hidden absolute top-16 right-8 w-52 bg-gray-50 dark:bg-gray-700 rounded-l-xl rounded-b-xl shadow-lg`}>
+                <div className={`z-20 ${isUserMenuOpen ? "visible" : "hidden"} flex-col overflow-hidden absolute top-16 right-8 w-52 bg-gray-50 dark:bg-gray-700 rounded-l-xl rounded-b-xl shadow-lg`}>
                     <div className="flex p-2 w-full h-14 cursor-pointer border-b border-gray-200">
                         <LuBookmark className="text-2xl mt-2 mr-2 text-gray-400" />
                         <div>
@@ -130,7 +194,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({postImages, username, fullna
                 </p>
                 <button
                     onClick={toggleContent}
-                    className="max-md:px-3 text-blue-500 hover:text-blue-700 focus:outline-none whitespace-nowrap font-bold"
+                    className="max-md:px-3 text-blue-500 hover:text-blue-700 focus:outline-none whitespace-nowrap text-xs"
                 >
                     {isExpanded ? 'Read Less' : 'Read More'}
                 </button>
@@ -156,10 +220,13 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({postImages, username, fullna
                                 </svg>
                             </div>
                         </div>
-                        <span className="text-sm font-bold mt-2 ml-2 text-gray-500 max-sm:hidden">1.5K Like</span>
+                        <span className="text-sm font-bold mt-2 ml-2 text-gray-500 max-sm:hidden">{likesCount} Like</span>
                         <div className="ml-4 flex">
-                            <LuMessageCircle className="text-3xl cursor-pointer" />
-                            <span className="text-sm font-bold mt-2 ml-1 text-gray-500 max-sm:hidden">2220 Comment</span>
+                            <LuMessageCircle
+                                className="text-3xl cursor-pointer"
+                                onClick={handleOpenCommentModal} // Open the comment modal
+                            />
+                            <span className="text-sm font-bold mt-2 ml-1 text-gray-500 max-sm:hidden">{commentsCount} Comment</span>
                         </div>
                     </div>
                     <div className="flex m-4">
@@ -168,6 +235,16 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({postImages, username, fullna
                     </div>
                 </div>
             </div>
+
+            {/* Comment Modal */}
+            {isCommentModalOpen && (
+                <CommentModal
+                    postImages={postImages}
+                    comments={comments}
+                    onClose={() => setIsCommentModalOpen(false)}
+                    onAddComment={handleAddComment}
+                />
+            )}
         </div>
     );
 };

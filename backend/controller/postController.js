@@ -28,14 +28,13 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ message: "Please upload a file" });
     }
 
-    const newPost = new Post({ userId, text:caption, file: imageUploads, commentAllowed: checked });
+    const newPost = new Post({ userId, text: caption, file: imageUploads, commentAllowed: checked });
     await newPost.save();
     res.status(201).json(newPost);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 export const getFeedData = async (req, res) => {
   try {
     const userId = req.user._id; // Logged-in user ID
@@ -50,45 +49,51 @@ export const getFeedData = async (req, res) => {
     const userIdsForFeed = [userId, ...followingIds]; // Include logged-in user and followed users
 
     // Fetch posts from the logged-in user and followed users
-    const posts = await Post.find({ userId: { $in: userIdsForFeed } })
-      .sort({ createdAt: -1 }) // Sort by latest first
-      .populate("userId", "fullname username profilePic"); // Populate user details
-
-    // Fetch comments and likes for the fetched posts
-    const postIds = posts.map((post) => post._id);
-
-    const [comments, likes] = await Promise.all([
-      Comment.find({ postId: { $in: postIds } })
-        .populate("userId", "fullname username profilePic"), // Populate commenter details
-      Like.find({ postId: { $in: postIds } })
-        .populate("userId", "fullname username profilePic"), // Populate liker details
+    const posts = await Post.aggregate([
+      { $match: { userId: { $in: userIdsForFeed } } }, // Match posts by userId
+      { $sort: { createdAt: -1 } }, // Sort by latest first
+      {
+        $lookup: {
+          from: "users", // Join with the users collection
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" }, // Unwind the user array (since lookup returns an array)
+      {
+        $lookup: {
+          from: "comments", // Join with the comments collection
+          localField: "_id",
+          foreignField: "postId",
+          as: "comments",
+        },
+      },
+      {
+        $lookup: {
+          from: "likes", // Join with the likes collection
+          localField: "_id",
+          foreignField: "postId",
+          as: "likes",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          file: 1,
+          text: 1, // Include the text attribute
+          createdAt: 1,
+          "user._id": 1,
+          "user.fullname": 1,
+          "user.username": 1,
+          "user.profilePic": 1,
+          commentsCount: { $size: "$comments" }, // Count of comments
+          likesCount: { $size: "$likes" }, // Count of likes
+        },
+      },
     ]);
 
-    // Organize comments and likes by postId
-    const commentsByPostId = comments.reduce((acc, comment) => {
-      if (!acc[comment.postId]) {
-        acc[comment.postId] = [];
-      }
-      acc[comment.postId].push(comment);
-      return acc;
-    }, {});
-
-    const likesByPostId = likes.reduce((acc, like) => {
-      if (!acc[like.postId]) {
-        acc[like.postId] = [];
-      }
-      acc[like.postId].push(like);
-      return acc;
-    }, {});
-
-    // Construct the feed data
-    const feedData = posts.map((post) => ({
-      ...post.toObject(),
-      comments: commentsByPostId[post._id] || [], // Add comments for the post
-      likes: likesByPostId[post._id] || [], // Add likes for the post
-    }));
-
-    res.status(200).json(feedData);
+    res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching feed data:", error);
     res.status(500).json({ error: "Internal Server Error" });
