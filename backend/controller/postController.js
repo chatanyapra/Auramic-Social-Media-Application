@@ -78,6 +78,13 @@ export const getFeedData = async (req, res) => {
         },
       },
       {
+        $addFields: {
+          isLiked: { // Check if the logged-in user has liked this post
+            $in: [userId, "$likes.userId"]
+          }
+        }
+      },
+      {
         $project: {
           _id: 1,
           file: 1,
@@ -89,6 +96,7 @@ export const getFeedData = async (req, res) => {
           "user.profilePic": 1,
           commentsCount: { $size: "$comments" }, // Count of comments
           likesCount: { $size: "$likes" }, // Count of likes
+          isLiked: 1, // Include isLiked field
         },
       },
     ]);
@@ -99,6 +107,7 @@ export const getFeedData = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 // Delete a post
 export const deletePost = async (req, res) => {

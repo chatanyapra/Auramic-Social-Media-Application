@@ -19,6 +19,9 @@ import SettingsPage from "./pages/SettingsPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FeedProvider } from "./context/FeedContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -88,19 +91,21 @@ function AppContent() {
       {authUser ? (
         <>
           <Navbar />
-          <FeedProvider>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/create" element={<Create />} />
-              <Route path="/search" element={<SearchBar />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:userId" element={<Profile />} />
-              <Route path="/message" element={<MessageChat />} />
-              <Route path="/setting" element={<SettingsPage />} />
-              <Route path="/messageBox" element={selectedConversation ? <MessageBox2 conversation={selectedConversation} visibility={false} /> : null} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </FeedProvider>
+          <QueryClientProvider client={queryClient}>
+            <FeedProvider>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/create" element={<Create />} />
+                <Route path="/search" element={<SearchBar />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:userId" element={<Profile />} />
+                <Route path="/message" element={<MessageChat />} />
+                <Route path="/setting" element={<SettingsPage />} />
+                <Route path="/messageBox" element={selectedConversation ? <MessageBox2 conversation={selectedConversation} visibility={false} /> : null} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </FeedProvider>
+          </QueryClientProvider>
         </>
       ) : (
         <Routes>

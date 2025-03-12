@@ -31,7 +31,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
     const [newComment, setNewComment] = useState("");
     const [currentImageIndex, setCurrentImageIndex] = useState(0); // Track current image index
     const galleryRef = useRef<HTMLDivElement>(null); // Ref for the image gallery container
-    console.log("comments", comments);
+    const modalRef = useRef<HTMLDivElement>(null); // Ref for the modal container
 
     // Handle adding a new comment
     const handleAddComment = () => {
@@ -57,9 +57,29 @@ const CommentModal: React.FC<CommentModalProps> = ({
         return () => gallery.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // Close the modal when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+                onClose();
+            }
+        };
+
+        // Attach the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+
+        // Clean up the event listener
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [onClose]);
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white dark:bg-gray-800 w-11/12 md:w-3/4 lg:w-2/3 h-3/4 rounded-lg flex overflow-hidden">
+            <div
+                ref={modalRef}
+                className="bg-white dark:bg-gray-800 w-11/12 md:w-3/4 lg:w-2/3 h-3/4 rounded-lg flex overflow-hidden"
+            >
                 {/* Left Side: Post Images/Video */}
                 <div className="relative w-1/2 bg-gray-100 dark:bg-gray-700 flex items-center justify-center max-md:hidden">
                     <div

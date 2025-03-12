@@ -14,6 +14,7 @@ interface Post {
   createdAt: string;
   commentsCount: number;
   likesCount: number;
+  isLiked?: boolean;
 }
 
 interface File {
@@ -21,7 +22,7 @@ interface File {
 }
 
 const FeedPage = () => {
-  const { loading, fetchFeedPosts } = useFeedContext();
+  const { loading, fetchFeedPosts } = useFeedContext();  
 
   // Memoize the feedPosts data to prevent unnecessary re-renders
   const memoizedFeedPosts = useMemo(() => fetchFeedPosts, [fetchFeedPosts]);
@@ -47,6 +48,7 @@ const FeedPage = () => {
             createdAt={post.createdAt}
             commentsCount={post.commentsCount}
             likesCount={post.likesCount}
+            isLiked={post.isLiked}
           />
         ))
       ) : (

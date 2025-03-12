@@ -5,7 +5,7 @@ import { likePost, unlikePost } from "../controller/likeController.js";
 const router = express.Router();
 
 // Like a post
-router.post("/", protectRoute, likePost);
+router.post("/:postId", protectRoute, likePost);
 
 // Unlike a post
 router.delete("/:postId", protectRoute, unlikePost);

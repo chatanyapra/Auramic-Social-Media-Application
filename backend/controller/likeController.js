@@ -3,8 +3,8 @@ import Like from "../models/likeModel.js";
 // Like a post
 export const likePost = async (req, res) => {
   try {
-    const { userId, postId } = req.body;
-
+    const postId = req.params.postId;
+    const userId = req.user._id;
     const existingLike = await Like.findOne({ userId, postId });
     if (existingLike) {
       return res.status(400).json({ message: "You already liked this post" });
@@ -12,6 +12,7 @@ export const likePost = async (req, res) => {
 
     const newLike = new Like({ userId, postId });
     await newLike.save();
+    console.log("newLike:", newLike);
     res.status(201).json(newLike);
   } catch (error) {
     res.status(500).json({ message: error.message });

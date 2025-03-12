@@ -5,6 +5,7 @@ import './components.css';
 import { LuMoreVertical, LuBookmark, LuEyeOff, LuUserMinus, LuMessageCircle, LuShare2 } from "react-icons/lu";
 import { formatDate, formatTime } from "../utils/extractTime";
 import CommentModal from "./CommentModal"; // Import the CommentModal component
+import { useLikePost } from "../hooks/useLikeHook";
 
 interface FeedPostCardProps {
     postImages: string[]; // Array of image URLs
@@ -16,6 +17,7 @@ interface FeedPostCardProps {
     commentsCount: number; // Number of comments
     likesCount: number; // Number of likes
     postId: string; // Unique ID of the post
+    isLiked?: boolean;
 }
 interface User {
     _id: string;
@@ -40,11 +42,14 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
     commentsCount,
     likesCount,
     postId,
+    isLiked
 }) => {
-    console.log("postId"+postId);
-    
+    console.log("postId" + postId);
+
     const time = formatTime(createdAt);
     const date = formatDate(createdAt);
+    // const { liked, liked_Count, toggleLike, isLoading } = useLikePost({postId, initialLiked: isLiked ?? false, initialLikesCount: likesCount });
+    const { liked, likes_Count, toggleLike, isLoading } = useLikePost(postId, isLiked ?? false, likesCount);
 
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -202,10 +207,12 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     <div className="flex my-4 max-md:px-3">
                         {/* Like Button */}
                         <div className="heart-container pt-1 cursor-pointer" title="Like">
-                            <input type="checkbox" className="checkbox" id="Give-It-An-Id" />
+                            <input type="checkbox" className="checkbox" checked={liked} onChange={toggleLike} disabled={isLoading} id="Give-It-An-Id" />
                             <div className="svg-container">
                                 <svg viewBox="0 0 24 24" className="svg-outline" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z"></path>
+                                    <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,
+                                    13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Zm-3.585,18.4a2.973,2.973,0,0,1-3.83,0C4.947,16.006,2,11.87,2,8.967a4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,11,8.967a1,1,
+                                    0,0,0,2,0,4.8,4.8,0,0,1,4.5-5.05A4.8,4.8,0,0,1,22,8.967C22,11.87,19.053,16.006,13.915,20.313Z"></path>
                                 </svg>
                                 <svg viewBox="0 0 24 24" className="svg-filled" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M17.5,1.917a6.4,6.4,0,0,0-5.5,3.3,6.4,6.4,0,0,0-5.5-3.3A6.8,6.8,0,0,0,0,8.967c0,4.547,4.786,9.513,8.8,12.88a4.974,4.974,0,0,0,6.4,0C19.214,18.48,24,13.514,24,8.967A6.8,6.8,0,0,0,17.5,1.917Z"></path>
@@ -220,7 +227,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                                 </svg>
                             </div>
                         </div>
-                        <span className="text-sm font-bold mt-2 ml-2 text-gray-500 max-sm:hidden">{likesCount} Like</span>
+                        <span className="text-sm font-bold mt-2 ml-2 text-gray-500 max-sm:hidden">{liked }{likes_Count} Like</span>
                         <div className="ml-4 flex">
                             <LuMessageCircle
                                 className="text-3xl cursor-pointer"
