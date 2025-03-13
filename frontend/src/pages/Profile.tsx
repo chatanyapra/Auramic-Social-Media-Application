@@ -146,9 +146,9 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex px-1 lg:ml-64 max-md:px-4 mt-[68px]  max-md:w-full pb-10 h-full min-h-screen py-4 overflow-hidden">
+    <div className="flex px-1 lg:ml-64 max-md:px-4 mt-[72px] pt-3 pb-1 max-md:w-full h-full min-h-screen overflow-hidden">
       <main id="site__main" className="w-full">
-        <div className="max-w-[1065px] h-full mx-auto max-lg:-m-2.5 overflow-hidden">
+        <div className="w-full max-w-[1260px] h-full mx-auto max-lg:-m-2.5 overflow-hidden">
           {/* Cover Section */}
           <div className="bg-white md:shadow-md lg:rounded-b-2xl lg:-mt-10 dark:bg-dark2">
             {/* Cover Image */}
@@ -267,7 +267,7 @@ export default function Profile() {
               </div>
               <div id="default-tab-content">
                 <div className={`p-4 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'posts' ? 'block' : 'hidden'}`} id="posts" role="tabpanel" aria-labelledby="posts-tab">
-                  <div className="flex justify-center items-center min-h-72">
+                  <div className="flex justify-center items-center min-h-96">
                     <div className="flex-col text-center">
                       <div className="border-4 border-gray-500 rounded-full h-20 w-20 m-auto">
                         <LuLayoutGrid className="text-5xl text-gray-500 mt-3 m-auto" />
@@ -278,7 +278,7 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className={`p-4 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'Saved' ? 'block' : 'hidden'}`} id="Saved" role="tabpanel" aria-labelledby="Saved-tab">
-                  <div className="flex justify-center items-center min-h-72">
+                  <div className="flex justify-center items-center min-h-96">
                     <div className="flex-col text-center">
                       <div className="border-4 border-gray-500 rounded-full h-20 w-20 m-auto">
                         <LuBookmark className="text-5xl text-gray-500 mt-3 m-auto" />

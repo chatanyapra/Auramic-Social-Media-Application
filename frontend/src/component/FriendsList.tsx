@@ -3,6 +3,7 @@ import { useUserContext } from "../context/UserContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProfileData } from "../hooks/useProfileHook";
 import { useAuthContext } from "../context/AuthContext";
+import useUnfollowUser from "../hooks/useUnfollowHook"; // Import the custom hook
 
 interface FriendsListProps {
     isModalOpen: boolean;
@@ -12,13 +13,15 @@ interface FriendsListProps {
 const FriendsList: React.FC<FriendsListProps> = ({ isModalOpen, setIsModalOpen }) => {
     const [activeTab, setActiveTab] = useState<string>("Followers");
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [unfollowingUserId, setUnfollowingUserId] = useState<string | null>(null);
     const tabs = ["Followers", "Following"];
-    const { user } = useUserContext();
+    const { user, setRefresh } = useUserContext();
     const { userById, getProfileById } = useProfileData();
     const userId = useParams<{ userId: string }>().userId;
     const { authUser } = useAuthContext();
     const navigate = useNavigate();
     const modalRef = useRef<HTMLDivElement>(null);
+    const { unfollowUser, loading } = useUnfollowUser(); // Use the custom hook
 
     useEffect(() => {
         if (!userId) return;
@@ -57,6 +60,18 @@ const FriendsList: React.FC<FriendsListProps> = ({ isModalOpen, setIsModalOpen }
     const handleUserClick = (userId: string) => {
         navigate(`/profile/${userId}`);
         setIsModalOpen(false);
+    };
+
+    const handleUnfollow = async (userId: string) => {
+        setUnfollowingUserId(userId); // Set the user being unfollowed
+        try {
+            const result = await unfollowUser(userId);
+            if (result) setRefresh(prev => !prev);
+        } catch (error) {
+            console.error("Failed to unfollow user:", error);
+        } finally {
+            setUnfollowingUserId(null); // Clear the user being unfollowed
+        }
     };
 
     return (
@@ -102,15 +117,25 @@ const FriendsList: React.FC<FriendsListProps> = ({ isModalOpen, setIsModalOpen }
                                 {filteredUsers[activeTab as keyof typeof filteredUsers].map((user, index) => (
                                     <li
                                         key={index}
-                                        className="flex items-center gap-4 p-3 bg-gray-100 dark:bg-black dark:border border-solid border-gray-500 rounded-lg shadow-sm hover:bg-gray-100 cursor-pointer transition-colors"
-                                        onClick={() => handleUserClick(user.id)}
+                                        className="relative flex items-center gap-4 p-3 bg-gray-100 dark:bg-black dark:border border-solid border-gray-500 rounded-lg shadow-sm hover:bg-gray-100 cursor-pointer transition-colors"
                                     >
-                                        <img
-                                            src={user.profilePic}
-                                            className="w-10 h-10 rounded-full object-cover"
-                                            alt="User"
-                                        />
-                                        <span className="text-gray-800 dark:text-gray-50 text-lg">{user.fullname}</span>
+                                        <div className="flex items-center gap-4" onClick={() => handleUserClick(user.id)}>
+                                            <img
+                                                src={user.profilePic}
+                                                className="w-10 h-10 rounded-full object-cover"
+                                                alt="User"
+                                            />
+                                            <span className="text-gray-800 dark:text-gray-50 text-lg">{user.fullname}</span>
+                                        </div>
+                                        {activeTab === "Following" && (
+                                            <button
+                                                className={`absolute right-2 bg-blue-500 text-sm hover:bg-blue-600 flex text-white px-2 py-0.5 rounded-lg shadow-lg transition-all transform hover:scale-105`}
+                                                onClick={() => handleUnfollow(user.id)}
+                                                disabled={unfollowingUserId === user.id || loading}
+                                            >
+                                                {unfollowingUserId === user.id ? "Unfollowing..." : "Unfollow"}
+                                            </button>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

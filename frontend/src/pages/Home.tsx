@@ -71,8 +71,6 @@ export default function Home() {
                 <StoryGallery />
               </div>
             </div>
-            {/* Feed Posts */}
-            {/* {feedPosts} */}
             <FeedPage/>
           </div>
 
