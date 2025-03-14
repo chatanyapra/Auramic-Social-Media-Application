@@ -102,7 +102,7 @@ const CallingRoom: React.FC = () => {
   }, [myStream, peerService.peer, stopCallSound]);
 
   const handleCallAccepted = useCallback(async ({ from, ans }: CallAcceptedData) => {
-    // console.log("call:accepted --= ", ans, "from - ", from);
+    console.log("call:accepted --= ", ans, "from - ", from);
 
     await peerService.setLocalDesc(ans);
     // console.log("remoteUseriiId - ", remoteUserId, " authUser._id - ", authUser._id);
