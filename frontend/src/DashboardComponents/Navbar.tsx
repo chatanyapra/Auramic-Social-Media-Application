@@ -6,6 +6,7 @@ import { LuMessageSquare, LuBell, LuHome, LuMessageCircle, LuSearch, LuPlusSquar
 import { Link } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
 import { useUserContext } from "../context/UserContext";
+import useCallingHook from "../hooks/useCallingHook";
 
 
 export default function Navbar() {
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [clickedLinkId, setClickedLinkId] = useState<string | null>('');
   const themeContext = useContext(ThemeContext);
   const userImage = "https://avatar.iran.liara.run/public/boy";
+  useCallingHook();
   const { logout } = useLogout();
   const { user } = useUserContext();
 

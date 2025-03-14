@@ -9,7 +9,6 @@ import ChattingStart from '../component/ChattingStart';
 import useConversation from '../zustandStore/useConversation';
 import useListenMessage from '../hooks/useListenMessage';
 import { Conversation } from '../types/types';
-import useCallingHook from '../hooks/useCallingHook';
 import AuramicAi from '../component/AuramicAi';
 import MessageBox2 from '../component/MessageBox2';
 import { ThemeContext } from '../context/theme';
@@ -31,7 +30,7 @@ export default function MessageChat() {
     const { darkMode, textColor } = themeContext;
 
     // const { logout } = useLogout();
-    useCallingHook();
+    
     const { conversations } = useGetConversation();
     const { selectedConversation, setSelectedConversation } = useConversation()
     const [visibilityChat, setVisibilityChat] = useState(false)

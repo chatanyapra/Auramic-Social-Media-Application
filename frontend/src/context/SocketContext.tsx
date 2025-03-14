@@ -30,7 +30,7 @@ export const SocketContextProvider = ({ children }: SocketContextProviderProps) 
     useEffect(() => {
         if (authUser) {
             const socketnew = io(`https://auramic.onrender.com`, {
-            // const socketnew = io(`http://localhost:5001`, {
+            // const socketnew = io(`http://localhost:5007`, {
                 query: {
                     userId: authUser._id,
                 },
@@ -41,7 +41,7 @@ export const SocketContextProvider = ({ children }: SocketContextProviderProps) 
             socketnew.on("getOnlineUsers", (users: string[]) => {
                 setOnlineUsers(users);
             });
-            console.log("onlineUsers ----------", onlineUsers);
+            // console.log("onlineUsers ----------", onlineUsers);
             
             return () => {
                 socketnew.close();

@@ -6,7 +6,6 @@ import {useAuthContext} from "../context/AuthContext";
 
 const useCallingHook = () => {
   const { socket } = useSocketContext();
-  // console.log("Online user- ", onlineUsers);
   const navigate = useNavigate();
   const {setCallingUserName} =  useAuthContext();
 

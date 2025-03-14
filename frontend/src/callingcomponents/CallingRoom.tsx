@@ -29,20 +29,20 @@ const CallingRoom: React.FC = () => {
 
   // Calling ringtone----------
   const playCallSound = useCallback((type: string) => {
-    console.log("Sound play - ", type);
+    // console.log("Sound play - ", type);
     setCallingUser(type);
     setIsCallSoundPlaying(true);
   }, []);
 
   const stopCallSound = useCallback(() => {
-    console.log("Sound pause");
+    // console.log("Sound pause");
     setIsCallSoundPlaying(false);
   }, []);
 
   const handleCallUser = useCallback(async (id: string, username: string, video: boolean) => {
     if (id) {
       setRemoteSocketId(id);
-      console.log("if remoteSocketId--", id);
+      // console.log("if remoteSocketId--", id);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: video,
@@ -57,7 +57,7 @@ const CallingRoom: React.FC = () => {
 
   const handleUserJoined = useCallback(async (data: UserJoinedData) => {
     const { username, id, userId, video } = data;
-    console.log(`setRemoteUserId room (userId) - `, userId, ", setRemoteSocketId - ", id, " username - ", username, " video - ", video);
+    // console.log(`setRemoteUserId room (userId) - `, userId, ", setRemoteSocketId - ", id, " username - ", username, " video - ", video);
     setRemoteSocketId(id);
     setRemoteUserId(userId);
     await handleCallUser(id, username, video);
@@ -71,7 +71,7 @@ const CallingRoom: React.FC = () => {
     async ({ username, from, offer, video }: IncommingCallData) => {
       setRemoteSocketId(from);
       setCallingNameFunction(username);
-      console.log("setCallingUserName(username)", username, " video ", video);
+      // console.log("setCallingUserName(username)", username, " video ", video);
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -81,7 +81,7 @@ const CallingRoom: React.FC = () => {
       setMyStream(stream);
       playCallSound("calley");
       setSameUser(false);
-      console.log(`Incoming Call`, from, offer);
+      // console.log(`Incoming Call`, from, offer);
       const ans = await peerService.getAnswer(offer);
       socket?.emit("call:accepted", { to: from, ans });
     },
@@ -89,7 +89,7 @@ const CallingRoom: React.FC = () => {
   );
 
   const sendStreams = useCallback(() => {
-    console.log("send stream-----------");
+    // console.log("send stream-----------");
     if (callingUser == "calley") {
       stopCallSound();
     }
@@ -102,10 +102,10 @@ const CallingRoom: React.FC = () => {
   }, [myStream, peerService.peer, stopCallSound]);
 
   const handleCallAccepted = useCallback(async ({ from, ans }: CallAcceptedData) => {
-    console.log("call:accepted --= ", ans, "from - ", from);
+    // console.log("call:accepted --= ", ans, "from - ", from);
 
     await peerService.setLocalDesc(ans);
-    console.log("remoteUseriiId - ", remoteUserId, " authUser._id - ", authUser._id);
+    // console.log("remoteUseriiId - ", remoteUserId, " authUser._id - ", authUser._id);
 
     if (remoteUserId != authUser._id) {
       sendStreams();
@@ -138,14 +138,14 @@ const CallingRoom: React.FC = () => {
   );
 
   const handleNegoNeedFinal = useCallback(async ({ ans }: NegoNeedFinalData) => {
-    console.log("final - ", ans);
+    // console.log("final - ", ans);
     await peerService.setLocalDesc(ans);
 
   }, []);
 
   const handleTrack = useCallback((ev: RTCTrackEvent) => {
     const remoteStream = ev.streams[0];
-    console.log("GOT TRACKS!!");
+    // console.log("GOT TRACKS!!");
     setRemoteStream(remoteStream);
   }, [setRemoteStream, stopCallSound]);
 
@@ -153,7 +153,7 @@ const CallingRoom: React.FC = () => {
     stopCallSound();
     setSameUser(true);
     sendStreams();
-    console.log("remoteSocketId --- ", remoteSocketId);
+    // console.log("remoteSocketId --- ", remoteSocketId);
     socket?.emit("call:accept:calley", { to: remoteSocketId });
   }, [sendStreams, setSameUser, stopCallSound]);
 

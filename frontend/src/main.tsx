@@ -10,9 +10,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthContextProvider>
       <SocketContextProvider>
-      <SelectTextContextProvider>
-        <App />
-      </SelectTextContextProvider>
+        <SelectTextContextProvider>
+          <App />
+        </SelectTextContextProvider>
       </SocketContextProvider>
     </AuthContextProvider>
   </React.StrictMode>,

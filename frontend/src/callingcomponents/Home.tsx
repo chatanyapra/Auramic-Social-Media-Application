@@ -14,7 +14,7 @@ const Home: React.FC = () => {
 
   const handleSubmitForm = useCallback((e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      console.log("email - ", email, " room - ", room);
+      // console.log("email - ", email, " room - ", room);
       
       socket?.emit("room:join", { email, room });
     },
@@ -23,7 +23,7 @@ const Home: React.FC = () => {
 
   const handleJoinRoom = useCallback(
     (data: JoinRoomData) => {
-      console.log(data);
+      // console.log(data);
       
       const { room } = data;
       navigate(`/room/${room}`);
