@@ -146,9 +146,9 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex px-1 lg:ml-64 max-md:px-4 mt-[72px] pt-3 pb-1 max-md:w-full h-full min-h-screen overflow-hidden">
+    <div className="flex md:px-1 lg:ml-64 mt-[72px] pt-3 pb-1 max-md:w-full h-full min-h-screen overflow-hidden">
       <main id="site__main" className="w-full">
-        <div className="w-full max-w-[1260px] h-full mx-auto max-lg:-m-2.5 overflow-hidden">
+        <div className="w-full max-w-[1260px] h-full mx-auto overflow-hidden">
           {/* Cover Section */}
           <div className="bg-white md:shadow-md lg:rounded-b-2xl lg:-mt-10 dark:bg-dark2">
             {/* Cover Image */}
@@ -213,14 +213,14 @@ export default function Profile() {
                     </a>
                   )}
                 </p>
-                <div className="mt-2 md:flex">
-                  <div className="pr-4 font-medium text-gray-600"><span className="font-bold text-black dark:text-white">10</span> Posts</div>
-                  <div className="pr-4 font-medium text-gray-600 cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                    <span className="font-bold text-black dark:text-white">{userId ? userById?.followersCount : user?.followersCount}</span>
+                <div className="mt-3 flex md:text-xl max-md:border-b max-md:border-t border-gray-200 dark:border-gray-700 justify-between items-center">
+                  <div className="pr-4 font-medium text-gray-600 flex max-md:flex-col cursor-pointer text-center"><span className="font-bold text-black dark:text-white md:pr-1">10</span> Posts</div>
+                  <div className="pr-4 font-medium text-gray-600 cursor-pointer flex max-md:flex-col text-center" onClick={() => setIsModalOpen(true)}>
+                    <span className="font-bold text-black dark:text-white md:pr-1">{userId ? userById?.followersCount : user?.followersCount} </span>
                     followers
                   </div>
-                  <div className="pr-4 font-medium text-gray-600 cursor-pointer" onClick={() => setIsModalOpen(true)}>
-                    <span className="font-bold text-black dark:text-white">{userId ? userById?.followingCount : user?.followingCount}</span>
+                  <div className="pr-4 font-medium text-gray-600 cursor-pointer flex max-md:flex-col text-center" onClick={() => setIsModalOpen(true)}>
+                    <span className="font-bold text-black dark:text-white md:pr-1">{userId ? userById?.followingCount : user?.followingCount} </span>
                     following
                   </div>
                 </div>

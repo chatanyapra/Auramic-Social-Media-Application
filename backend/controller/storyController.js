@@ -7,6 +7,9 @@ export const createStory = async (req, res) => {
     const { caption, checked } = req.body;
     const userId = req.user._id;
 
+    console.log("Request body:", req.body);
+    console.log("Request files:", req.files);
+
     // Check if files are uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "Please upload a file" });
@@ -15,12 +18,18 @@ export const createStory = async (req, res) => {
     // Upload files to Cloudinary
     const imageUploads = await Promise.all(
       req.files.map(async (file) => {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "chatstrum",
-          resource_type: file.mimetype.startsWith('video') ? "video" : "auto", // Handle both images and videos
-        });
-        fs.unlinkSync(file.path); // Delete the file from the server after upload
-        return { url: result.secure_url, alt: file.originalname };
+        try {
+          const result = await cloudinary.uploader.upload(file.path, {
+            folder: "chatstrum",
+            resource_type: file.mimetype.startsWith('video') ? "video" : "auto",
+          });
+          fs.unlinkSync(file.path); // Delete the file from the server after upload
+          return { url: result.secure_url, alt: file.originalname };
+        } catch (uploadError) {
+          console.error("Cloudinary upload error:", uploadError);
+          fs.unlinkSync(file.path); // Ensure the file is deleted even if upload fails
+          throw uploadError; // Re-throw the error to stop the process
+        }
       })
     );
 
@@ -53,10 +62,11 @@ export const createStory = async (req, res) => {
     }
   } catch (error) {
     console.error("Error in createStory:", error);
+    console.error("Request body:", req.body);
+    console.error("Request files:", req.files);
     res.status(500).json({ message: error.message });
   }
 };
-
 // Get all stories of followed users
 export const getStories = async (req, res) => {
   try {
