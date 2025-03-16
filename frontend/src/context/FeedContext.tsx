@@ -1,13 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import { useUserContext } from "./UserContext";
-
-interface FeedContextValue {
-    fetchFeedPosts: any[];
-    loading: boolean;
-    error: string | null;
-    fetchFeed: () => Promise<void>;
-}
+import { FeedContextValue } from "../types/types";
 
 const FeedContext = createContext<FeedContextValue | undefined>(undefined);
 

@@ -1,9 +1,5 @@
-interface AddStoryCardProps {
-    width ?: string;
-    backVideo : string;
-    userImage : string;
-    username : string;
-}
+import { AddStoryCardProps } from "../types/types.ts";
+
   const AddStoryCard: React.FC<AddStoryCardProps> = ({ width, backVideo, userImage, username }) => {
     return (
         <div className="relative overflow-hidden flex dark:text-white items-end px-0 justify-center mx-2 rounded-lg" style={{ width, height: "100%" }}>

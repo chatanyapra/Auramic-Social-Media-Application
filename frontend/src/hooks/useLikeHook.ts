@@ -1,10 +1,6 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
-
-interface LikeResponse {
-  success: boolean;
-  liked: boolean;
-}
+import { LikeResponse } from "../types/types";
 
 const likePostAPI = async (postId: string, like: boolean): Promise<LikeResponse> => {
   const response = await fetch(`/api/likes/${postId}`, {

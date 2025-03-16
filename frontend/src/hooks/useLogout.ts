@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useAuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
-
-interface UseLogout {
-    loading: boolean;
-    logout: () => Promise<void>;
-}
+import { UseLogout } from "../types/types";
 
 const useLogout = (): UseLogout => {
     const [loading, setLoading] = useState<boolean>(false);

@@ -6,32 +6,8 @@ import { LuMoreVertical, LuBookmark, LuEyeOff, LuUserMinus, LuMessageCircle, LuS
 import { formatDate, formatTime } from "../utils/extractTime";
 import CommentModal from "./CommentModal"; // Import the CommentModal component
 import { useLikePost } from "../hooks/useLikeHook";
+import { FeedPostCardProps, Comment } from "../types/types.ts";
 
-interface FeedPostCardProps {
-    postImages: string[]; // Array of image URLs
-    text: string; // Post text
-    fullname: string; // Full name of the post creator
-    username: string; // Username of the post creator
-    profilePic: string; // Profile picture of the post creator
-    createdAt: string; // Timestamp of the post
-    commentsCount: number; // Number of comments
-    likesCount: number; // Number of likes
-    postId: string; // Unique ID of the post
-    isLiked?: boolean;
-}
-interface User {
-    _id: string;
-    username: string;
-    profilePic: string;
-}
-
-interface Comment {
-    _id: string;
-    text: string;
-    createdAt: string;
-    userId: User;
-    postId: string;
-}
 const FeedPostCard: React.FC<FeedPostCardProps> = ({
     postImages,
     text,
@@ -44,7 +20,6 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
     postId,
     isLiked
 }) => {
-    console.log("postId" + postId);
 
     const time = formatTime(createdAt);
     const date = formatDate(createdAt);
@@ -53,6 +28,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
 
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [totalComment, setTotalComment] = useState(commentsCount || 0);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]); // State to store comments
 
@@ -123,6 +99,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
             });
             if (!response.ok) throw new Error("Failed to post comment");
             const newComment = await response.json();
+            setTotalComment(prev => prev + 1); 
             setComments([newComment.comment, ...comments]); // Add the new comment to the list
         } catch (error) {
             console.error("Error posting comment:", error);
@@ -233,7 +210,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                                 className="text-3xl cursor-pointer"
                                 onClick={handleOpenCommentModal} // Open the comment modal
                             />
-                            <span className="text-sm font-bold mt-2 ml-1 text-gray-500 max-sm:hidden">{commentsCount} Comment</span>
+                            <span className="text-sm font-bold mt-2 ml-1 text-gray-500 max-sm:hidden">{totalComment} Comment</span>
                         </div>
                     </div>
                     <div className="flex m-4">

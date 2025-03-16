@@ -1,52 +1,6 @@
 import { createContext, useEffect, useState, useContext, ReactNode } from "react";
 import { useAuthContext } from "./AuthContext";
-
-interface User {
-    _id: string;
-    fullname: string;
-    username: string;
-    email: string;
-    profilePic?: string;
-    coverImage?: string;
-    private: boolean | false;
-    bio?: string;
-    followersCount: number;
-    followingCount: number;
-    followers: UserKnowns[];
-    following: UserKnowns[];
-    followRequests: UserKnowns[];
-}
-interface Story {
-    _id: string;
-    userId: {
-        _id: string;
-        username: string;
-        profilePic: string;
-    };
-    caption?: string;
-    file: { url: string; alt: string }[];
-    commentAllowed: boolean;
-    expiresAt: string;
-}
-interface UserKnowns {
-    _id: string;
-    fullname: string;
-    username: string;
-    profilePic: string;
-    auramicAiCall?: string;
-}
-interface UserContextValue {
-    user: User | null;
-    stories: Story[];
-    loading: boolean;
-    refresh: boolean;
-    error: string | null;
-    auramicAiId: string | null;
-    confirmedFriends: UserKnowns[];
-    fetchUserData: () => void;
-    setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
+import { UserContextValue, User } from "../types/types";
 interface UserContextProviderProps {
     children: ReactNode;
 }

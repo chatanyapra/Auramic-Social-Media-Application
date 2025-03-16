@@ -1,12 +1,6 @@
 import { Link } from "react-router-dom";
 import { useFollowAcceptUser, useFollowRejectUser } from "../hooks/useSearchHook";
-interface RequestCardProps {
-    userImage: string;
-    userId: string;
-    userName: string;
-    fullName: string;
-    onConfirm: (userId: string) => void;
-}
+import { RequestCardProps } from "../types/types";
 
 const RequestCard: React.FC<RequestCardProps> = ({ userImage, userName, fullName, userId, onConfirm }) => {
     const { followAcceptUser } = useFollowAcceptUser();

@@ -1,12 +1,7 @@
 import { LuChevronRight } from "react-icons/lu";
 import { Link } from "react-router-dom";
+import { ConfirmCardProps } from "../types/types";
 
-interface ConfirmCardProps {
-  userById : string;
-  userImage : string;
-  userName : string;
-  fullName : string;
-}
 
 const ConfirmCard: React.FC<ConfirmCardProps> = ({userById, userImage , userName, fullName}) => {
   return (

@@ -1,17 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-
-interface User {
-    _id: string;
-    fullname: string;
-    username: string;
-    profilePic: string;
-    isFollowing?: boolean;
-}
+import { UserKnowns } from "../types/types"
 
 // Custom hook to fetch suggested friends
 export const useSuggestedFriends = () => {
-    const [suggestedFriends, setSuggestedFriends] = useState<User[]>([]);
+    const [suggestedFriends, setSuggestedFriends] = useState<UserKnowns[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +28,7 @@ export const useSuggestedFriends = () => {
 
 // Custom hook to search users
 export const useSearchUsers = (query: string) => {
-    const [searchResults, setSearchResults] = useState<User[]>([]);
+    const [searchResults, setSearchResults] = useState<UserKnowns[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

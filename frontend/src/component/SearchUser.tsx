@@ -27,6 +27,8 @@ const SearchBar: React.FC = () => {
       }, 1000);
     } else {
       // Reset status to "idle" if the request fails
+      console.log("Failed to follow user");
+      
       setRequestStatus((prev) => ({ ...prev, [userId]: "idle" }));
     }
   };

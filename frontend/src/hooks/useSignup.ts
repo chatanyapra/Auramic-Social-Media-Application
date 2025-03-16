@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { toast } from "react-toastify";
 import { useAuthContext } from '../context/AuthContext';
-
-interface SignupData {
-    fullname: string;
-    username: string;
-    password: string;
-    confirmPassword: string;
-}
+import { SignupData } from "../types/types"
 
 function handleInputError({ fullname, username, password, confirmPassword }: SignupData): boolean {
     if (!fullname || !username || !password || !confirmPassword) {

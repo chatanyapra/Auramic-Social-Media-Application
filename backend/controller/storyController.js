@@ -6,10 +6,6 @@ export const createStory = async (req, res) => {
   try {
     const { caption, checked } = req.body;
     const userId = req.user._id;
-
-    console.log("Request body:", req.body);
-    console.log("Request files:", req.files);
-
     // Check if files are uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "Please upload a file" });
@@ -20,8 +16,7 @@ export const createStory = async (req, res) => {
       req.files.map(async (file) => {
         try {
           const result = await cloudinary.uploader.upload(file.path, {
-            folder: "chatstrum",
-            resource_type: file.mimetype.startsWith('video') ? "video" : "auto",
+            resource_type:"auto",
           });
           fs.unlinkSync(file.path); // Delete the file from the server after upload
           return { url: result.secure_url, alt: file.originalname };

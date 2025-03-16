@@ -1,31 +1,15 @@
 import { useMemo } from "react";
 import FeedPostCard from "../component/FeedPostCard";
 import { useFeedContext } from "../context/FeedContext";
+import { Post, File } from "../types/types";
 
-interface Post {
-  _id: string;
-  text: string;
-  file: File[];
-  user: {
-    fullname: string;
-    username: string;
-    profilePic: string;
-  };
-  createdAt: string;
-  commentsCount: number;
-  likesCount: number;
-  isLiked?: boolean;
-}
-
-interface File {
-  url: string;
-}
 
 const FeedPage = () => {
   const { loading, fetchFeedPosts } = useFeedContext();  
 
   // Memoize the feedPosts data to prevent unnecessary re-renders
   const memoizedFeedPosts = useMemo(() => fetchFeedPosts, [fetchFeedPosts]);
+  console.log(memoizedFeedPosts);
 
   if (loading) {
     return <svg className="svg_loading m-auto mt-5" viewBox="25 25 50 50">

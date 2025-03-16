@@ -2,7 +2,6 @@ import { useState, useContext, useEffect, useCallback, useMemo } from "react";
 import { ThemeContext } from "../context/theme";
 import RequestCard from "../component/RequestCard";
 import ConfirmCard from "../component/ConfirmCard";
-// import FeedPostCard from "../component/FeedPostCard";
 import { useUserContext } from "../context/UserContext";
 import StoryGallery from "../component/StoryGallery";
 import { CollapsibleSection } from "../component/CollapsibleSection";
@@ -37,24 +36,6 @@ export default function Home() {
     setCollapseStyle2((prev) => (prev === value ? 0 : value));
   }, []);
 
-  // Memoized list of FeedPostCards to avoid unnecessary re-renders
-  // const postImages = [
-  //   "https://picsum.photos/200/300?random=12",
-  //   "https://picsum.photos/200/300?random=14",
-  //   "https://picsum.photos/200/300?random=16",
-  // ];
-  // const feedPosts = useMemo(
-  //   () =>
-  //     Array.from({ length: 10 }, (_, index) => (
-  //       <FeedPostCard
-  //         key={index}
-  //         postImages={postImages}
-  //       />
-  //     )),
-  //   []
-  // );
-
-  // Memoized list of confirmed friends excluding auramicAiId
   const filteredConfirmedFriends = useMemo(
     () => confirmedFriends.filter((friend) => friend._id !== auramicAiId),
     [confirmedFriends, auramicAiId]

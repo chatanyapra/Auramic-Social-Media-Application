@@ -1,26 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { getTimeAgo } from "../utils/extractTime";
-
-interface User {
-    _id: string;
-    username: string;
-    profilePic: string;
-}
-
-interface Comment {
-    _id: string;
-    text: string;
-    createdAt: string;
-    userId: User;
-    postId: string;
-}
-
-interface CommentModalProps {
-    postImages: string[]; // Array of image URLs
-    comments: Comment[]; // Array of comment objects
-    onClose: () => void; // Function to close the modal
-    onAddComment: (comment: string) => void; // Function to add a new comment
-}
+import { CommentModalProps } from "../types/types.ts";
 
 const CommentModal: React.FC<CommentModalProps> = ({
     postImages,

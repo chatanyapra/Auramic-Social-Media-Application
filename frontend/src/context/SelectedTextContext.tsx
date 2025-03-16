@@ -1,14 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-
-interface KeyValuePair {
-    key: string;
-    value: string;
-}
-
-interface SocketContextValue {
-    selectedTextUser: KeyValuePair | null;
-    setSelectedTextUser: (pair: KeyValuePair | null) => void;
-}
+import { SocketContextValue, KeyValuePair } from "../types/types";
 
 interface SocketContextProviderProps {
     children: ReactNode;

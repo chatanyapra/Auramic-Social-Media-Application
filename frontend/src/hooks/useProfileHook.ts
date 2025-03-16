@@ -1,20 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-interface User {
-  _id: string;
-  fullname: string;
-  username: string;
-  email: string;
-  profilePic?: string;
-  coverImage?: string;
-  private: boolean | false;
-  bio?: string;
-  followersCount: number;
-  followingCount: number;
-  followers: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
-  following: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
-  followRequests: Array<{ _id: string; fullname: string; username: string; profilePic: string }>;
-}
+import { User } from "../types/types";
 
 export const useUploadImage = () => {
   const [loading1, setLoading1] = useState<boolean>(false);

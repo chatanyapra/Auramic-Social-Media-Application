@@ -1,11 +1,5 @@
 import { createContext, useContext } from "react";
-
-interface ThemeContextProps {
-    darkMode: boolean;
-    toggleDarkMode: () => void;
-    textColor: string;
-    setTextColor: (color: string) => void;
-  }
+import { ThemeContextProps } from "../types/types";
   
 export const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 

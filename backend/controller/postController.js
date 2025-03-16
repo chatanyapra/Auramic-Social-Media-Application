@@ -1,7 +1,5 @@
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
-import Comment from "../models/commentModel.js";
-import Like from "../models/likeModel.js";
 import cloudinary from "cloudinary";
 import fs from "fs";
 
@@ -16,7 +14,6 @@ export const createPost = async (req, res) => {
       imageUploads = await Promise.all(
         req.files.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
-            folder: "chatstrum",
             resource_type: "auto",
           });
           console.log("Cloudinary Upload Result:", result);

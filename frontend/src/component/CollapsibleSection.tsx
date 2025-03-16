@@ -1,15 +1,8 @@
 import { LuChevronsRight, LuFlipVertical, LuFlipVertical2 } from "react-icons/lu";
 import { Link } from "react-router-dom";
-
+import { CollapsibleSectionProps } from "../types/types";
 
 // Reusable CollapsibleSection Component
-interface CollapsibleSectionProps {
-    title: string;
-    isOpen: boolean;
-    onToggle: () => void;
-    textColor: string;
-    children: React.ReactNode;
-  }
   
 export  const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     title,

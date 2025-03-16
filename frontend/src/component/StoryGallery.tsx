@@ -4,19 +4,7 @@ import AddStoryCard from "./AddStoryCard";
 import { LuPlus } from "react-icons/lu";
 import { ThemeContext } from "../context/theme";
 import { Link } from "react-router-dom";
-
-interface Story {
-    _id: string;
-    userId: {
-        _id: string;
-        profilePic: string;
-        username: string;
-    };
-    caption?: string;
-    file: { url: string; alt: string }[];
-    commentAllowed: boolean;
-    expiresAt: string;
-}
+import { Story } from "../types/types";
 
 const StoryGallery: React.FC = () => {
     const { user, stories } = useUserContext();
