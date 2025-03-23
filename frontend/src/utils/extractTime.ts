@@ -70,7 +70,7 @@ export const getTimeAgo = (dateString: string): string => {
 
     // Determine the appropriate time unit
     if (weeks > 0) {
-        return `${weeks} w$`;
+        return `${weeks} w`;
     } else if (days > 0) {
         return `${days} d`;
     } else if (hours > 0) {

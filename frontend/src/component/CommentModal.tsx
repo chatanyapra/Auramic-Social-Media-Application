@@ -8,6 +8,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
     onClose,
     onAddComment,
 }) => {
+    
     const [newComment, setNewComment] = useState("");
     const [currentImageIndex, setCurrentImageIndex] = useState(0); // Track current image index
     const galleryRef = useRef<HTMLDivElement>(null); // Ref for the image gallery container
@@ -93,7 +94,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
                     {/* Comments Section */}
                     <div className=" my-3 ml-4 font-bold">Comments</div>
                     <div className="flex-1 p-4 overflow-y-auto">
-                        {comments?.map((comment, index) => (
+                        {comments.map((comment, index) => (
                             <div key={index} className="mb-4 border-b border-b-gray-500 pb-2">
                                 <div className="flex items-center space-x-3">
                                     <img

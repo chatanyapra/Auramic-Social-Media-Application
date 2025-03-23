@@ -21,20 +21,28 @@ export const addComment = async (req, res) => {
             return res.status(400).json({ message: "Post ID is required" });
         }
 
+        // Check if comments are allowed on this post
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        if (!post.commentAllowed) {
+            return res.status(403).json({ message: "Comments are not allowed on this post" });
+        }
+
         // Create a new comment
         const comment = new Comment({
             userId,
             text,
-            postId: postId || null,
+            postId,
         });
 
         // Save the comment to the database
         await comment.save();
 
         // Push comment reference into the respective post
-        if (postId) {
-            await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
-        }
+        await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
 
         // Populate the userId field with user details
         const populatedComment = await Comment.findById(comment._id).populate(
@@ -42,14 +50,13 @@ export const addComment = async (req, res) => {
             "username profilePic"
         );
 
-        console.log("comment", populatedComment);
-
         // Return the populated comment
         res.status(201).json({ message: "Comment added successfully", comment: populatedComment });
     } catch (error) {
         res.status(500).json({ message: "Error adding comment", error: error.message });
     }
 };
+
 
 export const getCommentsByPostId = async (req, res) => {
     try {

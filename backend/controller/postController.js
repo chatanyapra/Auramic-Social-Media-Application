@@ -85,7 +85,8 @@ export const getFeedData = async (req, res) => {
         $project: {
           _id: 1,
           file: 1,
-          text: 1, // Include the text attribute
+          text: 1,
+          commentAllowed: 1,
           createdAt: 1,
           "user._id": 1,
           "user.fullname": 1,
@@ -105,6 +106,64 @@ export const getFeedData = async (req, res) => {
   }
 };
 
+// Get all posts of a user
+export const getUserPosts = async (req, res) => {
+  try {
+    const userId = req.user._id; // Extract user ID from auth middleware
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Fetch all posts created by the logged-in user with comment and like counts
+    const posts = await Post.aggregate([
+      { $match: { userId: userId } }, // Match posts by the logged-in user
+      { $sort: { createdAt: -1 } }, // Sort by latest first
+      {
+        $lookup: {
+          from: "comments", // Join with the comments collection
+          localField: "_id",
+          foreignField: "postId",
+          as: "comments",
+        },
+      },
+      {
+        $lookup: {
+          from: "likes", // Join with the likes collection
+          localField: "_id",
+          foreignField: "postId",
+          as: "likes",
+        },
+      },
+      {
+        $addFields: {
+          commentsCount: { $size: "$comments" }, // Count of comments
+          likesCount: { $size: "$likes" }, // Count of likes
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          file: 1,
+          text: 1,
+          commentAllowed: 1,
+          createdAt: 1,
+          commentsCount: 1,
+          likesCount: 1,
+        },
+      },
+    ]);
+
+    if (!posts.length) {
+      return res.status(404).json({ message: "No posts found for this user" });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    res.status(500).json({ message: "Error fetching user posts", error: error.message });
+  }
+};
 
 // Delete a post
 export const deletePost = async (req, res) => {

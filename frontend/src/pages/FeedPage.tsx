@@ -9,7 +9,6 @@ const FeedPage = () => {
 
   // Memoize the feedPosts data to prevent unnecessary re-renders
   const memoizedFeedPosts = useMemo(() => fetchFeedPosts, [fetchFeedPosts]);
-  console.log(memoizedFeedPosts);
 
   if (loading) {
     return <svg className="svg_loading m-auto mt-5" viewBox="25 25 50 50">

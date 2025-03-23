@@ -1,7 +1,7 @@
 import "../Extra.css";
 import "./pages.css";
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { LuCamera, LuGrid, LuLayoutGrid, LuBookmark } from "react-icons/lu";
+import { LuCamera, LuGrid, LuBookmark } from "react-icons/lu";
 import Swal from 'sweetalert2'; // Import SweetAlert
 import axios from 'axios';
 import { useProfileData, useUploadImage } from "../hooks/useProfileHook";
@@ -10,6 +10,8 @@ import { useAuthContext } from "../context/AuthContext";
 import { useUserContext } from "../context/UserContext";
 import FriendsList from "../component/FriendsList";
 import { useFollowUser } from "../hooks/useSearchHook";
+import PostsSection from "../component/PostsSection";
+// import SavedPostsSection from "../component/SavedPostsSection";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<string>('posts');
@@ -26,7 +28,6 @@ export default function Profile() {
   const { followUser } = useFollowUser();
   const [request, setRequest] = useState<boolean>(false);
   const [following, setFollowing] = useState(userById?.following || []);
-
 
   useEffect(() => {
     setRequest(false);
@@ -265,30 +266,16 @@ export default function Profile() {
                   </li>
                 </ul>
               </div>
-              <div id="default-tab-content">
-                <div className={`p-4 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'posts' ? 'block' : 'hidden'}`} id="posts" role="tabpanel" aria-labelledby="posts-tab">
-                  <div className="flex justify-center items-center min-h-96">
-                    <div className="flex-col text-center">
-                      <div className="border-4 border-gray-500 rounded-full h-20 w-20 m-auto">
-                        <LuLayoutGrid className="text-5xl text-gray-500 mt-3 m-auto" />
-                      </div>
-                      <h1 className="font-extrabold font-sans mt-2 text-2xl text-gray-500">Empty Posts!</h1>
-                      <h1 className="font-sans mt-2 text-sm text-gray-500">When you share photos, they will appear on your profile.</h1>
-                    </div>
+              {!userId  && (
+                <div id="default-tab-content">
+                  <div className={`md:p-4 p-2 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'posts' ? 'block' : 'hidden'}`} id="posts" role="tabpanel" aria-labelledby="posts-tab">
+                    <PostsSection />
+                  </div>
+                  <div className={`p-4 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'Saved' ? 'block' : 'hidden'}`} id="Saved" role="tabpanel" aria-labelledby="Saved-tab">
+                    {/* <SavedPostsSection /> */}
                   </div>
                 </div>
-                <div className={`p-4 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'Saved' ? 'block' : 'hidden'}`} id="Saved" role="tabpanel" aria-labelledby="Saved-tab">
-                  <div className="flex justify-center items-center min-h-96">
-                    <div className="flex-col text-center">
-                      <div className="border-4 border-gray-500 rounded-full h-20 w-20 m-auto">
-                        <LuBookmark className="text-5xl text-gray-500 mt-3 m-auto" />
-                      </div>
-                      <h1 className="font-extrabold font-sans mt-2 text-2xl text-gray-500">Empty Saved!</h1>
-                      <h1 className="font-sans mt-2 text-sm text-gray-500">When you save photos, they will appear on your profile.</h1>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
