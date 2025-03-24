@@ -2,11 +2,12 @@ import { useState, useContext, useRef, useEffect } from "react";
 import { ThemeContext } from '../context/theme';
 import logoImage from "../assets/image/auramicimage.png";
 import './components.css';
-import { LuMoreVertical, LuBookmark, LuEyeOff, LuUserMinus, LuMessageCircle, LuShare2 } from "react-icons/lu";
+import { LuMoreVertical, LuBookmark, LuUserMinus, LuMessageCircle, LuShare2 } from "react-icons/lu";
 import { formatDate, formatTime } from "../utils/extractTime";
 import CommentModal from "./CommentModal"; // Import the CommentModal component
 import { useLikePost } from "../hooks/useLikeHook";
 import { FeedPostCardProps, Comment } from "../types/types.ts";
+import useSavePost from "../hooks/useSavePost.tsx";
 
 const FeedPostCard: React.FC<FeedPostCardProps> = ({
     postImages,
@@ -31,6 +32,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
     const [totalComment, setTotalComment] = useState(commentsCount || 0);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]); // State to store comments
+    const {savePost} = useSavePost();
 
     const galleryRef = useRef<HTMLDivElement>(null);
 
@@ -99,12 +101,22 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
             });
             if (!response.ok) throw new Error("Failed to post comment");
             const newComment = await response.json();
-            setTotalComment(prev => prev + 1); 
+            setTotalComment(prev => prev + 1);
             setComments([newComment.comment, ...comments]); // Add the new comment to the list
         } catch (error) {
             console.error("Error posting comment:", error);
         }
     };
+
+
+    const handleSavedLink = async () => {
+        try {
+            const response = savePost(postId);
+            if (!response) throw new Error("Failed to save post");
+        } catch (error) {
+            console.error("Error saving post:", error);
+        }
+    }
 
     return (
         <div className="flex-col w-full h-auto bg-white my-3 rounded-xl story-shadow-all dark:bg-black dark:text-white">
@@ -131,15 +143,15 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     <div className="flex p-2 w-full h-14 cursor-pointer border-b border-gray-200">
                         <LuBookmark className="text-2xl mt-2 mr-2 text-gray-400" />
                         <div>
-                            <div className="text-sm font-bold leading-10 text-gray-600 dark:text-white">Save Link</div>
+                            <div className="text-sm font-bold leading-10 text-gray-600 dark:text-white" onClick={handleSavedLink}>Save Link</div>
                         </div>
                     </div>
-                    <div className="flex p-2 w-full h-14 cursor-pointer border-b border-gray-200">
+                    {/* <div className="flex p-2 w-full h-14 cursor-pointer border-b border-gray-200">
                         <LuEyeOff className="text-2xl mt-2 mr-2 text-gray-400" />
                         <div>
                             <div className="text-sm font-bold leading-10 text-gray-600 dark:text-white">Hide Post</div>
                         </div>
-                    </div>
+                    </div> */}
                     <div className="flex p-2 w-full h-14 cursor-pointer">
                         <LuUserMinus className="text-2xl mt-2 mr-2 text-gray-400" />
                         <div>
@@ -204,7 +216,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                                 </svg>
                             </div>
                         </div>
-                        <span className="text-sm font-bold mt-2 ml-2 text-gray-500 max-sm:hidden">{liked }{likes_Count} Like</span>
+                        <span className="text-sm font-bold mt-2 ml-2 text-gray-500 max-sm:hidden">{liked}{likes_Count} Like</span>
                         <div className="ml-4 flex">
                             <LuMessageCircle
                                 className="text-3xl cursor-pointer"

@@ -1,3 +1,4 @@
+import SavedPost from "../models/savedPostModel.js";
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
 import cloudinary from "cloudinary";
@@ -177,4 +178,68 @@ export const deletePost = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+// Controller to save a post for a user
+export const savePostForUser = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const userId = req.user._id; 
+    
+    // Check if the post exists
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // Check if the user has already saved the post
+    const existingSavedPost = await SavedPost.findOne({ userId, postId });
+    if (existingSavedPost) {
+      return res.status(400).json({ message: "Post already saved." });
+    }
+
+    // Create a new saved post entry
+    const newSavedPost = new SavedPost({
+      userId,
+      postId,
+    });
+
+    // Save the entry to the database
+    await newSavedPost.save();
+
+    // Return the saved post entry
+    res.status(201).json({
+      message: "Post saved successfully",
+    });
+  } catch (error) {
+    console.error("Error saving post for user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Controller to get saved posts for a user
+export const getSavedPostsForUser = async (req, res) => {
+    try {
+        const userId = req.user._id; // Assuming `protectRoute` middleware attaches the user to `req.user`
+
+        // Find all saved posts for the user
+        const savedPosts = await SavedPost.find({ userId }).populate({
+            path: "postId",
+            model: "Post", // Populate the post details
+            populate: {
+                path: "userId",
+                model: "User", // Populate the user details of the post
+                select: "fullname username profilePic", // Select specific fields
+            },
+        });
+
+        // Return the saved posts
+        res.status(200).json({
+            message: "Saved posts retrieved successfully",
+            savedPosts,
+        });
+    } catch (error) {
+        console.error("Error retrieving saved posts:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };

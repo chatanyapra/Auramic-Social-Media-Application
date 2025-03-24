@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { LuLayoutGrid } from 'react-icons/lu';
 import CommentModal from './CommentModal'; // Import the CommentModal
+import EmptyPost from './EmptyPost';
 
 export default function PostsSection() {
     const [posts, setPosts] = useState<any[]>([]);
@@ -53,8 +53,8 @@ export default function PostsSection() {
                 text: commentText,
             });
             const newComment = response.data.comment;
-            console.log('New Comment:', newComment); 
-            
+            console.log('New Comment:', newComment);
+
 
             // Update the selected post with the new comment
             setSelectedPost((prevPost: any) => ({
@@ -78,22 +78,16 @@ export default function PostsSection() {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-96">
-                <div className="spinner">Loading...</div>
+                <svg className="svg_loading m-auto" viewBox="25 25 50 50">
+                    <circle className="svg_circle" r="20" cy="50" cx="50"></circle>
+                </svg>
             </div>
         );
     }
 
     if (posts.length === 0) {
         return (
-            <div className="flex justify-center items-center min-h-96">
-                <div className="flex-col text-center">
-                    <div className="border-4 border-gray-500 rounded-full h-20 w-20 m-auto">
-                        <LuLayoutGrid className="text-5xl text-gray-500 mt-3 m-auto" />
-                    </div>
-                    <h1 className="font-extrabold font-sans mt-2 text-2xl text-gray-500">Empty Posts!</h1>
-                    <h1 className="font-sans mt-2 text-sm text-gray-500">When you share photos, they will appear on your profile.</h1>
-                </div>
-            </div>
+            <EmptyPost />
         );
     }
 

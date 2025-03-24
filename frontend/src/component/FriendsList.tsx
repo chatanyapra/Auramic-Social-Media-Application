@@ -77,7 +77,7 @@ const FriendsList: React.FC<FriendsListProps> = ({ isModalOpen, setIsModalOpen }
     return (
         <div>
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center max-h-screen overflow-y-auto p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center max-h-screen overflow-y-auto p-4 z-10">
                     <div ref={modalRef} className="w-full max-w-md bg-white dark:bg-black rounded-lg shadow-lg dark:border-2 border-solid border-gray-500 overflow-hidden transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-fadeIn">
                         <button
                             className="absolute top-3 right-3 text-gray-600 hover:text-red-500 text-2xl"

@@ -11,6 +11,9 @@ import { useUserContext } from "../context/UserContext";
 import FriendsList from "../component/FriendsList";
 import { useFollowUser } from "../hooks/useSearchHook";
 import PostsSection from "../component/PostsSection";
+import SavedPostsSection from "../component/SavedPostsSection";
+import EmptyPost from "../component/EmptyPost";
+import EmptySaved from "../component/EmptySaved";
 // import SavedPostsSection from "../component/SavedPostsSection";
 
 export default function Profile() {
@@ -39,7 +42,6 @@ export default function Profile() {
   useEffect(() => {
     setRequest(false);
     setFollowing(userById?.following || []);
-    console.log("following userIb", userById);
   }, [userById]);
 
   const handleFollow = async (userId: string) => {
@@ -266,16 +268,14 @@ export default function Profile() {
                   </li>
                 </ul>
               </div>
-              {!userId  && (
-                <div id="default-tab-content">
-                  <div className={`md:p-4 p-2 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'posts' ? 'block' : 'hidden'}`} id="posts" role="tabpanel" aria-labelledby="posts-tab">
-                    <PostsSection />
-                  </div>
-                  <div className={`p-4 rounded-lg bg-white dark:bg-black dark:text-white ${activeTab === 'Saved' ? 'block' : 'hidden'}`} id="Saved" role="tabpanel" aria-labelledby="Saved-tab">
-                    {/* <SavedPostsSection /> */}
-                  </div>
+              <div id="default-tab-content">
+                <div className={`md:p-4 p-2 rounded-lg bg-white dark:bg-black dark:text-white max-sm:min-h-72 ${activeTab === 'posts' ? 'block' : 'hidden'}`} id="posts" role="tabpanel" aria-labelledby="posts-tab">
+                  {!userId ? <PostsSection /> : <EmptyPost />}
                 </div>
-              )}
+                <div className={`md:p-4 p-2 rounded-lg bg-white dark:bg-black dark:text-white max-sm:min-h-72 ${activeTab === 'Saved' ? 'block' : 'hidden'}`} id="Saved" role="tabpanel" aria-labelledby="Saved-tab">
+                  {!userId ? <SavedPostsSection /> : <EmptySaved />}
+                </div>
+              </div>
             </div>
           </div>
         </div>
