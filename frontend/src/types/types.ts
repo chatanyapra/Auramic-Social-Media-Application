@@ -83,6 +83,7 @@ export interface MessageTextSmallProps {
 export interface FeedPostCardProps {
   postImages: string[]; // Array of image URLs
   text: string; // Post text
+  userId: string; // Full name of the post creator
   fullname: string; // Full name of the post creator
   username: string; // Username of the post creator
   profilePic: string; // Profile picture of the post creator
@@ -199,6 +200,7 @@ export interface UserContextValue {
   stories: Story[];
   loading: boolean;
   refresh: boolean;
+  countPosts: number | 0;
   error: string | null;
   auramicAiId: string | null;
   confirmedFriends: UserKnowns[];
@@ -228,6 +230,7 @@ export interface Post {
   text: string;
   file: File[];
   user: {
+    _id: string;
     fullname: string;
     username: string;
     profilePic: string;

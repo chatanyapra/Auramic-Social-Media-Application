@@ -1,10 +1,10 @@
 import asyncHandler from "express-async-handler";
-import mongoose from "mongoose"; // Import mongoose
+import mongoose from "mongoose"; 
 import User from "../models/userModel.js";
 import Story from "../models/storyModel.js";
+import Post from "../models/postModel.js";
 // import vision from '@google-cloud/vision';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-// import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Conversation from "../models/conversationModel.js";
@@ -394,13 +394,14 @@ export const getUserProfileData = async (req, res) => {
 
         // Merge stories, placing logged-in user's stories first
         const allStories = [...loggedInUserStories, ...followingUserStories];
-
+        const totalPostsCount = await Post.countDocuments({ userId });
         // Include specific user with every user response
         res.status(200).json({
             user: user[0],
             stories: allStories,
             specificAiUser: specificUser,
             specificUserId,
+            totalPostsCount
         });
     } catch (error) {
         console.error("Error fetching user profile and stories:", error);
@@ -488,8 +489,9 @@ export const getUserProfileDataById = async (req, res) => {
         if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
+        const totalPostsCount = await Post.countDocuments({ userId });
 
-        res.status(200).json({ user: user[0] });
+        res.status(200).json({ user: user[0], totalPostsCount });
     } catch (error) {
         console.error("Error fetching user profile:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -538,7 +540,7 @@ export const getSpecificUser = async (req, res) => {
         const suggestedFriends = await User.find({
             _id: { $nin: [loggedInUserId, specificUserId] }, // Exclude logged-in user and specific user
             followers: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
-            following: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
+            // following: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
         })
             .select("fullname username profilePic") // Include only these fields
             .limit(10); // Limit the results to 10 users

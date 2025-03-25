@@ -25,6 +25,7 @@ const FeedPage = () => {
             postId={post._id} // Pass the post ID
             postImages={post.file.map((file: File) => file.url)}
             text={post.text}
+            userId={post.user._id}
             fullname={post.user.fullname}
             username={post.user.username}
             profilePic={post.user.profilePic}

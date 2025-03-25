@@ -1,28 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useUserContext } from "../../context/UserContext";
 
 const ProfileSettings: React.FC = () => {
-  const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
+  const { user, setRefresh } = useUserContext();
+  const [formData, setFormData] = useState({
+    fullName: user?.fullname || "",
+    username: user?.username || ""
+  });
   const [loading, setLoading] = useState(false);
 
-  // Handle profile update
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  // Initialize form with user data
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullName: user.fullname || "",
+        username: user.username || ""
+      });
+    }
+  }, [user]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const response = await axios.put("/api/account/profile", {
-        fullname: fullName,
-        username,
+        fullname: formData.fullName,
+        username: formData.username
       });
-      const data = response.data;
-      setFullName(data?.fullname);
-      setUsername(data?.username);
-      toast.success("Profile updated successfully!"); // Success message
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setRefresh(prev => !prev);
+      } else {
+        toast.error(response.data.message || "Failed to update profile");
+      }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again."); // Error message
+      let errorMessage = "Failed to update profile";
+      
+      if (axios.isAxiosError(error)) {
+        // Handle axios errors (response from backend)
+        errorMessage = error.response?.data?.message || errorMessage;
+      } else if (error instanceof Error) {
+        // Handle generic errors
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
+      console.error("Profile update error:", error);
     } finally {
       setLoading(false);
     }
@@ -31,31 +66,44 @@ const ProfileSettings: React.FC = () => {
   return (
     <div className="bg-white dark:bg-black p-6 rounded-lg shadow-md">
       <h3 className="text-lg font-semibold mb-4">Profile Information</h3>
-      <form onSubmit={handleUpdateProfile}>
+      <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-400">Full Name</label>
+          <label className="block text-gray-700 dark:text-gray-400 mb-2">
+            Full Name
+          </label>
           <input
             type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="w-full p-2 border rounded-md dark:bg-gray-700"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-600"
             required
+            minLength={2}
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-400">Username</label>
+          <label className="block text-gray-700 dark:text-gray-400 mb-2">
+            Username
+          </label>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 border rounded-md dark:bg-gray-700"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-600"
             required
+            minLength={3}
+            maxLength={20}
+            pattern="[a-zA-Z0-9_]+"
+            title="Letters, numbers, and underscores only"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md"
+          className={`px-4 py-2 rounded-md text-white ${
+            loading ? "bg-blue-400" : "bg-blue-500 hover:bg-blue-600"
+          } transition-colors`}
         >
           {loading ? "Updating..." : "Update Profile"}
         </button>

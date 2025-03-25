@@ -23,10 +23,10 @@ export default function Profile() {
   const profileFileInputRef = useRef<HTMLInputElement>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const { uploadImage } = useUploadImage();
-  const { userById, getProfileById } = useProfileData();
+  const { userById, getProfileById, userByIdCountPosts } = useProfileData();
   const { userId } = useParams<{ userId: string }>();
   const { authUser } = useAuthContext();
-  const { user, refresh, setRefresh } = useUserContext();
+  const { user, refresh, setRefresh, countPosts } = useUserContext();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { followUser } = useFollowUser();
   const [request, setRequest] = useState<boolean>(false);
@@ -50,7 +50,6 @@ export default function Profile() {
       // Update the UI to reflect the follow status
       setRequest(true);
       handleFollowingList(userId);
-      console.log(`Followed user with ID: ${userId}`);
     }
   };
 
@@ -217,7 +216,9 @@ export default function Profile() {
                   )}
                 </p>
                 <div className="mt-3 flex md:text-xl max-md:border-b max-md:border-t border-gray-200 dark:border-gray-700 justify-between items-center">
-                  <div className="pr-4 font-medium text-gray-600 flex max-md:flex-col cursor-pointer text-center"><span className="font-bold text-black dark:text-white md:pr-1">10</span> Posts</div>
+                  <div className="pr-4 font-medium text-gray-600 flex max-md:flex-col cursor-pointer text-center"><span className="font-bold text-black dark:text-white md:pr-1">
+                    {userId ? userByIdCountPosts : countPosts}
+                    </span> Posts</div>
                   <div className="pr-4 font-medium text-gray-600 cursor-pointer flex max-md:flex-col text-center" onClick={() => setIsModalOpen(true)}>
                     <span className="font-bold text-black dark:text-white md:pr-1">{userId ? userById?.followersCount : user?.followersCount} </span>
                     followers

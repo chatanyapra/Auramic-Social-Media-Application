@@ -9,8 +9,6 @@ const RequestCard: React.FC<RequestCardProps> = ({ userImage, userName, fullName
     const handleConfirm = async () => {
         const success = await followAcceptUser(userId);
         if (success) {
-
-            // console.log(`Follow request accepted for user with ID: ${userId}`);
             onConfirm(userId);
         }
     };

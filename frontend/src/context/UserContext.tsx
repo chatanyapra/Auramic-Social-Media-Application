@@ -20,6 +20,7 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(true);
+    const [countPosts, setCountPosts] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [auramicAiId, setAuramicAiId] = useState<string | null>(null);
     const [auramicAi, setAuramicAi] = useState<{ _id: string; fullname: string; username: string; profilePic: string; auramicAiCall?: string; } | null>(null);
@@ -42,6 +43,7 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
             setStories(data.stories);
             setAuramicAi(data.specificAiUser); // This is a single object, not an array
             setAuramicAiId(data.specificUserId);
+            setCountPosts(data.totalPostsCount);
         } catch (err) {
             setError("Failed to fetch user data");
         } finally {
@@ -85,7 +87,8 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
             setRefresh,
             auramicAiId,
             confirmedFriends,
-            fetchUserData
+            fetchUserData,
+            countPosts
         }}>
             {children}
         </UserContext.Provider>

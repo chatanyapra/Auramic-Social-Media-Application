@@ -97,7 +97,7 @@ const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: M
 
   let textColor = '';
   return (
-    <div className={`w-full max-w-screen-xl shadow-md overflow-hidden relative max-md:${visibility ? 'visible' : 'hidden'} bg-white dark:bg-black dark:border-l-4 border-gray-700  max-sm:rounded-lg rounded-r-lg`}>
+    <div className={`w-full max-w-screen-xl shadow-md overflow-hidden relative max-md:${visibility ? 'visible' : 'hidden'} bg-white dark:bg-black dark:md:border-l-4 border-gray-700  max-sm:rounded-lg rounded-r-lg`}>
       {/* <!-- chat heading --> */}
       <div className="flex items-center justify-between gap-2 px-6 z-10 border-b dark:border-slate-200 uk-animation-slide-top-medium">
         <div className="flex items-center sm:gap-4 gap-2 md:py-4 py-2">
@@ -128,7 +128,7 @@ const MessageBox2: React.FC<MyComponentProps> = ({ conversation, visibility }: M
       </div>
 
       {/* <!-- chats bubble --> */}
-      <div className="small-scroll w-full p-3 py-10 overflow-y-auto md:h-[calc(100vh-230px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
+      <div className="small-scroll w-full p-3 max-sm:pb-[100px] overflow-y-auto md:h-[calc(100vh-230px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
         <div className="py-5 text-center text-sm lg:pt-8 h-auto overflow-hidden">
           <img src={conversation.profilePic} className="w-24 h-24 rounded-full mx-auto mb-3" alt="" />
           <div className="mt-8">

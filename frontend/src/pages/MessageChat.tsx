@@ -104,13 +104,13 @@ export default function MessageChat() {
         }
     }, [sendMessageList, newSendMessage]);
     return (
-        <div className="flex mt-5 md:h-[calc(100vh-20px)] dark:bg-gray-700 lg:ml-64 max-md:px-0">
-            <div className="w-full h-full max-md:w-full relative mx-1">
+        <div className="flex md:mt-5 mt-4 md:h-[calc(100vh-20px)] dark:bg-gray-700 lg:ml-64 max-md:px-0">
+            <div className="w-full h-full max-md:w-full relative md:mx-1">
                 {/* <div className='absolute right-5 top-5 text-white border border-blue-600 rounded-md px-2 py-1 bg-blue-500 cursor-pointer'
                     onClick={logout}>
                     Logout
                 </div> */}
-                <div className="flex mt-16 max-md:px-0 max-md:w-full md:h-[calc(100vh-90px)] h-[calc(100vh-0px)] max-md:h-[calc(100vh-90px)] m-auto bg-white dark:bg-black">
+                <div className="flex mt-16 max-md:px-0 max-md:w-full md:h-[calc(100vh-90px)] h-[calc(100vh-0px)] max-md:h-[calc(100vh-82px)] m-auto bg-white dark:bg-black">
                     <div className={`max-md:w-full relative ${visibilityChat ? "hidden" : ""}`}>
 
                         <div id="side-chat" className="shadow-md max-md:w-full w-80 dark:bg-black z-50 max-md:shadow">

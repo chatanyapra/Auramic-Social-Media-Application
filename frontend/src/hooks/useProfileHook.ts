@@ -43,6 +43,7 @@ export const useProfileData = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [userByIdCountPosts, setUserByIdCountPosts] = useState<number | 0>(0);
 
   const getProfileById = async (endpoint: string) => {
     setLoading(true);
@@ -58,8 +59,7 @@ export const useProfileData = () => {
         throw new Error(data.error);
       }
       setUser(data.user);
-      console.log("userprofile", user);
-      
+      setUserByIdCountPosts(data.totalPostsCount);      
     } catch (error: any) {
       setError(error.message);
       toast.error(error.message);
@@ -69,5 +69,5 @@ export const useProfileData = () => {
     }
   };
 
-  return { getProfileById, loading, error, userById: user };
+  return { getProfileById, loading, error, userById: user, userByIdCountPosts };
 };
