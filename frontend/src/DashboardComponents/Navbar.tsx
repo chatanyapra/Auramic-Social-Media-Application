@@ -2,11 +2,12 @@ import { useState, useContext } from "react";
 import { ThemeContext } from '../context/theme';
 import logoImage from "../assets/image/auramicimage.png";
 import "./Navbar.css";
-import { LuMessageSquare, LuBell, LuHome, LuMessageCircle, LuSearch, LuPlusSquare, LuSettings, LuSettings2, LuCheck } from "react-icons/lu";
+import { LuHome, LuMessageCircle, LuSearch, LuPlusSquare, LuSettings, LuSettings2, LuCheck } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import useLogout from "../hooks/useLogout";
 import { useUserContext } from "../context/UserContext";
 import useCallingHook from "../hooks/useCallingHook";
+import NotificationPopup from "../component/NotificationPopup";
 
 
 export default function Navbar() {
@@ -68,12 +69,13 @@ export default function Navbar() {
             </div>
             <div className="flex items-center">
               <div className="flex items-center ms-3">
-                <div className="flex ">
-                  <LuBell className={`max-md:mx-0 m-2 text-2xl ${textColor}`} />
-                  <LuMessageSquare className={`max-md:mr-4 my-2 ml-4 mr-8 text-2xl ${textColor}`} />
+                <div className="flex">
+                  <NotificationPopup textColor={textColor} />
+                  {/* <LuBell className={`max-md:mx-0 m-2 text-2xl ${textColor}`} />
+                  <LuMessageSquare className={`max-md:mr-4 my-2 ml-4 mr-8 text-2xl ${textColor}`} /> */}
                   <button onClick={handleUserMenuToggle} type="button" className="flex w-8 h-8 mt-1 mr-3 text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false">
                     <span className="sr-only">Open user menu</span>
-                    <img className="w-8 h-8 rounded-full" src={user?.profilePic || userImage}  alt="user photo" />
+                    <img className="w-8 h-8 rounded-full" src={user?.profilePic || userImage} alt="user photo" />
                   </button>
                   <button onClick={handleSidebarToggle} aria-controls="logo-sidebar" type="button" className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span className="sr-only">Open sidebar</span>
@@ -87,7 +89,7 @@ export default function Navbar() {
                 <div onClick={handleSidebarToggle} className={`${isSidebarOpen ? "visible" : "hidden"} absolute top-0 left-0 w-full h-screen z-40`}></div>
                 <div onClick={handleSwitchAppearToggle} className={`${isSwitchAppearance ? "visible" : "hidden"} absolute top-0 left-0 w-full h-screen z-40`}></div>
 
-                <div className={`story-shadow-all-high z-50 ${isUserMenuOpen ? "visible" : "hidden"} cursor-pointer absolute top-14 right-2 my-8 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`} id="dropdown-user">
+                <div className={`story-shadow-all-high z-50 ${isUserMenuOpen ? "visible" : "hidden"} cursor-pointer absolute top-14 right-2 my-8 text-base list-none bg-white border dark:border-gray-500 divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600`} id="dropdown-user">
                   <div className="px-4 py-3" role="none">
                     <p className="text-sm text-gray-900 dark:text-white" role="none">
                       {user?.fullname}
@@ -147,7 +149,7 @@ export default function Navbar() {
               <li>
                 <Link to="/profile" onClick={handleSideMenuClick} id="profile" className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${clickedLinkId === "profile" ? (darkMode ? 'bg-gray-700' : 'bg-gray-100') : ''}`}>
                   <div className="w-8 h-8 bg-red-100 rounded-full overflow-hidden">
-                    <img src={user?.profilePic || userImage}  className="w-full h-full" alt="" />
+                    <img src={user?.profilePic || userImage} className="w-full h-full" alt="" />
                   </div>
                   <span className="ms-3">Profile</span>
                 </Link>

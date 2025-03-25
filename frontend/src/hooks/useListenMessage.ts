@@ -13,7 +13,7 @@ const useListenMessage = () => {
         if (!socket) return;
 
         const handleNewMessage = async (newMessage: any) => {
-            // console.log('NewMessage: ', newMessage);
+            console.log('NewMessage: ', newMessage);
             const findMatchedConversation = async () => {
                 return conversations.find(conv => conv._id === newMessage.senderId);
             };

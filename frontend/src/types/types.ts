@@ -164,8 +164,11 @@ export interface KeyValuePair {
 
 export interface SocketContextValue {
   selectedTextUser: KeyValuePair | null;
-  setSelectedTextUser: (pair: KeyValuePair | null) => void;
+  setSelectedTextUser: (value: KeyValuePair | null) => void;
+  userNotification: Conversation | null;
+  setUserNotification: (value: Conversation | null) => void;
 }
+
 export interface ThemeContextProps {
   darkMode: boolean;
   toggleDarkMode: () => void;

@@ -4,16 +4,19 @@ import useListenMessage from "../hooks/useListenMessage";
 import useConversation from "../zustandStore/useConversation";
 import {Conversation} from "../types/types";
 import AiLoader from "./AiLoader";
+import { useSelectTextContext } from "../context/SelectedTextContext";
 
 function SidebarUsers({ conversation, auramicAiCall }: { conversation: Conversation, auramicAiCall: boolean }) {
 
     const {selectedConversation, setSelectedConversation} = useConversation();
     const isSelected = selectedConversation?._id === conversation._id;
-    const {onlineUsers} = useSocketContext();
+    const {setUserNotification} = useSelectTextContext();
+    const { onlineUsers } = useSocketContext();
     
     const isOnline = onlineUsers.includes(conversation._id);
     const { newSendMessage } = useListenMessage();
     const messageNotification = conversation._id == newSendMessage ? true : false;
+    setUserNotification(messageNotification ? conversation : null);
 
     return (
         <div className={`w-full relative flex items-center gap-4 p-2 ${ isSelected ? 'bg-gray-100 dark:bg-gray-900' : "" } border-b dark:border-gray-500 duration-200 hover:bg-secondery cursor-pointer relative`}
