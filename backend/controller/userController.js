@@ -1,5 +1,5 @@
 import asyncHandler from "express-async-handler";
-import mongoose from "mongoose"; 
+import mongoose from "mongoose";
 import User from "../models/userModel.js";
 import Story from "../models/storyModel.js";
 import Post from "../models/postModel.js";
@@ -289,79 +289,79 @@ export const getUserProfileData = async (req, res) => {
         const user = await User.aggregate([
             { $match: { _id: new mongoose.Types.ObjectId(userId) } }, // Match the logged-in user
             {
-              $lookup: {
-                from: "users",
-                localField: "followers",
-                foreignField: "_id",
-                as: "followers",
-              },
+                $lookup: {
+                    from: "users",
+                    localField: "followers",
+                    foreignField: "_id",
+                    as: "followers",
+                },
             },
             {
-              $lookup: {
-                from: "users",
-                localField: "following",
-                foreignField: "_id",
-                as: "following",
-              },
+                $lookup: {
+                    from: "users",
+                    localField: "following",
+                    foreignField: "_id",
+                    as: "following",
+                },
             },
             {
-              $lookup: {
-                from: "users",
-                localField: "followRequests",
-                foreignField: "_id",
-                as: "followRequests",
-              },
+                $lookup: {
+                    from: "users",
+                    localField: "followRequests",
+                    foreignField: "_id",
+                    as: "followRequests",
+                },
             },
             {
-              $project: {
-                fullname: 1,
-                username: 1,
-                profilePic: 1,
-                private: 1,
-                followersCount: { $size: "$followers" }, // Count of followers
-                followingCount: { $size: "$following" }, // Count of following
-                followers: {
-                  $map: {
-                    input: "$followers",
-                    as: "follower",
-                    in: {
-                      _id: "$$follower._id",
-                      fullname: "$$follower.fullname",
-                      username: "$$follower.username",
-                      profilePic: "$$follower.profilePic",
-                      private: "$$follower.private",
+                $project: {
+                    fullname: 1,
+                    username: 1,
+                    profilePic: 1,
+                    private: 1,
+                    followersCount: { $size: "$followers" }, // Count of followers
+                    followingCount: { $size: "$following" }, // Count of following
+                    followers: {
+                        $map: {
+                            input: "$followers",
+                            as: "follower",
+                            in: {
+                                _id: "$$follower._id",
+                                fullname: "$$follower.fullname",
+                                username: "$$follower.username",
+                                profilePic: "$$follower.profilePic",
+                                private: "$$follower.private",
+                            },
+                        },
                     },
-                  },
-                },
-                following: {
-                  $map: {
-                    input: "$following",
-                    as: "followingUser",
-                    in: {
-                      _id: "$$followingUser._id",
-                      fullname: "$$followingUser.fullname",
-                      username: "$$followingUser.username",
-                      profilePic: "$$followingUser.profilePic",
-                      private: "$$followingUser.private", // Include privacy status
+                    following: {
+                        $map: {
+                            input: "$following",
+                            as: "followingUser",
+                            in: {
+                                _id: "$$followingUser._id",
+                                fullname: "$$followingUser.fullname",
+                                username: "$$followingUser.username",
+                                profilePic: "$$followingUser.profilePic",
+                                private: "$$followingUser.private", // Include privacy status
+                            },
+                        },
                     },
-                  },
-                },
-                followRequests: {
-                  $map: {
-                    input: "$followRequests",
-                    as: "requestUser",
-                    in: {
-                      _id: "$$requestUser._id",
-                      fullname: "$$requestUser.fullname",
-                      username: "$$requestUser.username",
-                      profilePic: "$$requestUser.profilePic",
-                      private: "$$requestUser.private", // Include privacy status
+                    followRequests: {
+                        $map: {
+                            input: "$followRequests",
+                            as: "requestUser",
+                            in: {
+                                _id: "$$requestUser._id",
+                                fullname: "$$requestUser.fullname",
+                                username: "$$requestUser.username",
+                                profilePic: "$$requestUser.profilePic",
+                                private: "$$requestUser.private", // Include privacy status
+                            },
+                        },
                     },
-                  },
                 },
-              },
             },
-          ]);
+        ]);
 
         if (!user || user.length === 0) {
             return res.status(404).json({ error: "User not found" });
@@ -554,3 +554,37 @@ export const getSpecificUser = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+// Controller to get user details by ID
+export const getUserDetails = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId)
+            .select('fullname username profilePic')
+            .lean();
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                fullname: user.fullname,
+                username: user.username,
+                profilePic: user.profilePic
+            }
+        });
+
+    } catch (error) {
+        console.error("Error fetching user details:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch user details",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});

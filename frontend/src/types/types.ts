@@ -165,8 +165,12 @@ export interface KeyValuePair {
 export interface SocketContextValue {
   selectedTextUser: KeyValuePair | null;
   setSelectedTextUser: (value: KeyValuePair | null) => void;
-  userNotification: Conversation | null;
-  setUserNotification: (value: Conversation | null) => void;
+  // userNotification: MessageNotification | null;
+  // setUserNotification: (value: MessageNotification | null) => void;
+}
+export interface NotificationContextValue {
+  userNotification: MessageNotification | null;
+  setUserNotification: (value: MessageNotification | null) => void;
 }
 
 export interface ThemeContextProps {
@@ -246,4 +250,19 @@ export interface Post {
 
 export interface File {
   url: string;
+}
+export interface MessageNotification {
+  _id: string;
+  createdAt: string;
+  fileUrl: string | null;
+  message: string;
+  receiverId: string;
+  senderId: string;
+  updatedAt: string;
+}
+
+export interface EnhancedNotification extends MessageNotification {
+  profilePic?: string;
+  username?: string;
+  fullname?: string;
 }

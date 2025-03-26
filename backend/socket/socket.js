@@ -6,8 +6,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: [`https://auramic.onrender.com`],
-        // origin: [`http://localhost:5007`],
+        // origin: [`https://auramic.onrender.com`],
+        origin: [`http://localhost:5007`],
         methods: ['GET', 'POST'],
         credentials: true
     }
