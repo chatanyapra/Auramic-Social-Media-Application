@@ -13,6 +13,7 @@ export const useSuggestedFriends = () => {
             try {
                 const response = await axios.get("/api/users/suggested-friends");
                 setSuggestedFriends(response.data);
+               
             } catch (err) {
                 setError("Failed to fetch suggested friends");
             } finally {

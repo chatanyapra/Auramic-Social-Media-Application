@@ -100,7 +100,7 @@ const SearchBar: React.FC = () => {
       {/* Search Bar */}
       <div
         ref={searchBarRef}
-        className={`fixed top-20 right-0 h-full w-96 bg-white text-black shadow-2xl p-6 transition-all duration-500 ease-in-out transform ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+        className={`fixed top-20 right-0 h-full w-96 bg-white text-black dark:bg-gray-900 shadow-2xl p-6 transition-all duration-500 ease-in-out transform ${isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
           }`}
       >
         {/* Close Button */}
@@ -152,7 +152,7 @@ const SearchBar: React.FC = () => {
                     alt={user.fullname}
                     className="w-8 h-8 rounded-full mr-2"
                   />
-                  <div>
+                  <div className="dark:text-gray-200">
                     <p className="font-semibold">{user.fullname}</p>
                     <p className="text-sm text-gray-500">@{user.username}</p>
                   </div>

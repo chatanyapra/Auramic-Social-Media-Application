@@ -2,14 +2,14 @@ import express from "express";
 import protectRoute from "../middleware/protectRoute.js";
 import { getUserForSidebar, auramicaiTextExtract, uploadCoverImage, uploadProfileImage, updateUserBio,
      getUserProfileData, getUserProfileDataById, getSearchUser, getSpecificUser, 
-     getUserDetails} from "../controller/userController.js";
+     getUserInformation} from "../controller/userController.js";
 import upload from "../middleware/fileUpload.js"
 
 const router = express.Router();
 
 router.get("/", protectRoute, getUserForSidebar)
 router.get("/profile", protectRoute, getUserProfileData)
-router.get("/:userId", protectRoute, getUserDetails)
+router.get("/getuser/:userId", protectRoute, getUserInformation)
 router.get("/searchuser", protectRoute, getSearchUser)
 router.get("/suggested-friends", protectRoute, getSpecificUser)
 router.get("/profile/:userId", protectRoute, getUserProfileDataById)

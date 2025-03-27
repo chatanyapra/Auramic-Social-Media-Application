@@ -5,26 +5,10 @@ interface NotificationPopupProps {
     textColor: string;
 }
 
-interface Notification {
-    _id: string;
-    profilePic?: string;
-    username?: string;
-    fullname?: string;
-    message?: string;
-    createdAt?: string | Date;
-}
-
 const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
     const [isOpen, setIsOpen] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null);
-    const { userNotification } = useNotificationContext();
-
-    // Convert notification to array format for consistent handling
-    const notifications: Notification[] = userNotification 
-        ? Array.isArray(userNotification) 
-            ? userNotification 
-            : [userNotification]
-        : [];
+    const { notifications, markAsRead } = useNotificationContext();
 
     // Close popup when clicking outside
     useEffect(() => {
@@ -34,18 +18,27 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
             }
         };
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
+        document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isOpen]);
+    }, []);
 
     const togglePopup = () => {
-        setIsOpen(!isOpen);
+        setIsOpen(prev => {
+            if (!prev && notifications.length > 0) {
+                // Mark all as read when opening
+                notifications.forEach(notif => {
+                    if (!notif.isRead) {
+                        markAsRead(notif._id);
+                    }
+                });
+            }
+            return !prev;
+        });
     };
+
+    const unreadCount = notifications.filter(n => !n.isRead).length;
 
     return (
         <div className="relative mr-3">
@@ -69,7 +62,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                     />
                 </svg>
-                {notifications.length > 0 && (
+                {unreadCount > 0 && (
                     <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500"></span>
                 )}
             </button>
@@ -82,6 +75,11 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                     <div className="py-1">
                         <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-500">
                             <h3 className="text-lg font-medium text-gray-800 dark:text-white">Notifications</h3>
+                            {unreadCount > 0 && (
+                                <span className="ml-2 px-2 py-1 text-xs font-semibold text-white bg-blue-500 rounded-full">
+                                    {unreadCount} new
+                                </span>
+                            )}
                         </div>
 
                         {notifications.length === 0 ? (
@@ -90,16 +88,19 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                             </div>
                         ) : (
                             <div className="max-h-96 overflow-y-auto">
-                                {notifications.map((notification: Notification) => (
+                                {notifications.map((notification) => (
                                     <div
                                         key={notification._id}
-                                        className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer"
+                                        className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer ${
+                                            !notification.isRead ? 'bg-blue-50 dark:bg-gray-700' : ''
+                                        }`}
+                                        onClick={() => markAsRead(notification._id)}
                                     >
                                         <div className="flex items-start">
                                             {notification.profilePic && (
                                                 <img
                                                     src={notification.profilePic}
-                                                    alt={notification.username || 'User'}
+                                                    alt={notification.fullname || notification.username || 'User'}
                                                     className="h-10 w-10 rounded-full object-cover mr-3"
                                                     onError={(e) => {
                                                         (e.target as HTMLImageElement).src = '/default-profile.png';
@@ -107,23 +108,25 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                                                 />
                                             )}
                                             <div className="flex-1">
-                                                {(notification.fullname || notification.username) && (
-                                                    <div className="flex justify-between items-center">
-                                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-                                                            {notification.fullname || `@${notification.username}`}
-                                                        </h4>
-                                                    </div>
-                                                )}
+                                                <div className="flex justify-between items-center">
+                                                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {notification.fullname || `@${notification.username}`}
+                                                    </h4>
+                                                    {!notification.isRead && (
+                                                        <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                                                    )}
+                                                </div>
                                                 {notification.message && (
                                                     <p className="text-sm text-gray-500 dark:text-gray-200 mt-1">
                                                         {notification.message}
                                                     </p>
                                                 )}
-                                                {notification.createdAt && (
-                                                    <p className="text-xs text-gray-400 mt-1">
-                                                        {new Date(notification.createdAt).toLocaleTimeString()}
-                                                    </p>
-                                                )}
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {new Date(notification.createdAt).toLocaleTimeString([], {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

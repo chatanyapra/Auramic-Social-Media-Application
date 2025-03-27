@@ -540,7 +540,7 @@ export const getSpecificUser = async (req, res) => {
         const suggestedFriends = await User.find({
             _id: { $nin: [loggedInUserId, specificUserId] }, // Exclude logged-in user and specific user
             followers: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
-            // following: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
+            following: { $nin: [loggedInUserId] }, // Exclude users already followed by the logged-in user
         })
             .select("fullname username profilePic") // Include only these fields
             .limit(10); // Limit the results to 10 users
@@ -555,8 +555,15 @@ export const getSpecificUser = async (req, res) => {
     }
 };
 // Controller to get user details by ID
-export const getUserDetails = asyncHandler(async (req, res) => {
+export const getUserInformation = asyncHandler(async (req, res) => {
     const { userId } = req.params;
+
+    // Validate the userId format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ 
+            error: "Invalid user ID format" 
+        });
+    }
 
     try {
         const user = await User.findById(userId)
@@ -564,27 +571,26 @@ export const getUserDetails = asyncHandler(async (req, res) => {
             .lean();
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
+            return res.status(404).json({ 
+                error: "User not found" 
             });
         }
-
-        res.status(200).json({
-            success: true,
-            data: {
-                fullname: user.fullname,
-                username: user.username,
-                profilePic: user.profilePic
-            }
-        });
+        console.log("user: ", user);
+        
+        res.status(200).json(user);
 
     } catch (error) {
         console.error("Error fetching user details:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch user details",
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        
+        if (error.name === 'CastError') {
+            return res.status(400).json({ 
+                error: "Invalid user ID format" 
+            });
+        }
+
+        res.status(500).json({ 
+            error: "Internal Server Error",
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
