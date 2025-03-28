@@ -6,7 +6,6 @@ interface NotificationContextProviderProps {
     maxNotifications?: number;
     notificationTimeout?: number;
 }
-
 export interface MessageNotification {
     _id: string;
     createdAt: string;
@@ -16,7 +15,6 @@ export interface MessageNotification {
     senderId: string;
     updatedAt: string;
 }
-
 export interface EnhancedNotification extends MessageNotification {
     profilePic?: string;
     username?: string;
@@ -24,7 +22,6 @@ export interface EnhancedNotification extends MessageNotification {
     isUpdated?: boolean;
     isRead?: boolean;
 }
-
 interface NotificationContextValue {
     notifications: EnhancedNotification[];
     clearNotifications: () => void;
