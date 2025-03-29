@@ -16,7 +16,7 @@ export const createStory = async (req, res) => {
       req.files.map(async (file) => {
         try {
           const result = await cloudinary.uploader.upload(file.path, {
-            resource_type:"auto",
+            resource_type: "auto",
           });
           fs.unlinkSync(file.path); // Delete the file from the server after upload
           return { url: result.secure_url, alt: file.originalname };

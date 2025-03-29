@@ -20,12 +20,12 @@ const port = 5007;
 const __dirname = path.resolve();
 dotenv.config();
 
-app.use(cors());
+app.use(cors({ origin: "*", credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
