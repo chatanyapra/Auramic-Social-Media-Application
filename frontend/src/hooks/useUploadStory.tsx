@@ -18,7 +18,7 @@ const useUploadStory = () => {
                 });
             }
 
-            const res = await fetch(`/api/stories`, {
+            const res = await fetch(`/api/stories/`, {
                 method: "POST",
                 body: formData,
             });

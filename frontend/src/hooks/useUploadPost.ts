@@ -16,7 +16,7 @@ const useUploadPost = () => {
                 });
             }
 
-            const res = await fetch(`/api/posts`, {
+            const res = await fetch(`/api/posts/`, {
                 method: "POST",
                 body: formData,
             });

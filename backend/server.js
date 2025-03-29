@@ -20,7 +20,12 @@ const port = 5007;
 const __dirname = path.resolve();
 dotenv.config();
 
-app.use(cors({ origin: "*", credentials: true }));
+// app.use(cors({ origin: "*", credentials: true }));
+app.use(cors({
+    origin: "https://auramic.onrender.com", // Change this to your frontend URL
+    credentials: true
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 
@@ -37,9 +42,9 @@ app.use("/api/follow", followRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/comments", commentRoutes);
 
-app.use(express.static(path.join(__dirname,"/frontend/dist")));
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-app.get("*",(req, res) => {
+app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 })
 
