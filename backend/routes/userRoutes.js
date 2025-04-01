@@ -4,6 +4,7 @@ import { getUserForSidebar, auramicaiTextExtract, uploadCoverImage, uploadProfil
      getUserProfileData, getUserProfileDataById, getSearchUser, getSpecificUser, 
      getUserInformation} from "../controller/userController.js";
 import upload from "../middleware/fileUpload.js"
+import { geminiLimiter } from "../middleware/geminiLimiter.js";
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get("/searchuser", protectRoute, getSearchUser)
 router.get("/suggested-friends", protectRoute, getSpecificUser)
 router.get("/profile/:userId", protectRoute, getUserProfileDataById)
 router.put("/update-bio", protectRoute, updateUserBio)
-router.post("/extract-text", protectRoute, upload.single('file'),auramicaiTextExtract)
+router.post("/extract-text", protectRoute, geminiLimiter, upload.single('file'),auramicaiTextExtract)
 router.put("/upload-cover-image", protectRoute, upload.single('file'),uploadCoverImage)
 router.put("/upload-profile-image", protectRoute, upload.single('file'),uploadProfileImage)
 

@@ -64,98 +64,132 @@ export const getUserForSidebar = asyncHandler(async (req, res) => {
 //     }
 // });
 
-
-
 export const auramicaiTextExtract = asyncHandler(async (req, res) => {
     try {
         let { message: question, previousMessage } = req.body;
         const image = req.file || null;
-
         const receiverId = req.user._id;
-        console.log("image, question receiverId ----", image, question, receiverId);
 
-        if (question !== "") {
-            question = `The user input is: "${question}". 
-            You are AuramicAi, a assistant that works inside this application. 
-            Your task is to answer questions or provide relevant information based on the user's input. 
-            You can generate creative content (stories, articles, poems, code, scripts, music, emails, etc.), summarize texts, translate languages,Image Analysis , and offer detailed explanations or answers to the user's queries. 
-            If an image is provided, analyze the image and incorporate relevant details into your response. 
-            Use this to assist the user effectively.`;
+        // Validate input
+        if (!question && !image) {
+            return res.status(400).json({
+                error: 'Input required',
+                message: 'Please provide either text or an image to process'
+            });
         }
 
-        if (previousMessage !== "") {
-            question += ` Here is the context from a previous response or selected text: "${previousMessage}". 
-            Please consider this while formulating your answer.`;
+        // Build prompt
+        let prompt = '';
+        if (question) {
+            prompt = `The user input is: "${question}". 
+            You are AuramicAi, a assistant that works inside this application. 
+            Your task is to answer questions or provide relevant information based on the user's input.`;
+        }
+
+        if (previousMessage) {
+            prompt += `\nContext from previous message: "${previousMessage}".`;
         }
 
         if (image) {
-            question += ` An image has been provided. Analyze the image and use the information to enhance your answer to the user's query.`;
+            prompt += `\nAn image has been provided. Please analyze it and incorporate relevant details.`;
         }
 
-        question += ` Provide a clear and helpful answer to the user's query based on the text, image, or previous context.`;
+        prompt += `\nProvide a clear and helpful response to the user's query.`;
 
-        if (question.length > 3000) {
-            return res.status(400).json({ error: 'String length exceeds 3000 characters' });
+        if (prompt.length > 3000) {
+            return res.status(400).json({
+                error: 'Input too long',
+                message: 'Please keep your input under 3000 characters'
+            });
         }
 
+        // Process with Gemini
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        console.log("question:------", question);
-        let extractedText = "";
-
-        const model = await genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-        });
-        function fileToGenerativePart(path, mimeType) {
-            return {
-                inlineData: {
-                    data: Buffer.from(fs.readFileSync(path)).toString("base64"),
-                    mimeType,
-                },
-            };
-        }
-        const prompt = question + extractedText;
         let imagePart;
         if (image) {
-            imagePart = fileToGenerativePart(
-                `${image.path}`,
-                "image/jpeg",
-            );
-        }
-        let result;
-        if (imagePart) {
-            result = await model.generateContent([prompt, imagePart]);
-        } else {
-            result = await model.generateContent([prompt]);
-        }
-        const responseText = result.response.text();
-        console.log("result.response.text()---- ", responseText)
-        if (responseText) {
-            let newMessage;
-            const sendMessageResponse = await sendAuramicDb(responseText, receiverId, image);
-            if (sendMessageResponse) {
-                newMessage = sendMessageResponse.newMessage;
-            } else {
-                newMessage = responseText;
+            try {
+                imagePart = {
+                    inlineData: {
+                        data: (await fs.promises.readFile(image.path)).toString("base64"),
+                        mimeType: "image/jpeg",
+                    },
+                };
+            } catch (fileError) {
+                console.error('File processing error:', fileError);
+                return res.status(400).json({
+                    error: 'Image processing failed',
+                    message: 'We couldn\'t process your image. Please try another file.'
+                });
             }
-            res.json({ response: newMessage });
+        }
+
+        let result;
+        try {
+            result = await model.generateContent(imagePart ? [prompt, imagePart] : [prompt]);
+        } catch (apiError) {
+            console.error('Gemini API error:', apiError);
+
+            if (apiError.status === 429) {
+                return res.status(429).json({
+                    error: 'Service busy',
+                    message: 'Our AI is currently handling many requests. Please try again in a moment.',
+                    retryAfter: 30 // seconds
+                });
+            }
+
+            return res.status(500).json({
+                error: 'AI service unavailable',
+                message: 'We\'re having trouble reaching our AI service. Please try again later.'
+            });
+        }
+
+        const responseText = result.response.text();
+
+        // Save to database
+        let newMessage;
+        try {
+            const sendMessageResponse = await sendAuramicDb(responseText, receiverId, image);
+            newMessage = sendMessageResponse?.newMessage || responseText;
+        } catch (dbError) {
+            console.error('Database error:', dbError);
+            // Still return the response even if DB save fails
+            newMessage = responseText;
+        }
+
+        // Send response
+        res.json({
+            response: newMessage,
+            success: true
+        });
+
+        // Notify via socket if available
+        try {
             const receiverSocketId = getReceiverSocketId(receiverId);
             if (receiverSocketId) {
                 io.to(receiverSocketId).emit("newMessage", newMessage);
             }
+        } catch (socketError) {
+            console.error('Socket notification error:', socketError);
         }
-        if (imagePart) {
-            fs.unlink(image.path, (err) => {
-                if (err) {
-                    console.error('Error deleting the file from the server:', err);
-                }
-            });
+
+        // Cleanup image
+        if (image) {
+            try {
+                await fs.promises.unlink(image.path);
+            } catch (cleanupError) {
+                console.error('File cleanup error:', cleanupError);
+            }
         }
+
     } catch (error) {
-        console.error('Error processing request:', error);
-        res.status(500).json({ error: error.toString() });
+        console.error('Unexpected error:', error);
+        res.status(500).json({
+            error: 'Something went wrong',
+            message: 'An unexpected error occurred. Our team has been notified.'
+        });
     }
 });
-
 const sendAuramicDb = async (message, receiverId, image) => {
     try {
         const senderId = "66c048e50d7696b4b17b5d53";
@@ -560,8 +594,8 @@ export const getUserInformation = asyncHandler(async (req, res) => {
 
     // Validate the userId format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ 
-            error: "Invalid user ID format" 
+        return res.status(400).json({
+            error: "Invalid user ID format"
         });
     }
 
@@ -571,24 +605,24 @@ export const getUserInformation = asyncHandler(async (req, res) => {
             .lean();
 
         if (!user) {
-            return res.status(404).json({ 
-                error: "User not found" 
+            return res.status(404).json({
+                error: "User not found"
             });
         }
         console.log("user: ", user);
-        
+
         res.status(200).json(user);
 
     } catch (error) {
         console.error("Error fetching user details:", error);
-        
+
         if (error.name === 'CastError') {
-            return res.status(400).json({ 
-                error: "Invalid user ID format" 
+            return res.status(400).json({
+                error: "Invalid user ID format"
             });
         }
 
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Internal Server Error",
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
