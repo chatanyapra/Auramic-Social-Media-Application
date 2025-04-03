@@ -21,10 +21,10 @@ const __dirname = path.resolve();
 dotenv.config();
 
 // app.use(cors({ origin: "*", credentials: true }));
-app.use(cors({
-    origin: "https://auramic.onrender.com", // Change this to your frontend URL
-    credentials: true
-}));
+// app.use(cors({
+//     origin: "https://auramic.onrender.com", // Change this to your frontend URL
+//     credentials: true
+// }));
 
 app.use(cookieParser());
 app.use(express.json());

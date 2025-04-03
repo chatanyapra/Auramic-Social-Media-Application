@@ -13,8 +13,8 @@ const Create: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<{ file: File; url: string; filetype: string }[]>([]);
     const [selectedMediaPost, setSelectedMediaPost] = useState<string | null>(null);
     const [selectedFilePost, setSelectedFilePost] = useState<{ file: File; url: string; filetype: string }[]>([]);
-    const { uploadStory } = useUploadStory();
-    const { uploadPost } = useUploadPost();
+    const { uploadStory, loading: storyload } = useUploadStory();
+    const { uploadPost, loading: postload } = useUploadPost();
 
     // Handle media change for Story section
     const handleMediaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +153,7 @@ const Create: React.FC = () => {
                         <div className="bg-white p-8 rounded-lg w-full max-w-md dark:bg-black dark:text-white">
                             <form onSubmit={handleSubmit(onSubmitPost)} className="space-y-6">
                                 <div>
-                                    <label htmlFor="postCaption" className="block text-sm font-medium text-gray-700 dark:text-white">Description</label>
+                                    <label htmlFor="postCaption" className="block text-sm font-medium text-gray-700 dark:text-white">Post Description</label>
                                     <textarea id="postCaption" {...register("postCaption")} rows={5} className="mt-1 block w-full px-3 py-2 dark:bg-black border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter your description"></textarea>
                                 </div>
                                 {selectedMediaPost ? (
@@ -235,7 +235,15 @@ const Create: React.FC = () => {
                                     </label>
                                 </div>
                                 <div>
-                                    <button type="submit" className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Upload Post</button>
+                                    <button type="submit" className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        {postload ? (
+                                            <svg className="svg_loading m-auto w-5 h-5" viewBox="25 25 50 50">
+                                                <circle className="svg_circle" r="20" cy="50" cx="50"></circle>
+                                            </svg>
+                                        ) :
+                                            ("Upload Post")
+                                        }
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -251,7 +259,7 @@ const Create: React.FC = () => {
                         <div className="bg-white p-8 rounded-lg w-full max-w-md dark:bg-black dark:text-white z-20 ">
                             <form onSubmit={handleSubmit(onSubmitStory)} className="space-y-6">
                                 <div>
-                                    <label htmlFor="storydescription" className="block text-sm font-medium text-gray-700 dark:text-white">Description</label>
+                                    <label htmlFor="storydescription" className="block text-sm font-medium text-gray-700 dark:text-white">Story Description</label>
                                     <textarea id="storydescription" {...register("storyCaption")} rows={5} className="mt-1 block w-full px-3 py-2 bg-transparent dark:text-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter your description"></textarea>
                                 </div>
                                 {selectedMedia ? (
@@ -334,7 +342,15 @@ const Create: React.FC = () => {
                                     </label>
                                 </div>
                                 <div>
-                                    <button type="submit" className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Upload Story</button>
+                                    <button type="submit" className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        {storyload ? (
+                                            <svg className="svg_loading m-auto w-5 h-5" viewBox="25 25 50 50">
+                                                <circle className="svg_circle" r="20" cy="50" cx="50"></circle>
+                                            </svg>
+                                        ) :
+                                            ("Upload Story")
+                                        }
+                                    </button>
                                 </div>
                             </form>
                         </div>

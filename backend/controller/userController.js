@@ -557,7 +557,7 @@ export const getSearchUser = async (req, res) => {
             { username: 1, fullname: 1, profilePic: 1, _id: 1 } // Include only these fields
         ).limit(10);
 
-        console.log("results: ", results);
+        // console.log("results: ", results);
         res.json(results);
     } catch (error) {
         console.error("Error searching users:", error);
@@ -581,7 +581,7 @@ export const getSpecificUser = async (req, res) => {
 
         // Send the response
         res.json(suggestedFriends);
-        console.log("suggestedFriends: ", suggestedFriends);
+        // console.log("suggestedFriends: ", suggestedFriends);
 
     } catch (error) {
         console.error("Error fetching suggested friends:", error);
@@ -609,7 +609,7 @@ export const getUserInformation = asyncHandler(async (req, res) => {
                 error: "User not found"
             });
         }
-        console.log("user: ", user);
+        // console.log("user: ", user);
 
         res.status(200).json(user);
 
