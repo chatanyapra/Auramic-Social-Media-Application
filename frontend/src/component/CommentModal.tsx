@@ -212,7 +212,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
             {/* Close Button */}
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100"
+                className="absolute top-4 right-4 text-gray-200 dark:text-gray-300 hover:text-gray-400 dark:hover:text-gray-100"
                 aria-label="Close modal"
             >
                 <svg

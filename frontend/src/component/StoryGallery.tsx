@@ -290,7 +290,7 @@ const StoryGallery: React.FC = () => {
 
                         {/* Close Button */}
                         <button
-                            className="absolute top-6 right-4 z-50 bg-white bg-opacity-30 text-white rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                            className="absolute top-6 right-4 z-50 bg-white bg-opacity-30 text-white rounded-full w-8 h-8 text-2xl pb-1 flex items-center justify-center cursor-pointer"
                             onClick={closePopup}
                             aria-label="Close story"
                         >
