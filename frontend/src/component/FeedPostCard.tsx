@@ -26,25 +26,23 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
     likesCount,
     postId,
     isLiked,
-    userId // Assuming you'll pass the userId of the post author
+    userId
 }) => {
-
     const time = formatTime(createdAt);
     const date = formatDate(createdAt);
-    // State management
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [totalComment, setTotalComment] = useState(commentsCount || 0);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isUnfollowing, setIsUnfollowing] = useState(false);
+    const [isVideoPlaying, setIsVideoPlaying] = useState<number | null>(null);
     const { setRefresh } = useUserContext();
 
-    // Refs
     const galleryRef = useRef<HTMLDivElement>(null);
+    const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-    // Hooks
     const { liked, likes_Count, toggleLike, isLoading: isLikeLoading } = useLikePost(
         postId,
         isLiked ?? false,
@@ -54,32 +52,61 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
     const { unfollowUser } = useUnfollowUser();
     const themeContext = useContext(ThemeContext);
 
-    // Validate theme context
     if (!themeContext) {
         throw new Error('ThemeToggle must be used within a ThemeProvider');
     }
     const { textColor } = themeContext;
 
-    // Gallery scroll handler
+    const isVideo = (url: string) => {
+        return url.match(/\.(mp4|webm|ogg|mov)$/i) !== null;
+    };
+
+    const handleVideoPlay = (index: number) => {
+        const video = videoRefs.current[index];
+        if (!video) return;
+
+        if (video.paused) {
+            videoRefs.current.forEach((v, i) => {
+                if (v && i !== index) {
+                    v.pause();
+                    v.currentTime = 0;
+                }
+            });
+            video.play()
+                .then(() => setIsVideoPlaying(index))
+                .catch(error => console.error("Video play failed:", error));
+        } else {
+            video.pause();
+            setIsVideoPlaying(null);
+        }
+    };
+
     useEffect(() => {
         const gallery = galleryRef.current;
         if (!gallery) return;
 
         const handleScroll = () => {
             const scrollLeft = gallery.scrollLeft;
-            const imageWidth = gallery.clientWidth;
-            const index = Math.round(scrollLeft / imageWidth);
-            setCurrentImageIndex(index);
+            const mediaWidth = gallery.clientWidth;
+            const index = Math.round(scrollLeft / mediaWidth);
+            setCurrentMediaIndex(index);
+
+            if (isVideoPlaying !== null && isVideoPlaying !== index) {
+                const video = videoRefs.current[isVideoPlaying];
+                if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                    setIsVideoPlaying(null);
+                }
+            }
         };
 
         gallery.addEventListener("scroll", handleScroll);
         return () => gallery.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [isVideoPlaying]);
 
-    // Content toggle
     const toggleContent = () => setIsExpanded(!isExpanded);
 
-    // Comment handlers
     const fetchComments = async () => {
         try {
             const response = await fetch(`/api/comments/${postId}`);
@@ -126,28 +153,10 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
         }
     };
 
-    // Save post handler
     const handleSavedLink = async () => {
-        try {
-            await savePost(postId);
-            MySwal.fire({
-                title: 'Success',
-                text: 'Post saved successfully',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        } catch (error) {
-            console.error("Error saving post:", error);
-            MySwal.fire({
-                title: 'Error',
-                text: 'Failed to save post',
-                icon: 'error'
-            });
-        }
+        await savePost(postId);
     };
 
-    // Unfollow handler with confirmation
     const handleUnfollow = async () => {
         if (!userId) return;
 
@@ -177,9 +186,6 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     timer: 1500,
                     showConfirmButton: false
                 });
-
-                // You might want to refresh the feed or remove this post
-                // depending on your app's architecture
             } catch (error) {
                 console.error("Failed to unfollow user:", error);
                 MySwal.fire({
@@ -196,13 +202,12 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
 
     return (
         <div className="flex-col w-full h-auto bg-white my-3 rounded-xl story-shadow-all dark:bg-black dark:text-white">
-            {/* Click outside handler for menu */}
             <div
                 onClick={() => setIsUserMenuOpen(false)}
                 className={`${isUserMenuOpen ? "visible" : "hidden"} fixed top-0 left-0 bottom-0 right-0 w-full h-screen z-20`}
             />
 
-            {/* Post header */}
+            {/* Post Header */}
             <div className="relative">
                 <div className="w-full">
                     <div className="flex w-full m-auto pt-3 mb-2">
@@ -232,7 +237,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     </small>
                 </div>
 
-                {/* User menu dropdown */}
+                {/* User Menu Dropdown */}
                 <div
                     className={`z-20 ${isUserMenuOpen ? "visible" : "hidden"} flex-col overflow-hidden absolute top-16 right-8 w-52 bg-gray-50 dark:bg-gray-700 rounded-l-xl rounded-b-xl shadow-lg`}
                 >
@@ -261,33 +266,64 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                 </div>
             </div>
 
-            {/* Post content */}
+            {/* Post Content */}
             <div className="md:px-5 mt-1">
-                {/* Image gallery */}
+                {/* Media Gallery */}
                 <div
                     ref={galleryRef}
-                    className="w-full h-96 bg-gray-100 dark:bg-gray-700 md:rounded-xl mt-3 flex snap-x snap-mandatory scroll-smooth overflow-x-auto no-scrollbar"
+                    className="w-full h-96 bg-gray-100 dark:bg-gray-700 md:rounded-xl mt-3 flex snap-x snap-mandatory scroll-smooth overflow-x-auto no-scrollbar relative"
                 >
-                    {postImages.map((image, index) => (
-                        <div key={index} className="w-full h-full flex-shrink-0 snap-center">
-                            <img
-                                src={image}
-                                className="w-full h-full object-cover"
-                                alt={`Post ${index + 1}`}
-                                loading="lazy"
-                            />
+                    {postImages.map((file, index) => (
+                        <div key={file._id} className="w-full h-full flex-shrink-0 snap-center relative">
+                            {isVideo(file.url) ? (
+                                <div className="w-full h-full bg-black flex items-center justify-center">
+                                    <video
+                                        ref={el => videoRefs.current[index] = el}
+                                        className="w-full h-full object-contain cursor-pointer"
+                                        onClick={() => handleVideoPlay(index)}
+                                        controls={isVideoPlaying === index}
+                                        playsInline
+                                        loop
+                                        muted
+                                        preload="metadata"
+                                        poster={file.url.replace(/\.(mp4|webm|ogg|mov)$/i, '.jpg')}
+                                    >
+                                        <source src={file.url} type={`video/${file.url.split('.').pop()}`} />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    {isVideoPlaying !== index && (
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                                            onClick={() => handleVideoPlay(index)}
+                                        >
+                                            <div className="w-16 h-16 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                                                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <img
+                                    src={file.url}
+                                    className="w-full h-full object-cover"
+                                    alt={file.alt || `Post ${index + 1}`}
+                                    loading="lazy"
+                                />
+                            )}
                         </div>
                     ))}
                 </div>
 
-                {/* Gallery indicators */}
+                {/* Gallery Indicators */}
                 {postImages.length > 1 && (
                     <div className="flex justify-center space-x-2 -mt-4">
                         {postImages.map((_, index) => (
                             <button
                                 key={index}
-                                aria-label={`Go to image ${index + 1}`}
-                                className={`w-2 h-2 rounded-full ${index === currentImageIndex ? "bg-blue-500" : "bg-gray-300"}`}
+                                aria-label={`Go to media ${index + 1}`}
+                                className={`w-2 h-2 rounded-full ${index === currentMediaIndex ? "bg-blue-500" : "bg-gray-300"}`}
                                 onClick={() => {
                                     if (galleryRef.current) {
                                         galleryRef.current.scrollTo({
@@ -301,7 +337,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     </div>
                 )}
 
-                {/* Post text */}
+                {/* Post Text */}
                 <div className="mt-6 max-md:px-3">
                     <p className={`font-sans ${isExpanded ? 'block' : 'line-clamp-3'} text-sm`}>
                         {text || "No caption provided"}
@@ -316,10 +352,10 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     )}
                 </div>
 
-                {/* Post actions */}
+                {/* Post Actions */}
                 <div className="flex justify-between w-full h-16">
                     <div className="flex my-4 max-md:px-3">
-                        {/* Like button */}
+                        {/* Like Button */}
                         <div className="heart-container pt-1 cursor-pointer" title="Like">
                             <input
                                 type="checkbox"
@@ -351,7 +387,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                             {likes_Count}
                         </span>
 
-                        {/* Comment button */}
+                        {/* Comment Button */}
                         <div className="ml-4 flex">
                             <button
                                 onClick={handleOpenCommentModal}
@@ -366,7 +402,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                         </div>
                     </div>
 
-                    {/* Share button */}
+                    {/* Share Button */}
                     <div className="flex m-4">
                         <button
                             className="flex items-center"
@@ -381,7 +417,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
             {/* Comment Modal */}
             {isCommentModalOpen && (
                 <CommentModal
-                    postImages={postImages}
+                    postImages={postImages.map(image => ({ url: image.url, alt: image.alt }))}
                     comments={comments}
                     onClose={() => setIsCommentModalOpen(false)}
                     onAddComment={handleAddComment}

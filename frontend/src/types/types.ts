@@ -80,18 +80,24 @@ export interface UseGetConversation {
 export interface MessageTextSmallProps {
   message: MessageType;
 }
+export interface PostImage {
+  _id: string;
+  url: string;
+  alt?: string;
+}
+
 export interface FeedPostCardProps {
-  postImages: string[]; // Array of image URLs
-  text: string; // Post text
-  userId: string; // Full name of the post creator
-  fullname: string; // Full name of the post creator
-  username: string; // Username of the post creator
-  profilePic: string; // Profile picture of the post creator
-  createdAt: string; // Timestamp of the post
-  commentsCount: number; // Number of comments
-  likesCount: number; // Number of likes
-  postId: string; // Unique ID of the post
-  isLiked?: boolean;
+  postImages: PostImage[];
+  text: string;
+  fullname: string;
+  username: string;
+  profilePic: string;
+  createdAt: string;
+  commentsCount: number;
+  likesCount: number;
+  postId: string;
+  isLiked: boolean;
+  userId: string;
 }
 export interface User2 {
   _id: string;
@@ -108,16 +114,17 @@ export interface Comment {
 }
 
 export interface CommentModalProps {
-  postImages: string[]; // Array of image URLs
-  comments: Comment[]; // Array of comment objects
-  onClose: () => void; // Function to close the modal
-  onAddComment: (comment: string) => void; // Function to add a new comment
+  postImages: { url: string; alt?: string }[];
+  comments: Comment[];
+  onClose: () => void;
+  onAddComment: (comment: string) => void;
 }
 export interface AddStoryCardProps {
-  width?: string;
-  backVideo: string;
+  mediaUrl: string;
   userImage: string;
   username: string;
+  width: string;
+  isVideo: boolean;
 }
 export interface CollapsibleSectionProps {
   title: string;
@@ -246,5 +253,6 @@ export interface Post {
 }
 
 export interface File {
+  _id: string;
   url: string;
 }

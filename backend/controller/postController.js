@@ -4,35 +4,60 @@ import User from "../models/userModel.js";
 import cloudinary from "cloudinary";
 import fs from "fs";
 
-// Create a post
 export const createPost = async (req, res) => {
   try {
     const { caption, checked } = req.body;
     const userId = req.user._id;
-    console.log("media, userId ----, caption", userId, caption);
-    let imageUploads = [];
-    if (req.files && req.files.length > 0) {
-      imageUploads = await Promise.all(
-        req.files.map(async (file) => {
-          const result = await cloudinary.uploader.upload(file.path, {
-            resource_type: "auto",
-          });
-          console.log("Cloudinary Upload Result:", result);
-          fs.unlinkSync(file.path); // Delete local file after uploading
-          return { url: result.secure_url, alt: file.originalname };
-        })
-      );
-    } else {
+
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "Please upload a file" });
     }
 
-    const newPost = new Post({ userId, text: caption, file: imageUploads, commentAllowed: checked });
+    // Classify files as video or image
+    const isVideo = req.files.some(file => file.mimetype.startsWith("video/"));
+    const isImage = req.files.some(file => file.mimetype.startsWith("image/"));
+
+    // Validation: Only 1 video is allowed
+    if (isVideo && req.files.length > 1) {
+      // Clean up all files
+      req.files.forEach(file => fs.unlinkSync(file.path));
+      return res.status(400).json({ message: "Only one video file is allowed at a time." });
+    }
+
+    // Upload files
+    const uploads = await Promise.all(
+      req.files.map(async (file) => {
+        const resourceType = file.mimetype.startsWith("video/") ? "video" : "image";
+
+        try {
+          const result = await cloudinary.v2.uploader.upload(file.path, {
+            resource_type: resourceType,
+          });
+          fs.unlinkSync(file.path); // Delete temp file
+          return { url: result.secure_url, alt: file.originalname };
+        } catch (uploadError) {
+          fs.unlinkSync(file.path);
+          console.error("Cloudinary Upload Error:", uploadError);
+          throw uploadError;
+        }
+      })
+    );
+
+    const newPost = new Post({
+      userId,
+      text: caption,
+      file: uploads,
+      commentAllowed: checked,
+    });
+
     await newPost.save();
-    res.status(201).json(newPost);
+    return res.status(201).json(newPost);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error in createPost:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
+
 export const getFeedData = async (req, res) => {
   try {
     const userId = req.user._id; // Logged-in user ID
@@ -184,8 +209,8 @@ export const deletePost = async (req, res) => {
 export const savePostForUser = async (req, res) => {
   try {
     const { postId } = req.body;
-    const userId = req.user._id; 
-    
+    const userId = req.user._id;
+
     // Check if the post exists
     const post = await Post.findById(postId);
     if (!post) {
@@ -219,27 +244,27 @@ export const savePostForUser = async (req, res) => {
 
 // Controller to get saved posts for a user
 export const getSavedPostsForUser = async (req, res) => {
-    try {
-        const userId = req.user._id; // Assuming `protectRoute` middleware attaches the user to `req.user`
+  try {
+    const userId = req.user._id; // Assuming `protectRoute` middleware attaches the user to `req.user`
 
-        // Find all saved posts for the user
-        const savedPosts = await SavedPost.find({ userId }).populate({
-            path: "postId",
-            model: "Post", // Populate the post details
-            populate: {
-                path: "userId",
-                model: "User", // Populate the user details of the post
-                select: "fullname username profilePic", // Select specific fields
-            },
-        });
+    // Find all saved posts for the user
+    const savedPosts = await SavedPost.find({ userId }).populate({
+      path: "postId",
+      model: "Post", // Populate the post details
+      populate: {
+        path: "userId",
+        model: "User", // Populate the user details of the post
+        select: "fullname username profilePic", // Select specific fields
+      },
+    });
 
-        // Return the saved posts
-        res.status(200).json({
-            message: "Saved posts retrieved successfully",
-            savedPosts,
-        });
-    } catch (error) {
-        console.error("Error retrieving saved posts:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+    // Return the saved posts
+    res.status(200).json({
+      message: "Saved posts retrieved successfully",
+      savedPosts,
+    });
+  } catch (error) {
+    console.error("Error retrieving saved posts:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

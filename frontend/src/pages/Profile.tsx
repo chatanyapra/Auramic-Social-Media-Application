@@ -38,10 +38,10 @@ export default function Profile() {
     if (userById?._id === userId || authUser?._id === userId) return;
     getProfileById(userId);
   }, [userId]);
-
+  
   useEffect(() => {
     setRequest(false);
-    setFollowing(userById?.following || []);
+    setFollowing(userById?.following || []);    
   }, [userById]);
 
   const handleFollow = async (userId: string) => {

@@ -15,15 +15,57 @@ const Create: React.FC = () => {
     const [selectedFilePost, setSelectedFilePost] = useState<{ file: File; url: string; filetype: string }[]>([]);
     const { uploadStory, loading: storyload } = useUploadStory();
     const { uploadPost, loading: postload } = useUploadPost();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     // Handle media change for Story section
     const handleMediaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorMessage(null);
         if (event.target.files && event.target.files.length > 0) {
             let files = Array.from(event.target.files);
-
-            if (files.length > 3) {
-                console.error("Please upload a maximum of 3 files.");
+            
+            // Check if there's a mix of images and videos
+            const hasImages = files.some(file => file.type.startsWith('image/'));
+            const hasVideos = files.some(file => file.type.startsWith('video/'));
+            
+            if (hasImages && hasVideos) {
+                setErrorMessage("Cannot mix images and videos in a single upload.");
+                return;
+            }
+            
+            // If uploading videos, only allow 1
+            if (hasVideos && files.length > 1) {
+                setErrorMessage("You can only upload 1 video at a time.");
+                files = files.slice(0, 1);
+            }
+            
+            // If uploading images, limit to 3
+            if (hasImages && files.length > 3) {
+                setErrorMessage("Maximum 3 images allowed.");
                 files = files.slice(0, 3);
+            }
+            
+            // Check if adding these files would exceed limits when combined with existing files
+            if (selectedFile.length > 0) {
+                const existingHasImages = selectedFile.some(file => file.filetype.startsWith('image/'));
+                const existingHasVideos = selectedFile.some(file => file.filetype.startsWith('video/'));
+                
+                // Check for type mismatch
+                if ((existingHasImages && hasVideos) || (existingHasVideos && hasImages)) {
+                    setErrorMessage("Cannot mix images and videos in a single upload.");
+                    return;
+                }
+                
+                // Check for video count
+                if (existingHasVideos || hasVideos) {
+                    setErrorMessage("You can only upload 1 video total.");
+                    return;
+                }
+                
+                // Check for image count
+                if (existingHasImages && (selectedFile.length + files.length) > 3) {
+                    setErrorMessage(`Maximum 3 images allowed. You already have ${selectedFile.length}.`);
+                    return;
+                }
             }
 
             const filePreviews = files.map((file: File) => ({
@@ -46,12 +88,53 @@ const Create: React.FC = () => {
 
     // Handle media change for Post section
     const handleMediaChangePost = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorMessage(null);
         if (event.target.files && event.target.files.length > 0) {
             let files = Array.from(event.target.files);
-
-            if (files.length > 3) {
-                console.error("Please upload a maximum of 3 files.");
+            
+            // Check if there's a mix of images and videos
+            const hasImages = files.some(file => file.type.startsWith('image/'));
+            const hasVideos = files.some(file => file.type.startsWith('video/'));
+            
+            if (hasImages && hasVideos) {
+                setErrorMessage("Cannot mix images and videos in a single upload.");
+                return;
+            }
+            
+            // If uploading videos, only allow 1
+            if (hasVideos && files.length > 1) {
+                setErrorMessage("You can only upload 1 video at a time.");
+                files = files.slice(0, 1);
+            }
+            
+            // If uploading images, limit to 3
+            if (hasImages && files.length > 3) {
+                setErrorMessage("Maximum 3 images allowed.");
                 files = files.slice(0, 3);
+            }
+            
+            // Check if adding these files would exceed limits when combined with existing files
+            if (selectedFilePost.length > 0) {
+                const existingHasImages = selectedFilePost.some(file => file.filetype.startsWith('image/'));
+                const existingHasVideos = selectedFilePost.some(file => file.filetype.startsWith('video/'));
+                
+                // Check for type mismatch
+                if ((existingHasImages && hasVideos) || (existingHasVideos && hasImages)) {
+                    setErrorMessage("Cannot mix images and videos in a single upload.");
+                    return;
+                }
+                
+                // Check for video count
+                if (existingHasVideos || hasVideos) {
+                    setErrorMessage("You can only upload 1 video total.");
+                    return;
+                }
+                
+                // Check for image count
+                if (existingHasImages && (selectedFilePost.length + files.length) > 3) {
+                    setErrorMessage(`Maximum 3 images allowed. You already have ${selectedFilePost.length}.`);
+                    return;
+                }
             }
 
             const filePreviews = files.map((file: File) => ({
@@ -76,16 +159,22 @@ const Create: React.FC = () => {
     const handleRemoveFile = (): void => {
         setSelectedMedia(null);
         setSelectedFile([]);
+        setErrorMessage(null);
     };
 
     // Remove files for Post section
     const handleRemoveFilePost = (): void => {
         setSelectedMediaPost(null);
         setSelectedFilePost([]);
+        setErrorMessage(null);
     };
 
     // Submit Story form
     const onSubmitStory = async (data: any) => {
+        if (selectedFile.length === 0) {
+            setErrorMessage("Please select at least one file to upload.");
+            return;
+        }
         await uploadStory(data.storyCaption, selectedFile.map(item => item.file), data.isChecked);
         reset({ storyCaption: '', isChecked: false });
         handleRemoveFile();
@@ -93,6 +182,10 @@ const Create: React.FC = () => {
 
     // Submit Post form
     const onSubmitPost = async (data: any) => {
+        if (selectedFilePost.length === 0) {
+            setErrorMessage("Please select at least one file to upload.");
+            return;
+        }
         await uploadPost(data.postCaption, selectedFilePost.map(item => item.file), data.postComments);
         reset({ postCaption: '', postComments: false });
         handleRemoveFilePost();
@@ -195,6 +288,9 @@ const Create: React.FC = () => {
                                             <input id="postfile" type="file" accept="image/*, video/*" multiple onChange={handleMediaChangePost} />
                                         </label>
                                     </div>
+                                )}
+                                {errorMessage && (
+                                    <div className="text-red-500 text-sm mt-2">{errorMessage}</div>
                                 )}
                                 {selectedMediaPost && (
                                     <div>
@@ -302,6 +398,9 @@ const Create: React.FC = () => {
                                             <input id="file" type="file" name='fileStory' accept="video/*,image/*" multiple onChange={handleMediaChange} />
                                         </label>
                                     </div>
+                                )}
+                                {errorMessage && (
+                                    <div className="text-red-500 text-sm mt-2">{errorMessage}</div>
                                 )}
                                 {selectedMedia && (
                                     <div>

@@ -351,6 +351,7 @@ export const getUserProfileData = async (req, res) => {
                     fullname: 1,
                     username: 1,
                     profilePic: 1,
+                    coverImage: 1,
                     private: 1,
                     followersCount: { $size: "$followers" }, // Count of followers
                     followingCount: { $size: "$following" }, // Count of following
@@ -471,6 +472,7 @@ export const getUserProfileDataById = async (req, res) => {
                     fullname: 1,
                     username: 1,
                     profilePic: 1,
+                    coverImage: 1,
                     private: 1,
                     followersCount: { $size: "$followersData" }, // Always compute the count of followers
                     followingCount: { $size: "$followingData" }, // Always compute the count of following

@@ -6,62 +6,70 @@ export const createStory = async (req, res) => {
   try {
     const { caption, checked } = req.body;
     const userId = req.user._id;
-    // Check if files are uploaded
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "Please upload a file" });
     }
 
-    // Upload files to Cloudinary
     const imageUploads = await Promise.all(
       req.files.map(async (file) => {
         try {
-          const result = await cloudinary.uploader.upload(file.path, {
-            resource_type: "auto",
+          // Detect file type
+          const mimeType = file.mimetype;
+          let resourceType = 'auto';
+
+          if (mimeType.startsWith('video/')) {
+            resourceType = 'video';
+          } else if (mimeType.startsWith('image/')) {
+            resourceType = 'image';
+          } else {
+            throw new Error('Unsupported file type');
+          }
+
+          const result = await cloudinary.v2.uploader.upload(file.path, {
+            resource_type: resourceType,
           });
-          fs.unlinkSync(file.path); // Delete the file from the server after upload
+
+          fs.unlinkSync(file.path); // Clean up local file
           return { url: result.secure_url, alt: file.originalname };
         } catch (uploadError) {
           console.error("Cloudinary upload error:", uploadError);
-          fs.unlinkSync(file.path); // Ensure the file is deleted even if upload fails
-          throw uploadError; // Re-throw the error to stop the process
+          fs.unlinkSync(file.path); // Clean up even if failed
+          throw uploadError;
         }
       })
     );
 
-    // Find non-expired stories of the logged-in user
     const currentTime = new Date();
     const existingStories = await Story.find({
       userId,
-      expiresAt: { $gt: currentTime }, // Only consider non-expired stories
+      expiresAt: { $gt: currentTime },
     });
 
     if (existingStories.length > 0) {
-      // If non-expired stories exist, merge the new files with the existing ones
-      const existingStory = existingStories[0]; // Assuming only one non-expired story exists
-      existingStory.file = [...existingStory.file, ...imageUploads]; // Merge files
-      existingStory.caption = caption; // Update caption
-      existingStory.commentAllowed = checked; // Update comment allowed status
-      await existingStory.save(); // Save the updated story
+      const existingStory = existingStories[0];
+      existingStory.file = [...existingStory.file, ...imageUploads];
+      existingStory.caption = caption;
+      existingStory.commentAllowed = checked;
+      await existingStory.save();
       return res.status(200).json(existingStory);
     } else {
-      // If no non-expired stories exist, create a new story
       const newStory = new Story({
         userId,
         caption,
         file: imageUploads,
         commentAllowed: checked,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Set expiration time to 24 hours
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
-      await newStory.save(); // Save the new story
+      await newStory.save();
       return res.status(201).json(newStory);
     }
   } catch (error) {
     console.error("Error in createStory:", error);
-    console.error("Request body:", req.body);
-    console.error("Request files:", req.files);
     res.status(500).json({ message: error.message });
   }
 };
+
 // Get all stories of followed users
 export const getStories = async (req, res) => {
   try {

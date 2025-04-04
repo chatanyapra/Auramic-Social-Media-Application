@@ -23,7 +23,7 @@ const FeedPage = () => {
           <FeedPostCard
             key={post._id}
             postId={post._id} // Pass the post ID
-            postImages={post.file.map((file: File) => file.url)}
+            postImages={post.file.map((file: File) => ({ _id: file._id, url: file.url }))}
             text={post.text}
             userId={post.user._id}
             fullname={post.user.fullname}
@@ -32,7 +32,7 @@ const FeedPage = () => {
             createdAt={post.createdAt}
             commentsCount={post.commentsCount}
             likesCount={post.likesCount}
-            isLiked={post.isLiked}
+            isLiked={post.isLiked ?? false}
           />
         ))
       ) : (

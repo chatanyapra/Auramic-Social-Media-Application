@@ -1,11 +1,11 @@
 import express from "express";
 import { createStory, getStories, deleteStory } from "../controller/storyController.js";
 import protectRoute from "../middleware/protectRoute.js";
-import upload from "../middleware/fileUpload.js"
+import uploadWithValidation from "../middleware/uploadMultiFiles.js";
 
 const router = express.Router();
 
-router.post("/", protectRoute, upload.array('files', 3), createStory);
+router.post("/", protectRoute, uploadWithValidation, createStory);
 
 // Get all stories of followed users
 router.get("/:userId", protectRoute, getStories);

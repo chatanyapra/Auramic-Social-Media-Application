@@ -1,12 +1,12 @@
 import express from "express";
 import { createPost, deletePost, getFeedData, getSavedPostsForUser, getUserPosts, savePostForUser } from "../controller/postController.js";
 import protectRoute from "../middleware/protectRoute.js";
-import upload from "../middleware/fileUpload.js";
+import uploadWithValidation from "../middleware/uploadMultiFiles.js";
 
 const router = express.Router();
 
 // Create a post (with image/video upload)
-router.post("/", protectRoute, upload.array('files', 3), createPost);
+router.post("/", protectRoute, uploadWithValidation, createPost);
 
 // Get all posts from followed users
 router.get("/feed", protectRoute, getFeedData);
