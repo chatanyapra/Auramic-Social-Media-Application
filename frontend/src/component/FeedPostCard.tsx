@@ -1,4 +1,4 @@
-import { useState, useContext, useRef, useEffect } from "react";
+import { useState, useContext, useRef, useEffect, useCallback } from "react";
 import { ThemeContext } from '../context/theme';
 import logoImage from "../assets/image/auramicimage.png";
 import './components.css';
@@ -42,6 +42,8 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
 
     const galleryRef = useRef<HTMLDivElement>(null);
     const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+    const mediaRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const scrollTimeoutRef = useRef<NodeJS.Timeout>();
 
     const { liked, likes_Count, toggleLike, isLoading: isLikeLoading } = useLikePost(
         postId,
@@ -61,7 +63,7 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
         return url.match(/\.(mp4|webm|ogg|mov)$/i) !== null;
     };
 
-    const handleVideoPlay = (index: number) => {
+    const handleVideoPlay = useCallback((index: number) => {
         const video = videoRefs.current[index];
         if (!video) return;
 
@@ -79,31 +81,82 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
             video.pause();
             setIsVideoPlaying(null);
         }
-    };
+    }, []);
+
+    const scrollToMedia = useCallback((index: number) => {
+        if (galleryRef.current && mediaRefs.current[index]) {
+            galleryRef.current.scrollTo({
+                left: mediaRefs.current[index]?.offsetLeft || 0,
+                behavior: 'smooth'
+            });
+        }
+    }, []);
+
+    const updateCurrentMediaIndex = useCallback(() => {
+        const gallery = galleryRef.current;
+        if (!gallery) return;
+
+        const scrollLeft = gallery.scrollLeft;
+        const galleryWidth = gallery.clientWidth;
+        
+        let closestIndex = 0;
+        let smallestDistance = Infinity;
+        
+        mediaRefs.current.forEach((media, index) => {
+            if (!media) return;
+            
+            const mediaLeft = media.offsetLeft - scrollLeft;
+            // const mediaRight = mediaLeft + media.clientWidth;
+            const mediaCenter = mediaLeft + (media.clientWidth / 2);
+            const distanceToCenter = Math.abs(galleryWidth / 2 - mediaCenter);
+            
+            if (distanceToCenter < smallestDistance) {
+                smallestDistance = distanceToCenter;
+                closestIndex = index;
+            }
+        });
+
+        setCurrentMediaIndex(closestIndex);
+
+        // Pause videos when they're not in view
+        if (isVideoPlaying !== null && isVideoPlaying !== closestIndex) {
+            const video = videoRefs.current[isVideoPlaying];
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+                setIsVideoPlaying(null);
+            }
+        }
+    }, [isVideoPlaying]);
 
     useEffect(() => {
         const gallery = galleryRef.current;
         if (!gallery) return;
 
         const handleScroll = () => {
-            const scrollLeft = gallery.scrollLeft;
-            const mediaWidth = gallery.clientWidth;
-            const index = Math.round(scrollLeft / mediaWidth);
-            setCurrentMediaIndex(index);
-
-            if (isVideoPlaying !== null && isVideoPlaying !== index) {
-                const video = videoRefs.current[isVideoPlaying];
-                if (video) {
-                    video.pause();
-                    video.currentTime = 0;
-                    setIsVideoPlaying(null);
-                }
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
             }
+            
+            scrollTimeoutRef.current = setTimeout(() => {
+                updateCurrentMediaIndex();
+            }, 100);
         };
 
-        gallery.addEventListener("scroll", handleScroll);
-        return () => gallery.removeEventListener("scroll", handleScroll);
-    }, [isVideoPlaying]);
+        gallery.addEventListener("scroll", handleScroll, { passive: true });
+        gallery.addEventListener("touchmove", handleScroll, { passive: true });
+
+        // Initialize the first media as visible
+        updateCurrentMediaIndex();
+
+        return () => {
+            gallery.removeEventListener("scroll", handleScroll);
+            gallery.removeEventListener("touchmove", handleScroll);
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+            }
+        };
+    }, [updateCurrentMediaIndex]);
 
     const toggleContent = () => setIsExpanded(!isExpanded);
 
@@ -274,7 +327,11 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     className="w-full h-96 bg-gray-100 dark:bg-gray-700 md:rounded-xl mt-3 flex snap-x snap-mandatory scroll-smooth overflow-x-auto no-scrollbar relative"
                 >
                     {postImages.map((file, index) => (
-                        <div key={file._id} className="w-full h-full flex-shrink-0 snap-center relative">
+                        <div 
+                            key={file._id} 
+                            ref={el => mediaRefs.current[index] = el}
+                            className="w-full h-full flex-shrink-0 snap-center relative"
+                        >
                             {isVideo(file.url) ? (
                                 <div className="w-full h-full bg-black flex items-center justify-center">
                                     <video
@@ -316,22 +373,15 @@ const FeedPostCard: React.FC<FeedPostCardProps> = ({
                     ))}
                 </div>
 
-                {/* Gallery Indicators */}
+                {/* Enhanced Gallery Indicators */}
                 {postImages.length > 1 && (
-                    <div className="flex justify-center space-x-2 -mt-4">
+                    <div className="flex justify-center items-center space-x-2 mt-2">
                         {postImages.map((_, index) => (
                             <button
                                 key={index}
-                                aria-label={`Go to media ${index + 1}`}
-                                className={`w-2 h-2 rounded-full ${index === currentMediaIndex ? "bg-blue-500" : "bg-gray-300"}`}
-                                onClick={() => {
-                                    if (galleryRef.current) {
-                                        galleryRef.current.scrollTo({
-                                            left: galleryRef.current.clientWidth * index,
-                                            behavior: 'smooth'
-                                        });
-                                    }
-                                }}
+                                aria-label={`Go to image ${index + 1}`}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentMediaIndex ? "bg-blue-500 w-4 rounded-lg" : "bg-gray-400"}`}
+                                onClick={() => scrollToMedia(index)}
                             />
                         ))}
                     </div>

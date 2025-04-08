@@ -60,33 +60,36 @@ export const createPost = async (req, res) => {
 
 export const getFeedData = async (req, res) => {
   try {
-    const userId = req.user._id; // Logged-in user ID
+    const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10; // Number of posts per page
+    const skip = (page - 1) * limit;
 
-    // Fetch the logged-in user's following list
     const user = await User.findById(userId).select("following");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     const followingIds = user.following.map((user) => user._id);
-    const userIdsForFeed = [userId, ...followingIds]; // Include logged-in user and followed users
+    const userIdsForFeed = [userId, ...followingIds];
 
-    // Fetch posts from the logged-in user and followed users
     const posts = await Post.aggregate([
-      { $match: { userId: { $in: userIdsForFeed } } }, // Match posts by userId
-      { $sort: { createdAt: -1 } }, // Sort by latest first
+      { $match: { userId: { $in: userIdsForFeed } } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
       {
         $lookup: {
-          from: "users", // Join with the users collection
+          from: "users",
           localField: "userId",
           foreignField: "_id",
           as: "user",
         },
       },
-      { $unwind: "$user" }, // Unwind the user array (since lookup returns an array)
+      { $unwind: "$user" },
       {
         $lookup: {
-          from: "comments", // Join with the comments collection
+          from: "comments",
           localField: "_id",
           foreignField: "postId",
           as: "comments",
@@ -94,7 +97,7 @@ export const getFeedData = async (req, res) => {
       },
       {
         $lookup: {
-          from: "likes", // Join with the likes collection
+          from: "likes",
           localField: "_id",
           foreignField: "postId",
           as: "likes",
@@ -102,7 +105,7 @@ export const getFeedData = async (req, res) => {
       },
       {
         $addFields: {
-          isLiked: { // Check if the logged-in user has liked this post
+          isLiked: {
             $in: [userId, "$likes.userId"]
           }
         }
@@ -118,14 +121,23 @@ export const getFeedData = async (req, res) => {
           "user.fullname": 1,
           "user.username": 1,
           "user.profilePic": 1,
-          commentsCount: { $size: "$comments" }, // Count of comments
-          likesCount: { $size: "$likes" }, // Count of likes
-          isLiked: 1, // Include isLiked field
+          commentsCount: { $size: "$comments" },
+          likesCount: { $size: "$likes" },
+          isLiked: 1,
         },
       },
     ]);
 
-    res.status(200).json(posts);
+    // Get total count for pagination info
+    const totalPosts = await Post.countDocuments({ userId: { $in: userIdsForFeed } });
+    const hasMore = skip + limit < totalPosts;
+
+    res.status(200).json({
+      posts,
+      page,
+      hasMore,
+      totalPosts
+    });
   } catch (error) {
     console.error("Error fetching feed data:", error);
     res.status(500).json({ error: "Internal Server Error" });
