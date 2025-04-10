@@ -154,7 +154,7 @@ const AuramicAi: React.FC<MyComponentProps> = ({ conversation, visibility }: MyC
             </div>
 
             {/* <!-- chats bubble --> */}
-            <div className="small-scroll relative w-full p-3 py-10 overflow-y-auto md:h-[calc(100vh-230px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
+            <div className="small-scroll relative w-full p-3 pt-10 pb-20 overflow-y-auto md:h-[calc(100vh-230px)] h-[calc(100vh-120px)]" ref={lastMessageRef} style={{ overflowY: 'auto' }}>
                 <div className="text-sm font-medium space-y-6" onDoubleClick={handleToggleVisibility}>
                     <MessageText />
                 </div>

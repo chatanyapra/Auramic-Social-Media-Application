@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNotificationContext } from '../context/NotificationContext';
+import { useUserContext } from '../context/UserContext';
+import RequestCard from './RequestCard';
 
 interface NotificationPopupProps {
     textColor: string;
@@ -7,8 +9,24 @@ interface NotificationPopupProps {
 
 const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const { user } = useUserContext();
     const popupRef = useRef<HTMLDivElement>(null);
     const { notifications, markAsRead } = useNotificationContext();
+    const [followRequests, setFollowRequests] = useState(user?.followRequests || []);
+
+
+    useEffect(() => {
+        if (user?.followRequests) {
+            setFollowRequests(user.followRequests);
+        }
+        console.log("followRequests.length", followRequests);
+
+    }, [user]);
+
+    // Handle confirming a follow request
+    const handleConfirm = useCallback((userId: string) => {
+        setFollowRequests((prev) => prev.filter((request) => request._id !== userId));
+    }, []);
 
     // Close popup when clicking outside
     useEffect(() => {
@@ -63,14 +81,20 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                     />
                 </svg>
                 {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500"></span>
+                    <span className="absolute top-0 right-0 min-h-3 min-w-3 rounded-full bg-red-500 text-[10px] text-gray-200 text-center font-medium px-1">
+                    </span>
+                )}
+                {followRequests.length > 0 && (
+                    <span className="absolute bottom-1 -right-0 min-h-3 min-w-3.5 rounded-full bg-rose-400 text-[10px] text-gray-200 text-center font-medium px-1">
+                        {followRequests.length > 0 && (followRequests.length > 9 ? (followRequests.length + "+") : followRequests.length)}
+                    </span>
                 )}
             </button>
 
             {isOpen && (
                 <div
                     ref={popupRef}
-                    className="absolute right-0 mt-2 w-72 md:w-80 bg-white dark:bg-gray-600 rounded-md shadow-lg overflow-hidden z-50 border dark:border-gray-500"
+                    className="absolute right-0 max-md:-right-16 mt-5 w-72 md:w-80 bg-white dark:bg-gray-600 rounded-md shadow-lg overflow-hidden z-50 border dark:border-gray-500"
                 >
                     <div className="py-1">
                         <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-500">
@@ -81,8 +105,8 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                                 </span>
                             )}
                         </div>
-
-                        {notifications.length === 0 ? (
+                        {/* {followRequests.length > 0 && ( */}
+                        {notifications.length === 0 || followRequests.length == 0 ? (
                             <div className="px-4 py-6 text-center text-gray-500 dark:text-gray-200">
                                 No new notifications
                             </div>
@@ -91,9 +115,8 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                                 {notifications.map((notification) => (
                                     <div
                                         key={notification._id}
-                                        className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer ${
-                                            !notification.isRead ? 'bg-blue-50 dark:bg-gray-700' : ''
-                                        }`}
+                                        className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer ${!notification.isRead ? 'bg-blue-50 dark:bg-gray-700' : ''
+                                            }`}
                                         onClick={() => markAsRead(notification._id)}
                                     >
                                         <div className="flex items-start">
@@ -133,6 +156,19 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
                                 ))}
                             </div>
                         )}
+                        <hr className='mb-1 text-gray-400' />
+                        <div className='ml-2 mb-2'>Requests</div>
+                        {/* friend requests */}
+                        {followRequests.map((request, index) => (
+                            <RequestCard
+                                key={index}
+                                userId={request._id}
+                                userImage={request.profilePic || "https://randomuser.me/api/portraits/men/12.jpg"}
+                                userName={request.username || ""}
+                                fullName={request.fullname || "Chatstrum User"}
+                                onConfirm={handleConfirm}
+                            />
+                        ))}
                     </div>
                 </div>
             )}

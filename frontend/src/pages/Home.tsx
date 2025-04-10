@@ -52,7 +52,7 @@ export default function Home() {
                 <StoryGallery />
               </div>
             </div>
-            <FeedPage/>
+            <FeedPage />
           </div>
 
           {/* Request and Confirm Friends Section */}
