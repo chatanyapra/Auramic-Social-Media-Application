@@ -1,33 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import useListenMessage from "../hooks/useListenMessage";
-
-interface NotificationContextProviderProps {
-    children: ReactNode;
-    maxNotifications?: number;
-    notificationTimeout?: number;
-}
-export interface MessageNotification {
-    _id: string;
-    createdAt: string;
-    fileUrl?: string | null;
-    message: string;
-    receiverId: string;
-    senderId: string;
-    updatedAt: string;
-}
-export interface EnhancedNotification extends MessageNotification {
-    profilePic?: string;
-    username?: string;
-    fullname?: string;
-    isUpdated?: boolean;
-    isRead?: boolean;
-}
-interface NotificationContextValue {
-    notifications: EnhancedNotification[];
-    clearNotifications: () => void;
-    removeNotification: (id: string) => void;
-    markAsRead: (id: string) => void;
-}
+import { EnhancedNotification, NotificationContextProviderProps, NotificationContextValue } from "../types/types";
 
 const NotificationContext = createContext<NotificationContextValue | undefined>(undefined);
 

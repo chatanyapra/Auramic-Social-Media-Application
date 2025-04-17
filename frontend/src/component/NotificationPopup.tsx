@@ -14,7 +14,6 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({ textColor }) => {
     const { notifications, markAsRead } = useNotificationContext();
     const [followRequests, setFollowRequests] = useState(user?.followRequests || []);
 
-
     useEffect(() => {
         if (user?.followRequests) {
             setFollowRequests(user.followRequests);

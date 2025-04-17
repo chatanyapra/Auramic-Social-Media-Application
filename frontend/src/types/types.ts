@@ -1,4 +1,6 @@
 
+import { ReactNode } from 'react';
+
 export interface UserJoinedData {
   video: boolean;
   username: string;
@@ -255,4 +257,31 @@ export interface Post {
 export interface File {
   _id: string;
   url: string;
+}
+export interface NotificationContextProviderProps {
+    children: ReactNode;
+    maxNotifications?: number;
+    notificationTimeout?: number;
+}
+export interface MessageNotification {
+    _id: string;
+    createdAt: string;
+    fileUrl?: string | null;
+    message: string;
+    receiverId: string;
+    senderId: string;
+    updatedAt: string;
+}
+export interface EnhancedNotification extends MessageNotification {
+    profilePic?: string;
+    username?: string;
+    fullname?: string;
+    isUpdated?: boolean;
+    isRead?: boolean;
+}
+export interface NotificationContextValue {
+    notifications: EnhancedNotification[];
+    clearNotifications: () => void;
+    removeNotification: (id: string) => void;
+    markAsRead: (id: string) => void;
 }
