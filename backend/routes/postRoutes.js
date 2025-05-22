@@ -8,7 +8,7 @@ const router = express.Router();
 // Create a post (with image/video upload)
 router.post("/", protectRoute, uploadWithValidation, createPost);
 
-// Get all posts from followed users
+// Get all posts for feed from followed users
 router.get("/feed", protectRoute, getFeedData);
 
 // Get all posts by logged-in user

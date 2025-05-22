@@ -104,7 +104,7 @@ export default function MessageChat() {
         }
     }, [sendMessageList, newSendMessage]);
     return (
-        <div className="flex md:mt-5 mt-4 md:h-[calc(100vh-20px)] dark:bg-gray-700 lg:ml-64 max-md:px-0">
+        <div className="flex md:mt-6 mt-4 md:h-[calc(100vh-24px)] dark:bg-gray-700 lg:ml-64 max-md:px-0">
             <div className="w-full h-full max-md:w-full relative md:mx-1">
                 {/* <div className='absolute right-5 top-5 text-white border border-blue-600 rounded-md px-2 py-1 bg-blue-500 cursor-pointer'
                     onClick={logout}>

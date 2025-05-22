@@ -50,7 +50,6 @@ export const NotificationContextProvider = ({
             }
 
             let updatedNotifications = [...prev];
-
             if (existingIndex >= 0) {
                 updatedNotifications[existingIndex] = {
                     ...updatedNotifications[existingIndex],

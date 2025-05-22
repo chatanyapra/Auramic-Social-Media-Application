@@ -28,7 +28,7 @@ const SearchBar: React.FC = () => {
     } else {
       // Reset status to "idle" if the request fails
       console.log("Failed to follow user");
-      
+
       setRequestStatus((prev) => ({ ...prev, [userId]: "idle" }));
     }
   };
@@ -136,29 +136,33 @@ const SearchBar: React.FC = () => {
         {/* Search Results */}
         <div className="mt-4 space-y-2 text-black">
           {searchLoading ? (
-            <p>Loading...</p>
+            <p className="text-center dark:text-white">Searching...</p>
           ) : searchError ? (
             <p className="text-red-500">{searchError}</p>
           ) : (
-            searchResults.map((user) => (
-              <Link
-                to={`/profile/${user._id}`}
-                key={user._id}
-                className="p-2 hover:bg-gray-100 cursor-pointer transition-all transform hover:translate-x-2"
-              >
-                <div className="flex items-center">
-                  <img
-                    src={user.profilePic}
-                    alt={user.fullname}
-                    className="w-8 h-8 rounded-full mr-2"
-                  />
-                  <div className="dark:text-gray-200">
-                    <p className="font-semibold">{user.fullname}</p>
-                    <p className="text-sm text-gray-500">@{user.username}</p>
+            searchResults.length >= 1 ? (
+              searchResults.map((user) => (
+                <Link
+                  to={`/profile/${user._id}`}
+                  key={user._id}
+                  className="p-2 cursor-pointer transition-all transform"
+                >
+                  <div className="flex items-center hover:scale-105 transition-all">
+                    <img
+                      src={user.profilePic}
+                      alt={user.fullname}
+                      className="w-8 h-8 rounded-full mr-2"
+                    />
+                    <div className="dark:text-gray-200">
+                      <p className="font-semibold">{user.fullname}</p>
+                      <p className="text-sm text-gray-500">@{user.username}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              ))
+            ) : (
+              <p className="text-center dark:text-white">No results found.</p>
+            )
           )}
         </div>
       </div>

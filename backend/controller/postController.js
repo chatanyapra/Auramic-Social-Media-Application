@@ -3,6 +3,8 @@ import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
 import cloudinary from "cloudinary";
 import fs from "fs";
+import mongoose from "mongoose";
+
 
 export const createPost = async (req, res) => {
   try {
@@ -58,13 +60,14 @@ export const createPost = async (req, res) => {
   }
 };
 
+
 export const getFeedData = async (req, res) => {
   try {
     const userId = req.user._id;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10; // Number of posts per page
+    const limit = parseInt(req.query.limit) || 5; // Smaller batch size for smoother loading
     const skip = (page - 1) * limit;
-
+    
     const user = await User.findById(userId).select("following");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -73,6 +76,7 @@ export const getFeedData = async (req, res) => {
     const followingIds = user.following.map((user) => user._id);
     const userIdsForFeed = [userId, ...followingIds];
 
+    // Get posts with pagination
     const posts = await Post.aggregate([
       { $match: { userId: { $in: userIdsForFeed } } },
       { $sort: { createdAt: -1 } },
@@ -106,7 +110,7 @@ export const getFeedData = async (req, res) => {
       {
         $addFields: {
           isLiked: {
-            $in: [userId, "$likes.userId"]
+            $in: [new mongoose.Types.ObjectId(userId), "$likes.userId"]
           }
         }
       },
@@ -134,9 +138,7 @@ export const getFeedData = async (req, res) => {
 
     res.status(200).json({
       posts,
-      page,
-      hasMore,
-      totalPosts
+      hasMore
     });
   } catch (error) {
     console.error("Error fetching feed data:", error);

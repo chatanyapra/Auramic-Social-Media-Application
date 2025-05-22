@@ -10,51 +10,54 @@ const FeedPage = () => {
     error,
     fetchFeedPosts,
     hasMore,
+    resetFeed,
   } = useFeedContext();
-  const observerRef = useRef<IntersectionObserver>();
+
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const initialLoadRef = useRef(true);
 
-  // Handle infinite scroll with Intersection Observer
+  // Intersection Observer callback
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       if (entry.isIntersecting && !loading && hasMore) {
-        fetchFeedPosts();
+        fetchFeedPosts(false); // Not initial load
       }
     },
     [loading, hasMore, fetchFeedPosts]
   );
 
-  // Set up Intersection Observer
+  // Set up observer
   useEffect(() => {
-    if (!sentinelRef.current) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
 
-    const options = {
+    observerRef.current = new IntersectionObserver(handleObserver, {
       root: null,
       rootMargin: "200px",
       threshold: 0.1,
-    };
+    });
 
-    observerRef.current = new IntersectionObserver(handleObserver, options);
-    observerRef.current.observe(sentinelRef.current);
+    observerRef.current.observe(sentinel);
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+      if (observerRef.current && sentinel) {
+        observerRef.current.unobserve(sentinel);
       }
     };
-  }, [handleObserver, feedPosts]);
+  }, [handleObserver]);
 
-  // Initial load
+  // Initial load logic
   useEffect(() => {
-    if (initialLoadRef.current && feedPosts.length === 0 && !loading) {
-      fetchFeedPosts(true);
+    if (initialLoadRef.current) {
+      resetFeed();
+      fetchFeedPosts(true); // true = initial load
       initialLoadRef.current = false;
     }
-  }, [fetchFeedPosts, feedPosts.length, loading]);
+  }, [resetFeed, fetchFeedPosts]);
 
-  // Error boundary
+  // Handle error
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
@@ -97,7 +100,6 @@ const FeedPage = () => {
 
   return (
     <div className="flex flex-col items-center">
-      {/* Feed Posts */}
       {feedPosts.map((post: Post) => (
         <FeedPostCard
           key={`${post._id}-${post.createdAt}`}
@@ -118,10 +120,8 @@ const FeedPage = () => {
         />
       ))}
 
-      {/* Sentinel element for infinite scroll */}
       <div ref={sentinelRef} className="w-full h-1" />
 
-      {/* Loading indicator */}
       {loading && (
         <div className="flex justify-center my-8 w-full">
           <svg className="svg_loading" viewBox="25 25 50 50">
@@ -130,7 +130,6 @@ const FeedPage = () => {
         </div>
       )}
 
-      {/* End of feed message */}
       {!hasMore && !loading && (
         <div className="py-8 text-gray-500">
           You've reached the end of your feed
