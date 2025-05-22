@@ -82,7 +82,9 @@ const useListenMessage = () => {
                         };
 
                         setNewSendMessage(newMessage.senderId);
-                        setNewNotification(enhancedNotification);
+                        if(matchedConversation._id !== import.meta.env.VITE_USER_ID) {
+                            setNewNotification(enhancedNotification);
+                        }
                     }
                 }
                 
