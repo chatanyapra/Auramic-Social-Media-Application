@@ -1,5 +1,8 @@
 # Auramic – MERN Social Media Application 🚀
 
+### Check out video Link:  
+[Auramic-Website-Video](https://www.linkedin.com/posts/chatanyapratap_mernstack-webdevelopment-reactjs-activity-7341078926405877761-gb4m?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEN4RagBI9CxND0jBi8Bgq_6y3oHu0Q0CXk)
+
 <div align="center">
 
 [![MERN Stack](https://img.shields.io/badge/MERN-Stack-blue)](https://www.mongodb.com/mern-stack)
